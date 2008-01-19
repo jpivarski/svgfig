@@ -3,7 +3,7 @@
 
 = SVGFig logo =
 
-|| [svgfig_logo_source.svg svgfig_logo_source.png] || || [svgfig_logo_source.svg] ||
+|| [http://svgfig.googlecode.com/svn/wiki/svgfig_logo_source.svg http://svgfig.googlecode.com/svn/wiki/svgfig_logo_source.png] || [http://svgfig.googlecode.com/svn/wiki/svgfig_logo_source.svg svgfig_logo_source.svg] ||
 
 {{{
 import svgfig
@@ -29,4 +29,5 @@ svgfig.canvas(svgfig.Fig(svgfig.Fig(svgfig.Fig(symm, trans="x-0.1,y"), trans="x 
                          trans=svgfig.window(-0.8, 0.7, -1, 1, width=200, flipy=False)).SVG(), viewBox="0 0 200 100").save("svgfig_logo.svg")
 }}}
 
-|| [svgfig_logo.svg svgfig_logo.png] || || [svgfig_logo.svg] ||
+|| [http://svgfig.googlecode.com/svn/wiki/svgfig_logo.svg http://svgfig.googlecode.com/svn/wiki/svgfig_logo.png] || [http://svgfig.googlecode.com/svn/wiki/svgfig_logo.svg svgfig_logo.svg] ||
+
