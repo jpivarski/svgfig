@@ -1,0 +1,10 @@
+#summary ClassSVG
+
+= ClassSVG =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

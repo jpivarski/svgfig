@@ -1,0 +1,10 @@
+#summary ClassTextGlobal
+
+= ClassTextGlobal =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

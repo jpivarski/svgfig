@@ -1,0 +1,10 @@
+#summary DefTemplate
+
+= DefTemplate =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

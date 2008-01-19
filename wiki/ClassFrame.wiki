@@ -1,0 +1,10 @@
+#summary ClassFrame
+
+= ClassFrame =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

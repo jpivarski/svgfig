@@ -1,0 +1,10 @@
+#summary ClassCurveAxis
+
+= ClassCurveAxis =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

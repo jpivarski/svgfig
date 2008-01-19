@@ -1,0 +1,10 @@
+#summary ClassXErrorBars
+
+= ClassXErrorBars =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

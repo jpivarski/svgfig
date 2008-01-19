@@ -1,0 +1,10 @@
+#summary ClassDots
+
+= ClassDots =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

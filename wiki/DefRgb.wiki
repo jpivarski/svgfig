@@ -1,0 +1,10 @@
+#summary DefRgb
+
+= DefRgb =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

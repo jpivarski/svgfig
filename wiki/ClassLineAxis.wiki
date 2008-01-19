@@ -1,0 +1,10 @@
+#summary ClassLineAxis
+
+= ClassLineAxis =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

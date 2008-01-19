@@ -1,0 +1,10 @@
+#summary ClassText
+
+= ClassText =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

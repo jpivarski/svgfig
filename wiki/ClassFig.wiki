@@ -1,0 +1,10 @@
+#summary ClassFig
+
+= ClassFig =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

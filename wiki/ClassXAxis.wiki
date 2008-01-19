@@ -1,0 +1,10 @@
+#summary ClassXAxis
+
+= ClassXAxis =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

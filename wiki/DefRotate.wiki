@@ -1,0 +1,10 @@
+#summary DefRotate
+
+= DefRotate =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

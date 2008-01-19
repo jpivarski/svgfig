@@ -1,0 +1,10 @@
+#summary DefFuncRtoR2
+
+= DefFuncRtoR2 =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

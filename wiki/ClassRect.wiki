@@ -1,0 +1,10 @@
+#summary ClassRect
+
+= ClassRect =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

@@ -1,0 +1,10 @@
+#summary DefTotrans
+
+= DefTotrans =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

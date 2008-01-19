@@ -1,0 +1,10 @@
+#summary ClassPoly
+
+= ClassPoly =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

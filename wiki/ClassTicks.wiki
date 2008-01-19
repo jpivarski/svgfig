@@ -1,0 +1,10 @@
+#summary ClassTicks
+
+= ClassTicks =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

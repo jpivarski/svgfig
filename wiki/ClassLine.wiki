@@ -1,0 +1,10 @@
+#summary ClassLine
+
+= ClassLine =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

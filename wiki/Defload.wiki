@@ -1,0 +1,10 @@
+#summary Defload
+
+= Defload =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

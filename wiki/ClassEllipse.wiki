@@ -1,0 +1,10 @@
+#summary ClassEllipse
+
+= ClassEllipse =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

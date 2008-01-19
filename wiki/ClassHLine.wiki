@@ -1,0 +1,10 @@
+#summary ClassHLine
+
+= ClassHLine =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

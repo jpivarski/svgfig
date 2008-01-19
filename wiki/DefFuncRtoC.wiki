@@ -1,0 +1,10 @@
+#summary DefFuncRtoC
+
+= DefFuncRtoC =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

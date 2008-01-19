@@ -1,0 +1,10 @@
+#summary ClassYAxis
+
+= ClassYAxis =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

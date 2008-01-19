@@ -1,0 +1,10 @@
+#summary ClassLineGlobal
+
+= ClassLineGlobal =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

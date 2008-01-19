@@ -1,0 +1,10 @@
+#summary ClassHGrid
+
+= ClassHGrid =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

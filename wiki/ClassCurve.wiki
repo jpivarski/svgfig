@@ -1,0 +1,10 @@
+#summary ClassCurve
+
+= ClassCurve =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

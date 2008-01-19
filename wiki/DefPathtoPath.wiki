@@ -1,0 +1,10 @@
+#summary DefPathtoPath
+
+= DefPathtoPath =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+

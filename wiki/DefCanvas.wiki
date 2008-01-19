@@ -1,0 +1,10 @@
+#summary DefCanvas
+
+= DefCanvas =
+
+== Arguments ==
+
+== Return value ==
+
+== Examples ==
+
