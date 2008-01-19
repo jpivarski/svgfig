@@ -1,0 +1,32 @@
+#summary SVGFig logo
+#labels Example
+
+= SVGFig logo =
+
+|| [svgfig_logo_source.svg svgfig_logo_source.png] || || [svgfig_logo_source.svg] ||
+
+{{{
+import svgfig
+
+# read in the "SVGFig" text I typed and converted into paths
+text = svgfig.load("svgfig_logo_source.svg")
+
+# find my objects (this is all meant to be an interactive process)
+print text
+the_s = svgfig.pathtoPath(text[1, 1]); the_s.attr = {"stroke":"none", "fill":"black"}
+the_v = svgfig.pathtoPath(text[1, 2]); the_v.attr = {"stroke":"none", "fill":"black"}
+the_gfig = svgfig.pathtoPath(text[1,3]); the_gfig.attr = {"stroke":"none", "fill":"black"}
+
+# First, get it out of the weirdo units I drew it in, and into something symmetric
+symm = svgfig.Fig(the_s, the_v, the_gfig, trans=svgfig.window(240, 320, 235, 275, x=-1, y=-1, width=2, height=2, flipy=False))
+
+# Next, be sure I can draw it normally, taking it from symmetric coordinates into a 200x100 page
+svgfig.canvas_outline(svgfig.Fig(symm, trans=svgfig.window(-1, 1, -1, 1, width=200, flipy=False)).SVG(), viewBox="0 0 200 100").inkview()
+
+# This was built up from trial and error.  Lots of tweaking...
+curveaxis = svgfig.CurveAxis("0.6*(-0.98+cos(t)), sin(t)", -1.2, 1.2, ticks=21, miniticks=81, labels=False, arrow_start="arrowstart", arrow_end="arrowend", stroke_width="0.5pt")
+svgfig.canvas(svgfig.Fig(svgfig.Fig(svgfig.Fig(symm, trans="x-0.1,y"), trans="x + 2*x*y**2, y*(1+1.5*x+4*x**2)"), curveaxis, \
+                         trans=svgfig.window(-0.8, 0.7, -1, 1, width=200, flipy=False)).SVG(), viewBox="0 0 200 100").save("svgfig_logo.svg")
+}}}
+
+|| [svgfig_logo.svg svgfig_logo.png] || || [svgfig_logo.svg] ||
