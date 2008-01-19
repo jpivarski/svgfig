@@ -1,4 +1,4 @@
 #summary Example Gallery
 #labels Featured
 
-fill in here
+|| [SVGFigLogo http://svgfig.googlecode.com/svn/wiki/svgfig_logo.png] || [SVGFigLogo SVGFig logo] ||
