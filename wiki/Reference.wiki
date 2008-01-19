@@ -1,4 +1,40 @@
 #summary Reference
 #labels Featured
 
-table of contents here
+= Table of Contents =
+
+== Core classes ==
+
+  * SVG
+
+  * Fig
+    * Plot
+    * Frame
+
+== Fig Primatives ==
+
+  * Path
+  * Curve
+  * Poly
+  * Dots
+  * YErrorBars
+    * XErrorBars
+  * Line
+    * LineGlobal
+  * VLine
+    * HLine
+  * Rect
+  * Ellipse
+  * Grid
+    * HGrid
+    * VGrid
+
+  * Axes
+    * XAxis
+    * YAxis
+  * Ticks
+  * CurveAxis
+    * LineAxis
+
+  * Text
+    * TextGlobal
