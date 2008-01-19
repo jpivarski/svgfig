@@ -107,19 +107,18 @@ SVGs are iterable: they return (tree index, SVG element) pairs, like
 The iteration is depth-first through the tree, using generators to
 avoid copying the data.  Iteration may be controlled with these data members:
 
-  * *depth_first(depth_limit)*: get a generator, and optionally limit the recursion depthby specifying a number.
+  * *depth_first(depth_limit)*: get a generator, and optionally limit the recursion depth.
 {{{
 >>> svg.depth_first()
 <svgfig.SVGDepthIterator instance at 0xb7c407cc>
 }}}
-
   * *breadth_first(depth_limit)*: _*not implemented*_
+
+|| depth_first || _default_=None || if a number, limit recursion to the specified level (0 returns no output, 1 goes 1 level deep, etc.) ||
 
   * *items(sub, attr, text)*: create a list of (tree index, SVG element) pairs, possibly filtering out sub-elements,
 attributes, and text/Unicode.
-
   * *keys(sub, attr, text)*: just get the tree indexes
-
   * *values(sub, attr, text)*: just get the SVG elements
 
 || sub || _default_=True || if True, show sub-elements ||
