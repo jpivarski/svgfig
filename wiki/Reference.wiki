@@ -5,61 +5,61 @@
 
 == Fundamentals ==
 
-  * [ClassSVG SVG]
-    * [DefCanvas canvas and canvas_outline]
-    * [DefTemplate template]
-    * [Defload load and load_stream]
-
-  * [ClassFig Fig]
-  * [ClassPlot Plot]
-  * [ClassFrame Frame]
-
-  * for making transformation functions
-    * [DefTotrans totrans]
-    * [DefWindow window]
-    * [DefRotate rotate]
+  * [ClassSVG SVG]: class representing an SVG image
+    * [DefCanvas canvas and canvas_outline]: functions for explicitly laying out the SVG canvas; good for changing the aspect ratio
+    * [Defload load and load_stream]: functions for loading SVG files from files or XML streams
+    * [DefTemplate template]: loads an SVG template, replacing all instances of "<REPLACEME />" with an SVG object
 
   * SVG graphics helpers
-    * [DefRgb rgb]
-    * [DefMake_symbol make_symbol]
-    * [DefMake_marker make_marker]
+    * [DefRgb rgb]: expresses an rgb triple as a hex string
+    * [DefMake_symbol make_symbol]: makes a <symbol /> element from a template of standard shapes
+    * [DefMake_marker make_marker]: makes a <marker /> element from a template
+
+  * [ClassFig Fig]: holds a set of transformable primatives and globally-positioned SVG objects, composes transformations when nested
+  * [ClassPlot Plot]: a Fig with coordinate axes
+  * [ClassFrame Frame]: a Fig in a coordinate frame
+
+  * for making transformation functions
+    * [DefTotrans totrans]: turns a string expression or complex function into an R^2^-to-R^2^ function
+    * [DefWindow window]: creates a transformation by mapping a rectangle of "inner" coordinates to a rectangle of "outer" coordinates
+    * [DefRotate rotate]: creates a simple rotation of the plane
 
 == Fig Primatives ==
 
-  * [ClassPath Path]
-    * [DefPathtoPath pathtoPath]
-  * [ClassCurve Curve]
-    * [DefFuncRtoC funcRtoC]
-    * [DefFuncRtoR2 funcRtoR2]
-    * [DefFuncRtoR funcRtoR]
-  * [ClassPoly Poly]
-  * [ClassDots Dots]
+  * [ClassPath Path]: a transformable representation of an SVG path
+    * [DefPathtoPath pathtoPath]: converts SVG <path /> objects into transformable Paths
+  * [ClassCurve Curve]: draws a parametric function; implements the adaptive sampling algorithm
+    * [DefFuncRtoR2 funcRtoR2]: turns a string expression into a parametric function suitable for drawing with Curve
+    * [DefFuncRtoC funcRtoC]: turns a complex string expression into a parametric function
+    * [DefFuncRtoR funcRtoR]: turns a one-dimensional function into a parametric function
+  * [ClassPoly Poly]: draws a line through a sequence of points; may be piecewise linear, Bézier, a velocity curve, or smooth
+  * [ClassDots Dots]: draws SVG symbols at a set of points
 
-  * [ClassYErrorBars YErrorBars]
-  * [ClassXErrorBars XErrorBars]
+  * [ClassYErrorBars YErrorBars]: draws vertical error bars (usually used with Dots), including multiple bars (e.g. for correlated and uncorrelated errors)
+  * [ClassXErrorBars XErrorBars]: draws horizontal error bars
 
-  * [ClassLine Line]
-  * [ClassLineGlobal LineGlobal]
-  * [ClassVLine VLine]
-  * [ClassHLine HLine]
-  * [ClassRect Rect]
-  * [ClassEllipse Ellipse]
+  * [ClassLine Line]: draws a line between two points; if the coordinate transformation is non-linear, the line may be curved
+  * [ClassLineGlobal LineGlobal]: draws a straight line between two points, one or both of which are in global coordinates
+  * [ClassVLine VLine]: draws a vertical line (provided as a convenience)
+  * [ClassHLine HLine]: a horizontal line
+  * [ClassRect Rect]: draws a rectangle joining four points
+  * [ClassEllipse Ellipse]: draws an ellipse with semimajor axis and a semimajor length (does not need to be aligned with the X-Y axis)
 
-  * [ClassGrid Grid]
-    * [ClassHGrid HGrid]
-    * [ClassVGrid VGrid]
+  * [ClassGrid Grid]: draws a set of horizontal and vertical lines
+    * [ClassHGrid HGrid]: horizontal only
+    * [ClassVGrid VGrid]: vertical only
 
-  * [ClassText Text]
-  * [ClassTextGlobal TextGlobal]
+  * [ClassText Text]: places text at a local coordinate
+  * [ClassTextGlobal TextGlobal]: places text at a global coordinate
 
 === Coordinate Axes ===
 
-  * [ClassAxes Axes]
-    * [ClassXAxis XAxis]
-    * [ClassYAxis YAxis]
-  * [ClassTicks Ticks]
-  * [ClassCurveAxis CurveAxis]
-    * [ClassLineAxis LineAxis]
+  * [ClassAxes Axes]: draws an orthogonal coordinate axis in the local coordinate system
+    * [ClassXAxis XAxis]: just the x axis
+    * [ClassYAxis YAxis]: just the y axis
+  * [ClassTicks Ticks]: superclass of everything with tick marks; implements the tick-guessing algorithm
+  * [ClassCurveAxis CurveAxis]: draws ticks along a parametric function
+    * [ClassLineAxis LineAxis]: draws ticks along a line; useful for measuring the distance between points
 
   * for managing ticks
-    * [DefUnumber unumber]
+    * [DefUnumber unumber]: creates numeric tick labels with Unicode special symbols (applied by default)
