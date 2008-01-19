@@ -1,11 +1,34 @@
 #summary DefCanvas
 #labels Reference
 
-= DefCanvas =
+= def canvas =
+
+Creates a top-level [ClassSVG SVG] object, allowing the user to
+control the image size and aspect ratio.
 
 == Arguments ==
 
-== Return value ==
+*canvas(sub, sub, sub..., attribute=value)*
 
-== Examples ==
+|| sub || _optional list_ || nested SVG elements or text/Unicode ||
+|| attribute=value pairs || _optional keywords_ || SVG attributes, such as width="400px", viewBox="0 0 100 100" ||
 
+=== Default attribute values ===
+
+|| width || "400px" ||
+|| height || "400px" ||
+|| viewBox || "0 0 100 100" ||
+|| xmlns || "http://www.w3.org/2000/svg" ||
+|| xmlns:xlink || "http://www.w3.org/1999/xlink" ||
+|| version || "1.1" ||
+|| style || "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle" ||
+|| font-family || "Helvetica,Arial,FreeSans,Sans,sans,sans-serif" ||
+
+= def canvas_outline =
+
+Creates a top-level [ClassSVG SVG] object with the same arguments, but
+draws an outline around the viewBox and fills the background with
+"cornsilk" (yellowish) to make it easier to find.
+
+Use this to optimize the box outline, then drop the "_outline" for a
+normal canvas.

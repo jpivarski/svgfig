@@ -3,13 +3,16 @@
 
 = class SVG =
 
+Creates a document object model of an SVG image.  This can be a
+fragment or a whole graphic (with a top-level <svg /> tag).
+
 == Arguments ==
 
 *SVG(t, sub, sub, sub..., attribute=value)*
 
 || t || _*required*_ || SVG type, such as "g", "line", "rect" ||
-|| sub || _optional_ || nested SVG elements or text/Unicode ||
-|| attribute=value pairs || _optional_ || SVG attributes, such as stroke="none", fill="blue" ||
+|| sub || _optional list_ || nested SVG elements or text/Unicode ||
+|| attribute=value pairs || _optional keywords_ || SVG attributes, such as stroke="none", fill="blue" ||
 
 Nested SVG elements must be specified before the attributes of the
 parent, which is the opposite order of XML.
