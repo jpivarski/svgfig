@@ -1,4 +1,30 @@
 #summary How to install
 #labels Featured,Tutorial
 
-fill in here
+= How to install =
+
+  # Download the latest version of SVGFig from the [http://code.google.com/p/svgfig/downloads/list Downloads tab].
+  # Unpack the archive (your browser might do this automatically).  In Unix/Linux, the command is
+{{{
+tar -xzvf svgfig-x.y.z.tgz
+}}}
+  # Run the installer script, =setup.py=, with Python.
+{{{
+cd svgfig/
+python setup.py install
+}}}
+  # To install in your home directory (e.g. if you don't have superuser privileges)
+{{{
+python setup.py install --home=~
+}}}
+  # Now you should be able to load the svgfig library in Python:
+{{{
+Python 2.4.3 (#2, Oct  6 2006, 07:52:30) 
+[GCC 4.0.3 (Ubuntu 4.0.3-1ubuntu5)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import svgfig
+}}}
+
+== Known problems (and solutions) ==
+
+None yet.
