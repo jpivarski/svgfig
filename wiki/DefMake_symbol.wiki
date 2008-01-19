@@ -1,4 +1,5 @@
 #summary DefMake_symbol
+#labels Reference
 
 = DefMake_symbol =
 

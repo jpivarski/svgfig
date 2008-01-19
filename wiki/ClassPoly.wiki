@@ -1,4 +1,5 @@
 #summary ClassPoly
+#labels Reference
 
 = ClassPoly =
 

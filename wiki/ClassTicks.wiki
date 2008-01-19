@@ -1,4 +1,5 @@
 #summary ClassTicks
+#labels Reference
 
 = ClassTicks =
 

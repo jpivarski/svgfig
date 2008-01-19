@@ -1,4 +1,5 @@
 #summary ClassHLine
+#labels Reference
 
 = ClassHLine =
 

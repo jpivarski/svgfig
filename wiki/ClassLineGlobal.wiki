@@ -1,4 +1,5 @@
 #summary ClassLineGlobal
+#labels Reference
 
 = ClassLineGlobal =
 

@@ -1,4 +1,5 @@
 #summary DefTemplate
+#labels Reference
 
 = DefTemplate =
 

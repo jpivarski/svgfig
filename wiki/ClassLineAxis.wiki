@@ -1,4 +1,5 @@
 #summary ClassLineAxis
+#labels Reference
 
 = ClassLineAxis =
 

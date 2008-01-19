@@ -1,4 +1,5 @@
 #summary ClassCurve
+#labels Reference
 
 = ClassCurve =
 

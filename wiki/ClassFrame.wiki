@@ -1,4 +1,5 @@
 #summary ClassFrame
+#labels Reference
 
 = ClassFrame =
 

@@ -1,4 +1,5 @@
 #summary ClassPath
+#labels Reference
 
 = ClassPath =
 

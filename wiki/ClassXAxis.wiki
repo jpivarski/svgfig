@@ -1,4 +1,5 @@
 #summary ClassXAxis
+#labels Reference
 
 = ClassXAxis =
 

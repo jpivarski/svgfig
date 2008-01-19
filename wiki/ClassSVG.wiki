@@ -1,10 +1,218 @@
-#summary ClassSVG
+#summary class SVG
+#labels Reference
 
-= ClassSVG =
+= class SVG =
 
 == Arguments ==
 
-== Return value ==
+SVG(t, sub, sub, sub..., attribute=value)
 
-== Examples ==
+|| t || _required_ || SVG type, such as "g", "line", "rect" ||
+|| sub || _optional_ || nested SVG elements or text/Unicode ||
+|| attribute=value pairs || _optional_ || SVG attributes, such as stroke="none", fill="blue" ||
+
+Nested SVG elements must be specified before the attributes of the
+parent, which is the opposite order of XML.
+
+=== Examples ===
+
+==== SVG in XML ====
+{{{
+<g id="mygroup" fill="blue">
+    <rect x="1" y="1" width="2" height="2" />
+    <rect x="3" y="3" width="2" height="2" />
+</g>
+}}}
+
+==== SVG in Python ====
+{{{
+>>> svg = SVG("g", SVG("rect", x=1, y=1, width=2, height=2), \ 
+...                SVG("rect", x=3, y=3, width=2, height=2), \ 
+...           id="mygroup", fill="blue")
+}}}
+
+== Members ==
+
+|| t || SVG type ||
+|| sub || list of SVG elements or text/Unicode ||
+|| attr || dict of attribute names and values ||
+
+== Tree indexing ==
+
+Children can be accessed with square brackets, e.g.
+{{{
+>>> svg = SVG("text", SVG("tspan", "hello there"), stroke="none", fill="black")
+>>> svg[0]
+<tspan (1 sub) />
+}}}
+but so can grand-children:
+{{{
+>>> svg[0, 0]
+'hello there'
+}}}
+
+Every element in the tree is referenced by a list of numbers, which
+can be used for retrieval (`__getitem__`), assignment (`__setitem__`),
+and deletion (`__delitem__`):
+{{{
+>>> svg[0, 0] = "good-bye!"
+>>> del svg[0, 0]
+}}}
+
+Attributes can be accessed by a tree index ending in a string.
+{{{
+>>> svg["fill"]
+'black'
+}}}
+
+== List-like features ==
+
+SVG objects can be extended like lists with these member functions.
+
+  * append(x): add an element to the end of SVG.sub (drawn last)
+{{{
+>>> svg.append(SVG("tspan", "another"))
+}}}
+
+  * prepend(x): add an element to the beginning (drawn first, may be hidden under other items)
+
+  * extend(list): concatenate a list of SVG items
+{{{
+>>> svg.extend([s1, s2, s3])
+>>> svg.extend(s4.sub)
+}}}
+
+== Iteration ==
+
+SVGs are iterable: they return (tree index, SVG element) pairs, like the
+`items` from a dictionary.  The top-most level is not included.
+{{{
+>>> svg = SVG("g", SVG("g", SVG("line", x1=0, y1=0, x2=1, y2=1)), \
+...                SVG("text", SVG("tspan", "hello again")))
+... 
+>>> for ti, s in svg:
+...     print ti, repr(s)
+... 
+(0,) <g (1 sub) />
+(0, 0) <line x2=1 y1=0 x1=0 y2=1 />
+(0, 0, 'x2') 1
+(0, 0, 'y1') 0
+(0, 0, 'x1') 0
+(0, 0, 'y2') 1
+(1,) <text (1 sub) />
+(1, 0) <tspan (1 sub) />
+(1, 0, 0) 'hello again'
+}}}
+
+The iteration is depth-first through the tree, using generators to
+avoid copying the data.  Iteration may be controlled with these data members:
+
+  * depth_first(depth_limit=None): get a generator, and optionally limit the recursion depthby specifying a number.
+{{{
+>>> svg.depth_first()
+<svgfig.SVGDepthIterator instance at 0xb7c407cc>
+}}}
+
+  * breadth_first(depth_limit=None): *not implemented*
+
+  * items(sub=True, attr=True, text=True): create a list of (tree
+index, SVG element) pairs, possibly filtering out sub-elements,
+attributes, and text/Unicode.
+
+  * keys(sub=True, attr=True, text=True): just get the tree indexes
+
+  * values(sub=True, attr=True, text=True): just get the SVG elements
+
+== Text representations ==
+
+To get a quick look at an SVG object's structure, print out its string
+representation (`__str__`):
+{{{
+>>> print svg
+None                 <g (2 sub) />
+[0]                      <g (1 sub) />
+[0, 0]                       <line x2=1 y1=0 x1=0 y2=1 />
+[1]                      <text (1 sub) />
+[1, 0]                       <tspan (1 sub) />
+}}}
+
+Sometimes, you will want a more compact expression: `str(svg)` and
+`"%s" % svg` will return the above.  For a one-line identifier, use
+`repr(svg)`:
+{{{
+>>> svg
+<g (2 sub) />
+>>> print repr(svg)
+<g (2 sub) />
+}}}
+
+The output can be more carefully controlled with the `tree` member function.
+
+tree(depth_limit, sub, attr, text, tree_width, obj_width)
+
+|| depth_limit || _default_=None || if a number, limit the recursion depth ||
+|| sub || _default_=True || if True, print sub-elements ||
+|| attr || _default_=True || if True, print keyword attributes ||
+|| text || _default_=True || if True, print text/Unicode strings ||
+|| tree_width || _default_=20 || number of characters allotted for tree indexes ||
+|| obj_width || _default_=80 || number of characters allotted for the SVG objects ||
+
+To turn the SVG object into a real XML fragment, use the `xml` member function.
+
+xml(indent, newl, depth_limit)
+
+|| indent || _default_="    " || string used for indenting ||
+|| newl || _default_="\n" || newline character ||
+|| depth_limit || _default_=None || if a number, limit the recursion depth ||
+
+For XML that can be saved into a file, use the `standalone_xml` member function.
+
+xml(indent, newl)
+
+|| indent || _default_="    " || string used for indenting ||
+|| newl || _default_="\n" || newline character ||
+
+== Operators ==
+
+The `in` operator applies to SVG attributes.
+{{{
+>>> "x1" in SVG("line", x1=0, x2=0, y1=1, y2=1)
+True
+}}}
+
+Two SVG elements are equal if they represent the same image.  They do
+not need to be the same Python objects.
+{{{
+>>> s1 = SVG("rect", x1=0, x2=0, y1=1, y2=1)
+>>> s2 = SVG("rect", x1=0, x2=0, y1=1, y2=1)
+>>> s1 == s2
+True
+>>> id(s1) == id(s2)
+False
+}}}
+
+== Deep copying ==
+
+It is possible to cross-link SVG trees, such that changes in one will
+affect the other.  This is usually not what you want.  To avoid this,
+use the `clone` method.
+
+clone(shallow)
+
+|| shallow || _default_=False || if True, perform a shallow copy rather than a deep copy ||
+
+== Saving and viewing ==
+
+save(fileName, encoding, compresslevel)
+
+|| fileName || _default_="tmp.svg" || note that "tmp.svg" will be overwritten if no fileName is specified.  If the extension is ".svgz" or ".gz", the output will be gzipped ||
+|| encoding || _default_="utf-8" || file encoding (default is Unicode) ||
+|| compresslevel || _default_=None || if a number, the output will be gzipped with that compression level (1-9, 1 being fastest and 9 most thorough) ||
+
+inkview(fileName, encoding)
+inkscape(fileName, encoding)
+firefox(fileName, encoding)
+
+|| fileName || _default_="tmp.svg" || temporary fileName: note that "tmp.svg" will be overwritten if not specified ||
+|| encoding || _default_="utf-8" || file encoding ||
 

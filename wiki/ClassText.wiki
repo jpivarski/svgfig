@@ -1,4 +1,5 @@
 #summary ClassText
+#labels Reference
 
 = ClassText =
 

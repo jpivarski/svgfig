@@ -1,4 +1,5 @@
 #summary ClassYAxis
+#labels Reference
 
 = ClassYAxis =
 

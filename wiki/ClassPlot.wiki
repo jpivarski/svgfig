@@ -1,4 +1,5 @@
 #summary ClassPlot
+#labels Reference
 
 = ClassPlot =
 

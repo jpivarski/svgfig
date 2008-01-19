@@ -1,4 +1,5 @@
 #summary ClassAxes
+#labels Reference
 
 = ClassAxes =
 

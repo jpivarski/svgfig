@@ -1,4 +1,5 @@
 #summary ClassTextGlobal
+#labels Reference
 
 = ClassTextGlobal =
 

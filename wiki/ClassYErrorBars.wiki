@@ -1,4 +1,5 @@
 #summary ClassYErrorBars
+#labels Reference
 
 = ClassYErrorBars =
 

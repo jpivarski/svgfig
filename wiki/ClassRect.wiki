@@ -1,4 +1,5 @@
 #summary ClassRect
+#labels Reference
 
 = ClassRect =
 
