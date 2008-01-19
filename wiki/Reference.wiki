@@ -3,38 +3,63 @@
 
 = Table of Contents =
 
-== Core classes ==
+== Fundamentals ==
 
-  * SVG
+  * [ClassSVG SVG]
+    * [DefCanvas canvas and canvas_outline]
+    * [DefTemplate template]
+    * [Defload load and load_stream]
 
-  * Fig
-    * Plot
-    * Frame
+  * [ClassFig Fig]
+  * [ClassPlot Plot]
+  * [ClassFrame Frame]
+
+  * for making transformation functions
+    * [DefTotrans totrans]
+    * [DefWindow window]
+    * [DefRotate rotate]
+
+  * SVG graphics helpers
+    * [DefRgb rgb]
+    * [DefMake_symbol make_symbol]
+    * [DefMake_marker make_marker]
 
 == Fig Primatives ==
 
-  * Path
-  * Curve
-  * Poly
-  * Dots
-  * YErrorBars
-    * XErrorBars
-  * Line
-    * LineGlobal
-  * VLine
-    * HLine
-  * Rect
-  * Ellipse
-  * Grid
-    * HGrid
-    * VGrid
+  * [ClassPath Path]
+    * [DefPathtoPath pathtoPath]
+  * [ClassCurve Curve]
+    * [DefFuncRtoC funcRtoC]
+    * [DefFuncRtoR2 funcRtoR2]
+    * [DefFuncRtoR funcRtoR]
+  * [ClassPoly Poly]
+  * [ClassDots Dots]
 
-  * Axes
-    * XAxis
-    * YAxis
-  * Ticks
-  * CurveAxis
-    * LineAxis
+  * [ClassYErrorBars YErrorBars]
+  * [ClassXErrorBars XErrorBars]
 
-  * Text
-    * TextGlobal
+  * [ClassLine Line]
+  * [ClassLineGlobal LineGlobal]
+  * [ClassVLine VLine]
+  * [ClassHLine HLine]
+  * [ClassRect Rect]
+  * [ClassEllipse Ellipse]
+
+  * [ClassGrid Grid]
+    * [ClassHGrid HGrid]
+    * [ClassVGrid VGrid]
+
+  * [ClassText Text]
+  * [ClassTextGlobal TextGlobal]
+
+=== Coordinate Axes ===
+
+  * [ClassAxes Axes]
+    * [ClassXAxis XAxis]
+    * [ClassYAxis YAxis]
+  * [ClassTicks Ticks]
+  * [ClassCurveAxis CurveAxis]
+    * [ClassLineAxis LineAxis]
+
+  * for managing ticks
+    * [DefUnumber unumber]
