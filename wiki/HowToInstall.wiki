@@ -1,4 +1,4 @@
 #summary How to install
-#labels Featured
+#labels Featured,Tutorial
 
 fill in here
