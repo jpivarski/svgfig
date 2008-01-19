@@ -5,7 +5,7 @@
 
 == Arguments ==
 
-SVG(t, sub, sub, sub..., attribute=value)
+*SVG(t, sub, sub, sub..., attribute=value)*
 
 || t || _*required*_ || SVG type, such as "g", "line", "rect" ||
 || sub || _optional_ || nested SVG elements or text/Unicode ||
@@ -31,7 +31,7 @@ parent, which is the opposite order of XML.
 ...           id="mygroup", fill="blue")
 }}}
 
-== Members ==
+== Data members ==
 
 || t || SVG type ||
 || sub || list of SVG elements or text/Unicode ||
@@ -69,14 +69,14 @@ Attributes can be accessed by a tree index ending in a string.
 
 SVG objects can be extended like lists with these member functions.
 
-  * append(x): add an element to the end of SVG.sub (drawn last)
+  * *append(x)*: add an element to the end of SVG.sub (drawn last, covers everything else)
 {{{
 >>> svg.append(SVG("tspan", "another"))
 }}}
 
-  * prepend(x): add an element to the beginning (drawn first, may be hidden under other items)
+  * *prepend(x)*: add an element to the beginning (drawn first, may be hidden under other items)
 
-  * extend(list): concatenate a list of SVG items
+  * *extend(list)*: concatenate a list of SVG items
 {{{
 >>> svg.extend([s1, s2, s3])
 >>> svg.extend(s4.sub)
@@ -84,8 +84,8 @@ SVG objects can be extended like lists with these member functions.
 
 == Iteration ==
 
-SVGs are iterable: they return (tree index, SVG element) pairs, like the
-`items` from a dictionary.  The top-most level is not included.
+SVGs are iterable: they return (tree index, SVG element) pairs, like
+*items* from a dictionary.  The top-most level is not included.
 {{{
 >>> svg = SVG("g", SVG("g", SVG("line", x1=0, y1=0, x2=1, y2=1)), \
 ...                SVG("text", SVG("tspan", "hello again")))
@@ -107,21 +107,20 @@ SVGs are iterable: they return (tree index, SVG element) pairs, like the
 The iteration is depth-first through the tree, using generators to
 avoid copying the data.  Iteration may be controlled with these data members:
 
-  * depth_first(depth_limit=None): get a generator, and optionally limit the recursion depthby specifying a number.
+  * *depth_first(depth_limit=None)*: get a generator, and optionally limit the recursion depthby specifying a number.
 {{{
 >>> svg.depth_first()
 <svgfig.SVGDepthIterator instance at 0xb7c407cc>
 }}}
 
-  * breadth_first(depth_limit=None): *not implemented*
+  * *breadth_first(depth_limit=None)*: _*not implemented*_
 
-  * items(sub=True, attr=True, text=True): create a list of (tree
-index, SVG element) pairs, possibly filtering out sub-elements,
+  * *items(sub=True, attr=True, text=True)*: create a list of (tree index, SVG element) pairs, possibly filtering out sub-elements,
 attributes, and text/Unicode.
 
-  * keys(sub=True, attr=True, text=True): just get the tree indexes
+  * *keys(sub=True, attr=True, text=True)*: just get the tree indexes
 
-  * values(sub=True, attr=True, text=True): just get the SVG elements
+  * *values(sub=True, attr=True, text=True)*: just get the SVG elements
 
 == Text representations ==
 
@@ -146,9 +145,9 @@ Sometimes, you will want a more compact expression: `str(svg)` and
 <g (2 sub) />
 }}}
 
-The output can be more carefully controlled with the `tree` member function.
+The output can be more carefully controlled with the *tree* member function.
 
-tree(depth_limit, sub, attr, text, tree_width, obj_width)
+*tree(depth_limit, sub, attr, text, tree_width, obj_width)*
 
 || depth_limit || _default_=None || if a number, limit the recursion depth ||
 || sub || _default_=True || if True, print sub-elements ||
@@ -157,17 +156,17 @@ tree(depth_limit, sub, attr, text, tree_width, obj_width)
 || tree_width || _default_=20 || number of characters allotted for tree indexes ||
 || obj_width || _default_=80 || number of characters allotted for the SVG objects ||
 
-To turn the SVG object into a real XML fragment, use the `xml` member function.
+To turn the SVG object into a real XML fragment, use the *xml* member function.
 
-xml(indent, newl, depth_limit)
+*xml(indent, newl, depth_limit)*
 
 || indent || _default_="    " || string used for indenting ||
 || newl || _default_="\n" || newline character ||
 || depth_limit || _default_=None || if a number, limit the recursion depth ||
 
-For XML that can be saved into a file, use the `standalone_xml` member function.
+For XML that can be saved into a file, use the *standalone_xml* member function.
 
-xml(indent, newl)
+*standalone_xml(indent, newl)*
 
 || indent || _default_="    " || string used for indenting ||
 || newl || _default_="\n" || newline character ||
@@ -197,21 +196,23 @@ It is possible to cross-link SVG trees, such that changes in one will
 affect the other.  This is usually not what you want.  To avoid this,
 use the `clone` method.
 
-clone(shallow)
+*clone(shallow)*
 
 || shallow || _default_=False || if True, perform a shallow copy rather than a deep copy ||
 
 == Saving and viewing ==
 
-save(fileName, encoding, compresslevel)
+*save(fileName, encoding, compresslevel)*
 
 || fileName || _default_="tmp.svg" || note that "tmp.svg" will be overwritten if no fileName is specified.  If the extension is ".svgz" or ".gz", the output will be gzipped ||
 || encoding || _default_="utf-8" || file encoding (default is Unicode) ||
 || compresslevel || _default_=None || if a number, the output will be gzipped with that compression level (1-9, 1 being fastest and 9 most thorough) ||
 
-inkview(fileName, encoding)
-inkscape(fileName, encoding)
-firefox(fileName, encoding)
+*inkview(fileName, encoding)*
+
+*inkscape(fileName, encoding)*
+
+*firefox(fileName, encoding)*
 
 || fileName || _default_="tmp.svg" || temporary fileName: note that "tmp.svg" will be overwritten if not specified ||
 || encoding || _default_="utf-8" || file encoding ||
