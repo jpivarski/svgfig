@@ -3,7 +3,9 @@
 
 = SVGFig logo =
 
-The logo was made in SVGFig.  I'm only half-satisfied by it.  Is
+_(tested in svgfig-1.0.0)_
+
+The SVGFig logo was made in SVGFig.  I'm only half-satisfied by it: is
 someone interested in making a better one?
 
 {{{
@@ -32,4 +34,3 @@ svgfig.canvas(svgfig.Fig(svgfig.Fig(svgfig.Fig(symm, trans="x-0.1,y"), trans="x 
 
 || [http://svgfig.googlecode.com/svn/wiki/svgfig_logo_source.svg http://svgfig.googlecode.com/svn/wiki/svgfig_logo_source.png] || [http://svgfig.googlecode.com/svn/wiki/svgfig_logo_source.svg svgfig_logo_source.svg] ||
 || [http://svgfig.googlecode.com/svn/wiki/svgfig_logo.svg http://svgfig.googlecode.com/svn/wiki/svgfig_logo.png] || [http://svgfig.googlecode.com/svn/wiki/svgfig_logo.svg svgfig_logo.svg] ||
-
