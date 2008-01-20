@@ -1,11 +1,26 @@
-#summary ClassEllipse
+#summary Draw an arbitrarily-oriented ellipse with a given semimajor axis and semiminor length
 #labels Reference
 
-= ClassEllipse =
+= class Ellipse =
+
+Ellipse draws ellipses and circles.  The shape of the circumference is
+mutable by coordinate transformations.
 
 == Arguments ==
 
-== Return value ==
+*Ellipse(x, y, ax, ay, b, attribute=value)*
 
-== Examples ==
+|| x, y || _*required*_ || the center of the ellipse/circle ||
+|| ax, ay || _*required*_ || a vector indicating the length and direction of the semimajor axis ||
+|| b || _*required*_ || the length of the semiminor axis.  If equal to sqrt(ax^2^ + ay^2^), the ellipse is a circle ||
+|| attribute=value pairs || _keyword list_ || SVG attributes ||
 
+(If sqrt(ax^2^ + ay^2^) is less than b, then (ax,ay) is actually the semiminor axis.)
+
+== SVG method ==
+
+Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+
+== Path method ==
+
+Curve has a *Path* member, as described in [GeneralPrimative General features for all primatives].
