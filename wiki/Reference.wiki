@@ -1,9 +1,7 @@
 #summary Reference
 #labels Featured
 
-= Alphabetized Index and Search Bar =
-
-  * [http://code.google.com/p/svgfig/w/list?q=label:Reference Click here]
+= Alphabetized Index and Search Bar: [http://code.google.com/p/svgfig/w/list?q=label:Reference click here] =
 
 = Table of Contents =
 
