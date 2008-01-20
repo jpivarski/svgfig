@@ -1,7 +1,9 @@
 #summary Reference
 #labels Featured
 
-= [http://code.google.com/p/svgfig/w/list?q=label:Reference Alphabetized index and search bar] =
+= Alphabetized Index and Search Bar =
+
+  * [http://code.google.com/p/svgfig/w/list?q=label:Reference Click here]
 
 = Table of Contents =
 
@@ -54,7 +56,7 @@
   * [ClassText Text]: places text at a local coordinate
   * [ClassTextGlobal TextGlobal]: places text at a global coordinate
 
-=== Coordinate Axes ===
+== Coordinate Axes ==
 
   * [ClassAxes Axes]: draws an orthogonal coordinate axis in the local coordinate system
     * [ClassXAxis XAxis]: just the x axis
