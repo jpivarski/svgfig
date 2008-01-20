@@ -1,11 +1,30 @@
-#summary DefFuncRtoC
+#summary Convert a "z(t)" complex string to a function acceptable for Curve
 #labels Reference
 
 = funcRtoC =
 
+Converts a "z(t)" string to a function acceptable for
+[ClassCurve Curve].  Use this to draw on the Argand plane.
+
 == Arguments ==
 
-== Return value ==
+*funcRtoC(expr, var, globals, locals)*
 
-== Examples ==
+|| expr || _*required*_ || string in the form "z(t)" ||
+|| var || _default_="t" || name of the independent variable ||
+|| globals || _default_=None || dict of global variables used in the expression; you may want to use Python's builtin `globals()` ||
+|| locals || _default_=None || dict of local variables ||
 
+All symbols from Python's [http://docs.python.org/lib/module-cmath.html cmath library]
+are in scope, so you can say things like "cos(t)".
+
+Example use of globals.
+{{{
+>>> funcRtoC("c*t", globals={"c": 1+1j})
+}}}
+
+This does the same thing.
+{{{
+>>> c = 1+1j
+>>> funcRtoC("c*t", globals=globals())
+}}}
