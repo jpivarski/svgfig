@@ -1,11 +1,20 @@
-#summary Defload
+#summary Load an SVG image from XML text
 #labels Reference
 
-= Defload =
+= def load =
+
+Loads an SVG image from an XML file on disk.  Returns an [ClassSVG SVG] object.
 
 == Arguments ==
 
-== Return value ==
+*load(fileName)*
 
-== Examples ==
+|| fileName || _*required*_ || name of the SVG file ||
 
+= def load_stream =
+
+Loads an SVG image from an XML stream.  Returns an [ClassSVG SVG] object.
+
+*load_stream(stream)*
+
+|| stream || _*required*_ || a stream object, such as a string ||

@@ -1,4 +1,4 @@
-#summary class SVG
+#summary Represent an SVG graphic as a Python object
 #labels Reference
 
 = class SVG =

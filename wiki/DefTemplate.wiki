@@ -1,11 +1,17 @@
-#summary DefTemplate
+#summary Create an SVG object from a template on disk
 #labels Reference
 
-= DefTemplate =
+= def template =
+
+Loads an SVG image from disk, like [Defload load], but replaces all
+instances of <REPLACEME /> with an [ClassSVG SVG] object of your
+choosing.
 
 == Arguments ==
 
-== Return value ==
+*template(fileName, svg, replaceme)*
 
-== Examples ==
+|| fileName || _*required*_ || name of the template SVG ||
+|| svg || _*required*_ || SVG object for replacement ||
+|| replaceme || _default_="REPLACEME" || fake SVG element to be replaced by the given object ||
 

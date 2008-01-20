@@ -1,4 +1,4 @@
-#summary DefCanvas
+#summary Create a top-level <svg /> object, which defines the aspect ratio for the whole image
 #labels Reference
 
 = def canvas =
