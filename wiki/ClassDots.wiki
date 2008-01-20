@@ -1,11 +1,38 @@
-#summary ClassDots
+#summary Draw SVG symbols at a set of points
 #labels Reference
 
-= ClassDots =
+= class Dots =
+
+Dots draws SVG symbols at a set of points.
 
 == Arguments ==
 
-== Return value ==
+*Dots(d, symbol, width, height, attribute=value)*
 
-== Examples ==
+|| d || _*required*_ || list of (x,y) points ||
+|| symbol || _default_="Untitled" || SVG symbol or a new identifier to label an auto-generated symbol ||
+|| width, height || _default_=1, 1 || width and height of the symbols in SVG coordinates ||
+|| attribute=value pairs || _keyword list_ || SVG attributes ||
 
+Note that a list of (x,y) points can be constructed with Python's
+`zip` function.  This can be useful for constructing `d`.
+{{{
+>>> x = [1,2,3,4,5]
+>>> y = [1,4,9,16,25]
+>>> zip(x,y)
+[(1, 1), (2, 4), (3, 9), (4, 16), (5, 25)]
+}}}
+
+The `symbol` can be a new SVG object constructed like this
+{{{
+>>> SVG("symbol", SVG("circle", cx=0, cy=0, r=1, stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible", id="new_identifier")
+}}}
+or using the [DefMake_symbol make_symbol] function.  You can also just supply a
+new identifier, and Dots will call [DefMake_symbol make_symbol] for you.
+
+You need to supply an identifier that hasn't already been used in your
+SVG image, so that the dots link to the right reference.
+
+== SVG method ==
+
+Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].

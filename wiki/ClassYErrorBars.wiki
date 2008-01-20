@@ -1,11 +1,39 @@
-#summary ClassYErrorBars
+#summary Draw error bars at a set of points
 #labels Reference
 
-= ClassYErrorBars =
+= class YErrorBars =
+
+YErrorBars draws y error bars at a set of points.  This is usually used
+before (under) a set of [ClassDots Dots] at the same points.
 
 == Arguments ==
 
-== Return value ==
+*YErrorBars(d, attribute=value)*
 
-== Examples ==
+|| d || _*required*_ || list of (x,y,yerr...) points ||
+|| attribute=value pairs || _keyword list_ || SVG attributes ||
 
+If points in `d` have
+  * 3 elements, the third is the symmetric error bar
+  * 4 elements, the third and fourth are the asymmetric lower and upper error bar.  The third element should be negative, e.g. (5, 5, -1, 2) is a bar from 4 to 7.
+  * more than 4, a tick mark is placed at each value.  This lets you nest errors from different sources, correlated and uncorrelated, statistical and systematic, etc.
+
+Note lists like (x,y,yerr) can be constructed with Python's
+`zip` function.
+{{{
+>>> x = [1,2,3,4,5]
+>>> y = [1,4,9,16,25]
+>>> yerr = [0.1, 0.2, 0.3, 0.4, 0.5]
+>>> zip(x,y)
+[(1, 1, 0.1), (2, 4, 0.2), (3, 9, 0.3), (4, 16, 0.4), (5, 25, 0.5)]
+}}}
+
+== SVG method ==
+
+Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+
+= class XErrorBars =
+
+XErrorBars draws x error bars at a set of points.  This is usually
+used before (under) a set of [ClassDots Dots] and maybe YErrorBars at
+the same points.

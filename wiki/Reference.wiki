@@ -47,9 +47,7 @@ All SVGFig classes and functions are defined in wiki pages: [http://code.google.
     * [DefFuncRtoR funcRtoR]: turns a one-dimensional function into a parametric function
   * [ClassPoly Poly]: draws a line through a sequence of points; may be piecewise linear, Bézier, a velocity curve, or smooth
   * [ClassDots Dots]: draws SVG symbols at a set of points
-
-  * [ClassYErrorBars YErrorBars]: draws vertical error bars (usually used with Dots), including multiple bars (e.g. for correlated and uncorrelated errors)
-  * [ClassXErrorBars XErrorBars]: draws horizontal error bars
+  * [ClassYErrorBars YErrorBars and XErrorBars]: draw error bars (usually used with Dots), including multiple bars (e.g. for correlated and uncorrelated errors)
 
   * [ClassLine Line]: draws a line between two points; if the coordinate transformation is non-linear, the line may be curved
   * [ClassLineGlobal LineGlobal]: draws a straight line between two points, one or both of which are in global coordinates
