@@ -208,7 +208,7 @@ False
 
 It is possible to cross-link SVG trees, such that changes in one will
 affect the other.  This is usually not what you want.  To avoid this,
-use the `clone` method.
+use the *clone* method.
 
 *clone(shallow)*
 
