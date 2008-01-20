@@ -10,51 +10,48 @@ of the transformation.
 
 == Arguments ==
 
-*Grid(xmin, xmax, ymin, ymax, ticks, miniticks, logbase, mini_attr, attr)*
+*Grid(xmin, xmax, ymin, ymax, ticks, miniticks, logbase, mini_attr, attribute=value)*
 
 || xmin, xmax || _*required*_ || the x range ||
 || ymin, ymax || _*required*_ || the y range ||
-|| ticks || _default_=-10 || if positive, make N ticks, if negative, "at least -N", if a list or dict, put grid lines at explicit positions ||
-|| miniticks || _default_=False || if True, ||
+|| ticks || _default_=-10 || request ticks according to the [TickSpecification standard tick specification] ||
+|| miniticks || _default_=False || request miniticks according to the [TickSpecification standard minitick specification] ||
+|| logbase || _default_=None || if a number, the axis is logarithmic with ticks at the given base (10 being the most common) ||
+|| mini_attr || _default_={} || SVG attributes for the minitick-lines (if miniticks != False) ||
+|| attribute=value pairs || _keyword list_ || SVG attributes for the major tick lines ||
 
-|| attribute=value pairs || _keyword list_ || SVG attributes ||
+= class HGrid =
 
+Only draws the horizontal lines of a grid.
 
+== Arguments == 
 
-  def __init__(self, xmin, xmax, ymin, ymax, ticks=-10, miniticks=False, logbase=None, mini_attr={}, **attr):
+*HGrid(xmin, xmax, low, high, ticks, miniticks, logbase, mini_attr, attribute=value)*
 
+|| xmin, xmax || _*required*_ || the x range ||
+|| low, high || _*required*_ || the y range ||
+|| ticks || _default_=-10 || request ticks according to the [TickSpecification standard tick specification] ||
+|| miniticks || _default_=False || request miniticks according to the [TickSpecification standard minitick specification] ||
+|| logbase || _default_=None || if a number, the axis is logarithmic with ticks at the given base (10 being the most common) ||
+|| mini_attr || _default_={} || SVG attributes for the minitick-lines (if miniticks != False) ||
+|| attribute=value pairs || _keyword list_ || SVG attributes for the major tick lines ||
 
+= class VGrid =
 
-Line draws a line between two points, but this line is mutable by
-coordinate transformations.  If the coordinates curve, the line will
-curve.
+Only draws the vertical lines of a grid.
 
-== Arguments ==
+== Arguments == 
 
-*Line(x1, y1, x2, y2, attribute=value)*
+*VGrid(ymin, ymax, low, high, ticks, miniticks, logbase, mini_attr, attribute=value)*
 
-|| x1, y1 || _*required*_ || the starting point ||
-|| x2, y2 || _*required*_ || the ending point ||
-|| attribute=value pairs || _keyword list_ || SVG attributes ||
+|| ymin, ymax || _*required*_ || the y range ||
+|| low, high || _*required*_ || the x range ||
+|| ticks || _default_=-10 || request ticks according to the [TickSpecification standard tick specification] ||
+|| miniticks || _default_=False || request miniticks according to the [TickSpecification standard minitick specification] ||
+|| logbase || _default_=None || if a number, the axis is logarithmic with ticks at the given base (10 being the most common) ||
+|| mini_attr || _default_={} || SVG attributes for the minitick-lines (if miniticks != False) ||
+|| attribute=value pairs || _keyword list_ || SVG attributes for the major tick lines ||
 
 == SVG method ==
 
-Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
-
-== Path method ==
-
-Curve has a *Path* member, as described in [GeneralPrimative General features for all primatives].
-
-
-
-#summary ClassGrid
-#labels Reference
-
-= ClassGrid =
-
-== Arguments ==
-
-== Return value ==
-
-== Examples ==
-
+Grid, HGrid, and VGrid have *SVG* members, as described in [GeneralPrimative General features for all primatives].

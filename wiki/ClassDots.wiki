@@ -35,4 +35,4 @@ SVG image, so that the dots link to the right reference.
 
 == SVG method ==
 
-Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Dots has a *SVG* member, as described in [GeneralPrimative General features for all primatives].

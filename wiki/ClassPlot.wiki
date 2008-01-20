@@ -38,7 +38,7 @@ The following are keyword options, with their default values:
 || xticks || -10 || request ticks according to the [TickSpecification standard tick specification] ||
 || xminiticks || True || request miniticks according to the [TickSpecification standard minitick specification] ||
 || xlabels || True || request tick labels according to the [TickSpecification standard tick label specification] ||
-|| xlogbase || None || if a number, the axis and transformation are logarithmic with ticks at the given base (10 is the most common) ||
+|| xlogbase || None || if a number, the axis and transformation are logarithmic with ticks at the given base (10 being the most common) ||
 || same for y || || ||
 || arrows || None || if a new identifier, create arrow markers and draw them at the ends of the coordinate axes ||
 || text_attr || {} || a dictionary of attributes for label text ||

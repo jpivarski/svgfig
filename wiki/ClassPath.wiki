@@ -43,6 +43,10 @@ This makes it easier to create dots.  The period (".") version of this
 command uses absolute positions and the comma (",") version is
 relative.
 
+== SVG method ==
+
+Path has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+
 == Considerations ==
 
 Note that elliptical arcs and dots won't be properly transformed in

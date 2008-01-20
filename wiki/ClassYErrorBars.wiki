@@ -30,7 +30,7 @@ Note lists like (x,y,yerr) can be constructed with Python's
 
 == SVG method ==
 
-Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+YErrorBars has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
 = class XErrorBars =
 

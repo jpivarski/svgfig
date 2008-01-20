@@ -23,8 +23,8 @@ units, like "2 cm".
 
 == SVG method ==
 
-Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+LineGlobal has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
 == Path method ==
 
-Curve has a *Path* member, as described in [GeneralPrimative General features for all primatives].
+LineGlobal has a *Path* member, as described in [GeneralPrimative General features for all primatives].

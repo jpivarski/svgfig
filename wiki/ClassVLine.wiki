@@ -14,18 +14,10 @@ curve.
 || x || _*required*_ || x position ||
 || attribute=value pairs || _keyword list_ || SVG attributes ||
 
-== SVG method ==
-
-Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
-
-== Path method ==
-
-Curve has a *Path* member, as described in [GeneralPrimative General features for all primatives].
-
 = class HLine =
 
 HLine draws a horizontal line.  If the coordinates curve, the line will
-curve.  It also has *SVG* and *Path* members.
+curve.
 
 == Arguments ==
 
@@ -34,3 +26,12 @@ curve.  It also has *SVG* and *Path* members.
 || x1, x2 || _*required*_ || x range ||
 || y || _*required*_ || y position ||
 || attribute=value pairs || _keyword list_ || SVG attributes ||
+
+== SVG method ==
+
+VLine and HLine have *SVG* members, as described in [GeneralPrimative General features for all primatives].
+
+== Path method ==
+
+VLine and HLine have *Path* members, as described in [GeneralPrimative General features for all primatives].
+

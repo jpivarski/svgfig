@@ -25,11 +25,11 @@ The format of the tuples in `d` depends on the `mode`.
 
 == SVG method ==
 
-Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Poly has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
 == Path method ==
 
-Curve has a *Path* member, as described in [GeneralPrimative General features for all primatives].
+Poly has a *Path* member, as described in [GeneralPrimative General features for all primatives].
 
 == Considerations ==
 
