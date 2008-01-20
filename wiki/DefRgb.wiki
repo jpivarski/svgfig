@@ -17,6 +17,6 @@ Returns a string of the form "#xxyyzz" where xx, yy, and zz are hexadecimal.
 {{{
 >>> rgb(0.5, 0.5, 0.5)
 '#7f7f7f'
->>> rgb(50, 50, 50, 100)
+>>> rgb(50, 50, 50, maximum=100)
 '#7f7f7f'
 }}}
