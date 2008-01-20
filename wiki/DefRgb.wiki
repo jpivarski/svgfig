@@ -10,7 +10,7 @@ Returns a string of the form "#xxyyzz" where xx, yy, and zz are hexadecimal.
 *rgb(r, g, b, maximum)*
 
 || r, g, b || _*required*_ || values for red, green, and blue channel ||
-|| maximum || _default_=1. || the maximum value for each channel
+|| maximum || _default_=1. || the maximum value for each channel ||
 
 == Examples ==
 
