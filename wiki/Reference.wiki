@@ -54,15 +54,14 @@ All SVGFig classes and functions are defined in wiki pages: [http://code.google.
   * [ClassVLine VLine and HLine]: draws vertical and horizontal lines (provided as a convenience)
   * [ClassRect Rect]: draws a rectangle joining four points
   * [ClassEllipse Ellipse]: draws an ellipse with semimajor axis and a semiminor length (does not need to be aligned with the X-Y axis)
-
-  * [ClassGrid Grid]: draws a set of horizontal and vertical lines
-    * [ClassHGrid HGrid]: horizontal only
-    * [ClassVGrid VGrid]: vertical only
+  * [ClassGrid Grid, HGrid, and VGrid]: draws a set of horizontal and vertical lines
 
   * [ClassText Text]: places text at a local coordinate
   * [ClassTextGlobal TextGlobal]: places text at a global coordinate
 
 == Coordinate Axes ==
+
+  * [TickSpecification Standard tick specification methods]
 
   * [ClassAxes Axes]: draws an orthogonal coordinate axis in the local coordinate system
     * [ClassXAxis XAxis]: just the x axis
@@ -70,6 +69,3 @@ All SVGFig classes and functions are defined in wiki pages: [http://code.google.
   * [ClassTicks Ticks]: superclass of everything with tick marks; implements the tick-guessing algorithm
   * [ClassCurveAxis CurveAxis]: draws ticks along a parametric function
     * [ClassLineAxis LineAxis]: draws ticks along a line; useful for measuring the distance between points
-
-  * for managing ticks
-    * [DefUnumber unumber]: creates numeric tick labels with Unicode special symbols (applied by default)

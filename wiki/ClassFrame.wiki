@@ -30,10 +30,10 @@ The following are keyword options, with their default values:
 || flipx, flipy || False, True || flip the sign of the coordinate axis ||
 || minusInfinity || -1000 || if an axis is logarithmic and an object is plotted at 0 or a negative value, -1000 will be used as a stand-in for NaN ||
 || xtitle || None || if a string, label the x axis ||
-|| xticks || -10 || requests "less than N" ticks if negative, exactly N if positive, an explicit set of values if given as a list, and an explicit set of (value, label) pairs if a dict ||
-|| xminiticks || True || True/False to include/exclude miniticks; may be an explicit set of values; miniticks are never labeled ||
-|| xlabels || True || True/False to include/exclude tick labels; may be an explicit function or format string for converting numbers into tick labels ([DefUnumber unumber] by default) ||
-|| xlogbase || None || if a number, the axis is logarithmic with ticks at the given base (10 is the most common) ||
+|| xticks || -10 || request ticks according to the [TickSpecification standard tick specification] ||
+|| xminiticks || True || request miniticks according to the [TickSpecification standard minitick specification] ||
+|| xlabels || True || request tick labels according to the [TickSpecification standard tick label specification] ||
+|| xlogbase || None || if a number, the axis and transformation are logarithmic with ticks at the given base (10 is the most common) ||
 || same for y || || ||
 || text_attr || {} || a dictionary of attributes for label text ||
 || axis_attr || {} || a dictionary of attributes for the axis lines ||

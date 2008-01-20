@@ -3,8 +3,8 @@
 
 = class Ellipse =
 
-Ellipse draws ellipses and circles.  The shape of the circumference is
-mutable by coordinate transformations.
+Ellipse draws ellipses and circles.  The shape may be non-elliptical
+if passed through a non-linear coordinate transformation.
 
 == Arguments ==
 
