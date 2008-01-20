@@ -1,9 +1,9 @@
 #summary Draw a line between two points, one or both of which in global coordinates
 #labels Reference
 
-= class LineGlobal =
+= class !LineGlobal =
 
-LineGlobal draws a line between two points, one or both of which is in
+!LineGlobal draws a line between two points, one or both of which is in
 global coordinates.  (This line will not be curved by curving coordinate systems.)
 
 This is useful for connecting parts of your figure defined in global
@@ -11,7 +11,7 @@ coordinates with parts defined in a coordinate transform.
 
 == Arguments ==
 
-*LineGlobal(x1, y1, x2, y2, local1, local2, attribute=value)*
+*!LineGlobal(x1, y1, x2, y2, local1, local2, attribute=value)*
 
 || x1, y1 || _*required*_ || the starting point ||
 || x2, y2 || _*required*_ || the ending point ||
