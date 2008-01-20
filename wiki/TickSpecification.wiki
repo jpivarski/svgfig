@@ -1,0 +1,53 @@
+#summary Standard tick specification methods
+#labels Reference
+
+= Standard tick specification methods =
+
+Several graphics primatives and Fig substitutes request ticks,
+miniticks, and tick labels.  These are all interpreted the same way.
+
+== Ticks ==
+
+Ticks (or xticks/yticks) are notches on an axis that are usually
+labeled with their location.  They may be specified in the following
+ways.
+
+  * *True*: same as -10 (below).
+  * *Positive number N*: draw exactly N ticks, including the endpoints.  To subdivide an axis into 10 equal-sized segments, ask for 11 ticks.
+  * *Negative number -N*: draw at least N ticks.  Ticks will be chosen with "natural" values, multiples of 2 or 5.
+  * *List of values*: draw a tick mark at each value.
+  * *Dict of value, label pairs*: draw a tick mark at each value, labeling it with the given string.  This lets you say things like {3.14159: "pi"}.
+  * *False or None*: no ticks.
+
+== Miniticks ==
+
+Miniticks (or xminiticks/yminiticks) are shorter notches without
+labels.  They may be specified in the following ways.
+
+  * *True*: draw miniticks with "natural" values, more closely spaced than the ticks.
+  * *Positive number N*: draw exactly N miniticks, including the endpoints.  To subdivide an axis into 100 equal-sized segments, ask for 101 miniticks.
+  * *Negative number -N*: draw at least N miniticks.
+  * *List of values*: draw a minitick mark at each value.
+  * *False or None*: no miniticks.
+
+== Tick labels ==
+
+Tick labels (or xlabels/ylabels) are text labels next to each tick
+mark.  To specify them explicitly, use the dict form of ticks (above).
+The "labels" option is usually a function or format string to convert
+numerical values to label strings.
+
+  * *True*: use the unumber function (described below)
+  * *Format string*: standard format strings, e.g. "%5.2f" for 12.34
+  * *Python callable*: function that converts numbers to strings
+  * *False or None*: no labels
+
+= unumber =
+
+A function that converts numbers to a Unicode string.  Takes advantage
+of special Unicode characters to make nice minus signs and scientific
+notation.
+
+*unumber(x)*
+
+|| x || _*required*_ || number to be converted ||
