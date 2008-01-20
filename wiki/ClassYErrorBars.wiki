@@ -37,3 +37,5 @@ Curve has a *SVG* member, as described in [GeneralPrimative General features for
 XErrorBars draws x error bars at a set of points.  This is usually
 used before (under) a set of [ClassDots Dots] and maybe YErrorBars at
 the same points.
+
+In all respects, XErrorBars acts like YErrorBars.

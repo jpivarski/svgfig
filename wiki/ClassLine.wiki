@@ -1,11 +1,24 @@
-#summary ClassLine
+#summary Draw a line between two points
 #labels Reference
 
-= ClassLine =
+= class Line =
+
+Line draws a line between two points, but this line is mutable by
+coordinate transformations.  If the coordinates curve, the line will
+curve.
 
 == Arguments ==
 
-== Return value ==
+*Line(x1, y1, x2, y2, attribute=value)*
 
-== Examples ==
+|| x1, y1 || _*required*_ || the starting point ||
+|| x2, y2 || _*required*_ || the ending point ||
+|| attribute=value pairs || _keyword list_ || SVG attributes ||
 
+== SVG method ==
+
+Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+
+== Path method ==
+
+Curve has a *Path* member, as described in [GeneralPrimative General features for all primatives].

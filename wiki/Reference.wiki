@@ -51,8 +51,7 @@ All SVGFig classes and functions are defined in wiki pages: [http://code.google.
 
   * [ClassLine Line]: draws a line between two points; if the coordinate transformation is non-linear, the line may be curved
   * [ClassLineGlobal LineGlobal]: draws a straight line between two points, one or both of which are in global coordinates
-  * [ClassVLine VLine]: draws a vertical line (provided as a convenience)
-  * [ClassHLine HLine]: a horizontal line
+  * [ClassVLine VLine and HLine]: draws vertical and horizontal lines (provided as a convenience)
   * [ClassRect Rect]: draws a rectangle joining four points
   * [ClassEllipse Ellipse]: draws an ellipse with semimajor axis and a semimajor length (does not need to be aligned with the X-Y axis)
 

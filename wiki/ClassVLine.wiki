@@ -1,11 +1,36 @@
-#summary ClassVLine
+#summary Draw a vertical or a horizontal line
 #labels Reference
 
-= ClassVLine =
+= class VLine =
+
+VLine draws a vertical line.  If the coordinates curve, the line will
+curve.
 
 == Arguments ==
 
-== Return value ==
+*VLine(y1, y2, x, attribute=value)*
 
-== Examples ==
+|| y1, y2 || _*required*_ || y range ||
+|| x || _*required*_ || x position ||
+|| attribute=value pairs || _keyword list_ || SVG attributes ||
 
+== SVG method ==
+
+Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+
+== Path method ==
+
+Curve has a *Path* member, as described in [GeneralPrimative General features for all primatives].
+
+= class HLine =
+
+HLine draws a horizontal line.  If the coordinates curve, the line will
+curve.  It also has *SVG* and *Path* members.
+
+== Arguments ==
+
+*HLine(y1, y2, x, attribute=value)*
+
+|| x1, x2 || _*required*_ || x range ||
+|| y || _*required*_ || y position ||
+|| attribute=value pairs || _keyword list_ || SVG attributes ||

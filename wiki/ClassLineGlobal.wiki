@@ -1,11 +1,30 @@
-#summary ClassLineGlobal
+#summary Draw a line between two points, one or both of which in global coordinates
 #labels Reference
 
-= ClassLineGlobal =
+= class LineGlobal =
+
+LineGlobal draws a line between two points, one or both of which is in
+global coordinates.  (This line will not be curved by curving coordinate systems.)
+
+This is useful for connecting parts of your figure defined in global
+coordinates with parts defined in a coordinate transform.
 
 == Arguments ==
 
-== Return value ==
+*LineGlobal(x1, y1, x2, y2, local1, local2, attribute=value)*
 
-== Examples ==
+|| x1, y1 || _*required*_ || the starting point ||
+|| x2, y2 || _*required*_ || the ending point ||
+|| local1, local2 || _default_=False, False || if True, transform this point ||
+|| attribute=value pairs || _keyword list_ || SVG attributes ||
 
+If a coordinate is global, it can be expressed as a string with SVG
+units, like "2 cm".
+
+== SVG method ==
+
+Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+
+== Path method ==
+
+Curve has a *Path* member, as described in [GeneralPrimative General features for all primatives].
