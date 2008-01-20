@@ -17,6 +17,14 @@ fragment or a whole graphic (with a top-level <svg /> tag).
 Nested SVG elements must be specified before the attributes of the
 parent, which is the opposite order of XML.
 
+Python attribute names cannot contain colons or hyphens,
+so the following conversions are made:
+
+|| "__" (two underscores) || become a colon ":" ||
+|| "_" (one underscore) || becomes a hyphen "-" ||
+
+Thus, "xmlns__xlink" becomes "xmlns:xlink" and "marker_start" becomes "marker-start".
+
 === Examples ===
 
 ==== SVG in XML ====

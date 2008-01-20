@@ -1,11 +1,23 @@
-#summary DefMake_symbol
+#summary Create new SVG symbol objects from a template of useful shapes
 #labels Reference
 
-= DefMake_symbol =
+= def make_symbol =
+
+Creates a new instance of an SVG symbol to avoid cross-linking objects.  The user must supply a new identifier.
 
 == Arguments ==
 
-== Return value ==
+*make_symbol(id, shape, attribute=value)*
 
-== Examples ==
+|| id || _*required*_ || a new identifier (string/Unicode) ||
+|| shape || _default_="dot" || the shape name from *symbol_templates* ||
+|| attribute=value list || _keyword list_ || modify the SVG attributes of the new symbol, e.g. stroke="red", fill="yellow" ||
 
+== Templates ==
+
+Symbol templates come from a dictionary in the svgfig namespace called *symbol_templates*.
+
+|| "dot" || a circular dot ||
+|| "box" || a square box ||
+|| "uptri" || an upward-pointing triangle ||
+|| "downtri" || a downward-pointing triangle ||

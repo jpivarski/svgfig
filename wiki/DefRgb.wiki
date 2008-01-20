@@ -1,11 +1,22 @@
-#summary DefRgb
+#summary Create an RGB hex string from three numbers
 #labels Reference
 
-= DefRgb =
+= def rgb =
+
+Returns a string of the form "#xxyyzz" where xx, yy, and zz are hexadecimal.
 
 == Arguments ==
 
-== Return value ==
+*rgb(r, g, b, maximum)*
+
+|| r, g, b || _*required*_ || values for red, green, and blue channel ||
+|| maximum || _default_=1. || the maximum value for each channel
 
 == Examples ==
 
+{{{
+>>> rgb(0.5, 0.5, 0.5)
+'#7f7f7f'
+>>> rgb(50, 50, 50, 100)
+'#7f7f7f'
+}}}
