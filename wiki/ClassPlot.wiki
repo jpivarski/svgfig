@@ -1,11 +1,48 @@
-#summary ClassPlot
+#summary A Fig with a coordinate axis
 #labels Reference
 
-= ClassPlot =
+= class Plot =
+
+Acts like [ClassFig Fig], but draws a coordinate axis.  You also need to supply plot ranges.
 
 == Arguments ==
 
-== Return value ==
+*Plot(xmin, xmax, ymin, ymax, obj, obj, obj..., keyword options...)*
 
-== Examples ==
+|| xmin, xmax || _*required*_ || minimum and maximum x values (in the objs' coordinates) ||
+|| ymin, ymax || _*required*_ || minimum and maximum y values (in the objs' coordinates) ||
+|| obj || _optional list_ || drawing primatives ||
 
+The drawing primatives must implement the *SVG* method, as described
+in the [ClassFig Fig] documentation.
+
+Unlike [ClassFig Fig], Plot has an implicit coordinate transformation:
+from (xmin, xmax), (ymin, ymax) to its bounding box.  This coordinate
+transformation (a [DefWindow window] transformation) flips the
+direction of the y axis (SVG coordinates have y increasing downward,
+local Plot coordinates have y increasing upward).
+
+Any additional coordinate transformation, given through the "trans"
+keyword option (or given as an argument to the *SVG* method) is
+composed with Plot's implicit window transformation.
+
+The following are keyword options, with their default values:
+
+|| trans || None || transformation function ||
+|| x, y || 5, 5 || upper-left corner of the Plot in SVG coordinates ||
+|| width, height || 90, 90 || width and height of the Plot in SVG coordinates ||
+|| flipx, flipy || False, True || flip the sign of the coordinate axis ||
+|| minusInfinity || -1000 || if an axis is logarithmic and an object is plotted at 0 or a negative value, -1000 will be used as a stand-in for NaN ||
+|| atx, aty || 0, 0 || the place where the coordinate axes cross ||
+|| xticks || -10 || requests "less than N" ticks if negative, exactly N if positive, an explicit set of values if given as a list, and an explicit set of (value, label) pairs if a dict ||
+|| xminiticks || True || True/False to include/exclude miniticks; may be an explicit set of values; miniticks are never labeled ||
+|| xlabels || True || True/False to include/exclude tick labels; may be an explicit function or format string for converting numbers into tick labels ([DefUnumber unumber] by default) ||
+|| xlogbase || None || if a number, the axis is logarithmic with ticks at the given base (10 is the most common) ||
+|| same for y || || ||
+|| arrows || None || if a new identifier, create arrow markers and draw them at the ends of the coordinate axes ||
+|| text_attr || {} || a dictionary of attributes for label text ||
+|| axis_attr || {} || a dictionary of attributes for the axis lines ||
+
+== SVG method ==
+
+Just like [ClassFig Fig], Plot has an *SVG* method to convert its objects into [ClassSVG SVG].

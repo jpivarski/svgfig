@@ -1,11 +1,58 @@
-#summary ClassFrame
+#summary A Fig with a coordinate frame
 #labels Reference
 
-= ClassFrame =
+= class Frame =
+
+Acts like [ClassFig Fig], but draws a coordinate frame around the data.  You also need to supply plot ranges.
 
 == Arguments ==
 
-== Return value ==
+*Frame(xmin, xmax, ymin, ymax, obj, obj, obj..., keyword options...)*
 
-== Examples ==
+|| xmin, xmax || _*required*_ || minimum and maximum x values (in the objs' coordinates) ||
+|| ymin, ymax || _*required*_ || minimum and maximum y values (in the objs' coordinates) ||
+|| obj || _optional list_ || drawing primatives ||
 
+The drawing primatives must implement the *SVG* method, as described
+in the [ClassFig Fig] documentation.
+
+Unlike [ClassFig Fig], Frame has an implicit coordinate transformation:
+from (xmin, xmax), (ymin, ymax) to its bounding box.  This coordinate
+transformation (a [DefWindow window] transformation) flips the
+direction of the y axis (SVG coordinates have y increasing downward,
+local Frame coordinates have y increasing upward).
+
+The following are keyword options, with their default values:
+
+|| x, y || 20, 5 || upper-left corner of the Frame in SVG coordinates ||
+|| width, height || 75, 80 || width and height of the Frame in SVG coordinates ||
+|| flipx, flipy || False, True || flip the sign of the coordinate axis ||
+|| minusInfinity || -1000 || if an axis is logarithmic and an object is plotted at 0 or a negative value, -1000 will be used as a stand-in for NaN ||
+|| xtitle || None || if a string, label the x axis ||
+|| xticks || -10 || requests "less than N" ticks if negative, exactly N if positive, an explicit set of values if given as a list, and an explicit set of (value, label) pairs if a dict ||
+|| xminiticks || True || True/False to include/exclude miniticks; may be an explicit set of values; miniticks are never labeled ||
+|| xlabels || True || True/False to include/exclude tick labels; may be an explicit function or format string for converting numbers into tick labels ([DefUnumber unumber] by default) ||
+|| xlogbase || None || if a number, the axis is logarithmic with ticks at the given base (10 is the most common) ||
+|| same for y || || ||
+|| text_attr || {} || a dictionary of attributes for label text ||
+|| axis_attr || {} || a dictionary of attributes for the axis lines ||
+
+== SVG method ==
+
+Just like [ClassFig Fig], Frame has an *SVG* method to convert its objects into [ClassSVG SVG].
+
+== Default values ==
+
+Frame has several default values which affect the drawing output.
+They may be set for a single Frame instance, affecting only that
+object, or for the class itself, affecting all Frame objects created
+for that time onward.
+
+|| text_defaults || {"stroke":"none", "fill":"black", "font-size":5} || SVG attributes for the xtitle and ytitle ||
+|| axis_defaults || {} || SVG attributes for the axis lines and ticks ||
+|| tick_length || 1.5 || length of (one-sided) ticks along the inside of the frame (SVG units) ||
+|| minitick_length || 0.75 || length of (one-sided) miniticks (SVG units) ||
+|| text_xaxis_offset || 1. || distance between the x axis and the x labels (SVG units) ||
+|| text_yaxis_offset || 2. || distance between the y axis and the y labels (SVG units) ||
+|| text_xtitle_offset || 6. || distance between the x axis and the xtitle (SVG units) ||
+|| text_ytitle_offset || 12. || distance between the y axis and the ytitle (SVG units) ||

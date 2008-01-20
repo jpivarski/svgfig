@@ -1,11 +1,14 @@
-#summary DefRotate
+#summary Coordinate transform which rotates around a point
 #labels Reference
 
-= DefRotate =
+= def rotate =
+
+The rotate function creates a coordinate transformation that rotates
+around a point.
 
 == Arguments ==
 
-== Return value ==
+*rotate(angle, cx, cy)*
 
-== Examples ==
-
+|| angle || _*required*_ || angle in degrees ||
+|| cx, cy || _default_=0, 0 || point around which to rotate ||

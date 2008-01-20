@@ -1,11 +1,54 @@
-#summary ClassFig
+#summary Represents a set of drawing primitives in a coordinate system
 #labels Reference
 
-= ClassFig =
+= class Fig =
+
+A Fig stores graphics primitive objects and applies a single
+coordinate transformation to them.  To compose coordinate systems,
+nest Fig objects.
+
+Fig objects can always be converted into [ClassSVG SVG].
 
 == Arguments ==
 
-== Return value ==
+*Fig(obj, obj, obj..., trans=function)*
 
-== Examples ==
+|| obj || _optional list_ || a list of drawing primatives ||
+|| trans || _default_=None || a coordinate transformation function ||
 
+The drawing primatives are either classes that implement the *SVG*
+method (see below) or are [ClassSVG SVG] objects.  If [ClassSVG SVG],
+coordinates are _not_ transformed.  This allows you to mix objects in
+local coordinates with objects in global coordinates, such as text
+labels.
+
+The transformation function can be a Python callable with two
+arguments and two return values or a string in "x, y" form.  String
+expressions are converted with the [DefTotrans totrans] function.
+
+=== Examples ===
+
+{{{
+>>> fig = Fig(Line(0,0,1,1), Rect(0.2,0.2,0.8,0.8), trans="2*x, 2*y")
+>>> print fig.SVG().xml()
+<g>
+    <path d='M0 0L2 2' />
+    <path d='M0.4 0.4L1.6 0.4ZL1.6 1.6ZL0.4 1.6ZL0.4 0.4ZZ' />
+</g>
+>>> print Fig(fig, trans="x/2., y/2.").SVG().xml()
+<g>
+    <path d='M0 0L1 1' />
+    <path d='M0.2 0.2L0.8 0.2ZL0.8 0.8ZL0.2 0.8ZL0.2 0.2ZZ' />
+</g>
+}}}
+
+== SVG method ==
+
+Fig objects are converted into [ClassSVG SVG] with the *SVG* method.
+
+*SVG(trans)*
+
+|| trans || _default_=None || a coordinate transformation function (to override the default) ||
+
+All graphics primatives must supply a *SVG* method with the same
+arguments.
