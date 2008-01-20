@@ -15,6 +15,7 @@ be a broken line.
 
 || f || _*required*_ || a Python callable or string in the form "f(t), g(t)" ||
 || low, high || _*required*_ || left and right endpoints" ||
+|| loop || _default_=False || if True, connect the endpoints ||
 || attribute=value pairs || _keyword list_ || SVG attributes ||
 
 The function must take one argument and return two values.  If it is a
