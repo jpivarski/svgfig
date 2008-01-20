@@ -1,7 +1,7 @@
 #summary Draw text at a given point in global coordinates
 #labels Reference
 
-= class TextGlobal =
+= class !TextGlobal =
 
 Draws at text string at a specified point in global coordinates.
 
@@ -13,10 +13,10 @@ Draws at text string at a specified point in global coordinates.
 
 == SVG method ==
 
-TextGlobal has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+!TextGlobal has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
 == Defaults ==
 
-TextGlobal has the following defaults, as described in [GeneralPrimative General features for all primatives].
+!TextGlobal has the following defaults, as described in [GeneralPrimative General features for all primatives].
 
 || defaults || {"stroke":"none", "fill":"black", "font-size":5} ||
