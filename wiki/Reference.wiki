@@ -37,6 +37,8 @@ All SVGFig classes and functions are defined in wiki pages: [http://code.google.
 
 == Fig Primatives ==
 
+  * [GeneralPrimative General features of all primatives]
+
   * [ClassPath Path]: a transformable representation of an SVG path
     * [DefPathtoPath pathtoPath]: converts SVG <path /> objects into transformable Paths
   * [ClassCurve Curve]: draws a parametric function; implements the adaptive sampling algorithm

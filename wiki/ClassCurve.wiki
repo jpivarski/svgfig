@@ -1,11 +1,36 @@
-#summary ClassCurve
+#summary Draw functions and parametric curves
 #labels Reference
 
-= ClassCurve =
+= class Curve =
+
+Curve draws a Python callable as a path.  Curves are adaptively
+sampled, meaning that the function is evaluated at more points near
+corners and along curves and at fewer points along straight segments.
+If the function is discontinuous (like a step function), the path will
+be a broken line.
 
 == Arguments ==
 
-== Return value ==
 
-== Examples ==
 
+
+
+
+
+ == SVG method ==
+
+ Like all grpahics primitives, Curves can be converted into [ClassSVG SVG] with the *SVG* method.
+
+ *SVG(trans)*
+
+ || trans || _default_=None || a coordinate transformation function (to override the default) ||
+
+
+
+  defaults = {}
+  def __repr__(self):
+  def __init__(self, f, low, high, loop=False, **attr):
+  def sample(self, trans=None):
+  def subsample(self, left, right, depth, trans=None):
+  def SVG(self, trans=None):
+  def Path(self, trans=None, local=False):

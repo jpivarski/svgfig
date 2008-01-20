@@ -42,6 +42,15 @@ expressions are converted with the [DefTotrans totrans] function.
 </g>
 }}}
 
+== Member data ==
+
+These data may be changed at any time.  You do not need to make a list
+of all graphics before creating a Fig; you can create an empty Fig and
+append items to its `d` member.
+
+|| d || list of plottable objects ||
+|| trans || transformation function ||
+
 == SVG method ==
 
 Fig objects are converted into [ClassSVG SVG] with the *SVG* method.

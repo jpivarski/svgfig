@@ -12,6 +12,7 @@ Acts like [ClassFig Fig], but draws a coordinate frame around the data.  You als
 || xmin, xmax || _*required*_ || minimum and maximum x values (in the objs' coordinates) ||
 || ymin, ymax || _*required*_ || minimum and maximum y values (in the objs' coordinates) ||
 || obj || _optional list_ || drawing primatives ||
+|| keyword options || _keyword list_ || options defined below ||
 
 The drawing primatives must implement the *SVG* method, as described
 in the [ClassFig Fig] documentation.
@@ -36,6 +37,15 @@ The following are keyword options, with their default values:
 || same for y || || ||
 || text_attr || {} || a dictionary of attributes for label text ||
 || axis_attr || {} || a dictionary of attributes for the axis lines ||
+
+== Member data ==
+
+These data may be changed at any time.  You do not need to make a list
+of all graphics before creating a Frame; you can create an empty Frame and
+append items to its `d` member.
+
+|| d || list of plottable objects ||
+|| all keyword options || same meaning as above ||
 
 == Default values ==
 

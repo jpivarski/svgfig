@@ -1,11 +1,12 @@
-#summary DefPathtoPath
+#summary Convert SVG paths into transformable Paths
 #labels Reference
 
 = pathtoPath =
 
+Converts `SVG("path", d="...")` into `Path(d=[...])`.
+
 == Arguments ==
 
-== Return value ==
+*path(svg)*
 
-== Examples ==
-
+|| svg || _*required*_ || an SVG path ||

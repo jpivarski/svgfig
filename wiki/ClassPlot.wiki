@@ -12,6 +12,7 @@ Acts like [ClassFig Fig], but draws a coordinate axis.  You also need to supply 
 || xmin, xmax || _*required*_ || minimum and maximum x values (in the objs' coordinates) ||
 || ymin, ymax || _*required*_ || minimum and maximum y values (in the objs' coordinates) ||
 || obj || _optional list_ || drawing primatives ||
+|| keyword options || _keyword list_ || options defined below ||
 
 The drawing primatives must implement the *SVG* method, as described
 in the [ClassFig Fig] documentation.
@@ -42,6 +43,15 @@ The following are keyword options, with their default values:
 || arrows || None || if a new identifier, create arrow markers and draw them at the ends of the coordinate axes ||
 || text_attr || {} || a dictionary of attributes for label text ||
 || axis_attr || {} || a dictionary of attributes for the axis lines ||
+
+== Member data ==
+
+These data may be changed at any time.  You do not need to make a list
+of all graphics before creating a Plot; you can create an empty Plot and
+append items to its `d` member.
+
+|| d || list of plottable objects ||
+|| all keyword options || same meaning as above ||
 
 == SVG method ==
 

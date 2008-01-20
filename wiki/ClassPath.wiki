@@ -47,12 +47,6 @@ relative.
 
 Note that elliptical arcs and dots won't be properly transformed in
 all coordinate transformations.  Only the control points are set to
-the transformed coordinates.
+the transformed coordinates.  This can also lead to distortion if
+there's a lot of space between control points.
 
-== SVG method ==
-
-Like all grpahics primitives, Paths can be converted into [ClassSVG SVG] with the *SVG* method.
-
-*SVG(trans)*
-
-|| trans || _default_=None || a coordinate transformation function (to override the default) ||
