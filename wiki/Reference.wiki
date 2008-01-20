@@ -1,4 +1,4 @@
-#summary Reference
+#summary Home page for all documentation
 #labels Featured
 
 = Alphabetized Index =
@@ -7,7 +7,11 @@ All SVGFig classes and functions are defined in wiki pages: [http://code.google.
 
 [http://code.google.com/p/svgfig/w/list?q=label:Reference http://svgfig.googlecode.com/svn/wiki/alphabetized_list.png]
 
-= Table of Contents =
+= Tutorials =
+
+  * [Introduction Introduction]
+
+= Reference Table of Contents =
 
 == Fundamentals ==
 
