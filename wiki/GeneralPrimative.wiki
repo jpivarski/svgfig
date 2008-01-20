@@ -11,6 +11,27 @@ All grpahics primitives have a *SVG* method to convert to [ClassSVG SVG].
 
 || trans || _default_=None || a coordinate transformation function (to override the default) ||
 
+== Path method ==
+
+_Some_ grpahics primitives also have a *Path* method to convert to [ClassPath Path].
+
+*Path(trans, local)*
+
+|| trans || _default_=None || a coordinate transformation function (to override the default) ||
+|| local || _default_=False || express the path in local coordinates ||
+
+Be careful to transform coordinates only once: the following are equivalent
+  * `something.Path(transformation, local=False).SVG()`
+  * `something.Path(transformation, local=True).SVG(transformation)`
+  * `something.Path(None, local=True).SVG(transformation)`
+  * `something.Path(None, local=False).SVG(transformation)`
+though the actual output may differ due to the adative sampling algorithm.  (Straight segments
+might look curved under a transformation, and the sampling algorithm will want to give these
+segments more points if it knows about the transformation in the Path function.)
+
+Generally, you want
+  * `something.Path(transformation, local=False)`
+
 == Member data ==
 
 Every option in a primitive's constructor may be accessed later as member data.  For example,
@@ -68,7 +89,7 @@ Change the "stroke-width" for all subsequent LineAxis instances.
 {'stroke-width': '0.5pt'}
 }}}
 
-(But that didn't change the already-instantiated `lineaxis2`.
+(But that didn't change the already-instantiated `lineaxis2`.
 {{{
 >>> lineaxis2.attr
 {'stroke-width': '0.25pt'}
