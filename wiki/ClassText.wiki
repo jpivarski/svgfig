@@ -1,11 +1,22 @@
-#summary ClassText
+#summary Draw text at a given point in local coordinates
 #labels Reference
 
-= ClassText =
+= class Text =
+
+Draws at text string at a specified point in local coordinates.
 
 == Arguments ==
 
-== Return value ==
+|| x, y || _*required*_ || location of the point in local coordinates ||
+|| d || _*required*_ || text/Unicode string ||
+|| attribute=value pairs || _keyword list_ || SVG attributes ||
 
-== Examples ==
+== SVG method ==
 
+Text has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+
+== Defaults ==
+
+Text has the following defaults, as described in [GeneralPrimative General features for all primatives].
+
+|| defaults || {"stroke":"none", "fill":"black", "font-size":5} ||

@@ -22,3 +22,12 @@ Line has a *SVG* member, as described in [GeneralPrimative General features for 
 == Path method ==
 
 Line has a *Path* member, as described in [GeneralPrimative General features for all primatives].
+
+== Defaults ==
+
+Line has the same defaults as [ClassCurve Curve].  Defaults are described in [GeneralPrimative General features for all primatives].
+
+|| random_sampling || True || if False, bisect with a point exactly halfway between pairs of points; if True, randomly choose a point between 30% and 70% ||
+|| recursion_limit || 15 || number of subdivisions before giving up; if 15, sampling algorithm can visit _at most_ 2^15^ points ||
+|| linearity_limit || 0.05 || maximum deviation (in SVG units) from a straight line ||
+|| discontinuity_limit || 5 || minimum deviation (in SVG units) between points that is considered continuous ||

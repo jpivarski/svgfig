@@ -3,8 +3,8 @@
 
 = class Grid =
 
-Grid draws a grid over a specified region using the same algorithms as
-[ClassTicks Ticks] and [ClassAxes Axes].  The grid will be curved in
+Grid draws a grid over a specified region using [TickSpecification standard tick specification]
+to place the grid lines.  The grid will be curved in
 non-linear transformations, and can be a good way to "feel" the shape
 of the transformation.
 
@@ -55,3 +55,10 @@ Only draws the vertical lines of a grid.
 == SVG method ==
 
 Grid, HGrid, and VGrid have *SVG* members, as described in [GeneralPrimative General features for all primatives].
+
+== Defaults ==
+
+Grid, HGrid, and VGrid have the following defaults, as described in [GeneralPrimative General features for all primatives].
+
+|| defaults || {"stroke-width":"0.25pt", "stroke":"gray"} ||
+|| mini_defaults || {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"} ||
