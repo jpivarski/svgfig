@@ -11,26 +11,51 @@ be a broken line.
 
 == Arguments ==
 
+*Curve(f, low, high, loop, attribute=value)*
 
+|| f || _*required*_ || a Python callable or string in the form "f(t), g(t)" ||
+|| low || _*required*_ || left endpoint, or starting value of "t" ||
+|| high || _*required*_ || right endpoint, or starting value of "t" ||
+|| attribute=value pairs || _keyword list_ || SVG attributes ||
 
+The function must take one argument and return two values.  If it is a
+string, it will be passed to [DefFuncRtoR2 funcRtoR2].  For complex
+functions, use an explicit call to [DefFuncRtoC funcRtoC] and for real
+functions, use an explicit call to [DefFuncRtoR funcRtoR], which
+return a function in the right format.
 
+The following are all equivalent:
+  * `Curve(lambda t: t, t**2, 0, 1)`
+  * `Curve("t, t**2")`
+  * `Curve(funcRtoR2("t, t**2"), 0, 1)`
+  * `Curve(funcRtoC("t + (1j)*t**2"), 0, 1)`
+  * `Curve(funcRtoR("x**2"), 0, 1)`
 
+== SVG method ==
 
+Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
- == SVG method ==
+== Path method ==
 
- Like all grpahics primitives, Curves can be converted into [ClassSVG SVG] with the *SVG* method.
+Curve has a *Path* member, as described in [GeneralPrimative General features for all primatives].
 
- *SVG(trans)*
+== Special data members ==
 
- || trans || _default_=None || a coordinate transformation function (to override the default) ||
+After the Curve has been evaluated with *SVG* or *Path*, it gains a
+new data memeber, `last_samples`.  This is an iterable of
+Curve.Sample objects:
+{{{
+>>> c = Curve(funcRtoR("x**2"), 0, 1)
+>>> c.SVG()
+>>> for s in c.last_samples:
+...     print s.x, s.y, s.X, s.Y
+...
+}}}
 
+Curve.Sample has four data members, `x`, `y`, `X`, `Y`.  These are
+coordinates in local (lowercase) and global (uppercase) coordinates.
+If a coordinate is `None`, there is a break in the curve, due to a
+discontinuity in the supplied function.
 
-
-  defaults = {}
-  def __repr__(self):
-  def __init__(self, f, low, high, loop=False, **attr):
-  def sample(self, trans=None):
-  def subsample(self, left, right, depth, trans=None):
-  def SVG(self, trans=None):
-  def Path(self, trans=None, local=False):
+This iterable is actually a doubly-linked list, not a Python
+construct, connected through data members called `left` and `right`.
