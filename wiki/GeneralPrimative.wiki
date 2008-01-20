@@ -1,0 +1,77 @@
+#summary General features of all graphics primatives
+#labels Reference
+
+All graphics primatives have the following features:
+
+== SVG method ==
+
+All grpahics primitives have a *SVG* method to convert to [ClassSVG SVG].
+
+*SVG(trans)*
+
+|| trans || _default_=None || a coordinate transformation function (to override the default) ||
+
+== Member data ==
+
+Every option in a primitive's constructor may be accessed later as member data.  For example,
+{{{
+>>> line = Line(x1=0, y1=0, x2=1, y2=1)
+>>> line.x1
+0
+>>> line.y1 = 4
+}}}
+
+Some primitives define additional data members when they are drawn
+with *SVG*.  For example, you can give [ClassXAxis XAxis] a vague
+`ticks` specification and obtain the list of ticks actually created
+through `last_ticks`.
+{{{
+>>> axis = XAxis(0, 100, 0, ticks=-10)
+>>> axis.SVG()
+<g (9 sub) />
+>>> axis.last_ticks
+{0.0: u'0', 100.0: u'100', 40.0: u'40', 80.0: u'80', 20.0: u'20', 60.0: u'60'}
+}}}
+
+== Defaults ==
+
+All primitives have default SVG attributes which can be changed at the
+class level or the instance level.
+
+{{{
+>>> LineAxis.defaults
+{'stroke-width': '0.25pt'}
+>>> lineaxis = LineAxis(0,0,1,1)
+>>> lineaxis.attr
+{'stroke-width': '0.25pt'}
+}}}
+
+Change the "stroke-width" for `lineaxis`.
+{{{
+>>> lineaxis.attr["stroke-width"] = "0.5pt"
+>>> lineaxis.attr
+{'stroke-width': '0.5pt'}
+}}}
+
+Make a new LineAxis; it has the old "stroke-width".
+{{{
+>>> lineaxis2 = LineAxis(0,0,1,1)
+>>> lineaxis2.attr
+{'stroke-width': '0.25pt'}
+}}}
+
+Change the "stroke-width" for all subsequent LineAxis instances.
+{{{
+>>> LineAxis.defaults["stroke-width"] = "0.5pt"
+>>> lineaxis3 = LineAxis(0,0,1,1)
+>>> lineaxis3.attr
+{'stroke-width': '0.5pt'}
+}}}
+
+(But that didn't change the already-instantiated `lineaxis2`.
+{{{
+>>> lineaxis2.attr
+{'stroke-width': '0.25pt'}
+}}}
+
+Some primitives have default options which are not SVG attributes.  They work the same way.
