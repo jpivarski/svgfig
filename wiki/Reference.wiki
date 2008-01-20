@@ -10,6 +10,7 @@ All SVGFig classes and functions are defined in wiki pages: [http://code.google.
 = Tutorials =
 
   * [Introduction Introduction]
+  * [ExampleGallery Example Gallery]
 
 = Reference Table of Contents =
 
