@@ -46,3 +46,5 @@ The following are keyword options, with their default values:
 == SVG method ==
 
 Just like [ClassFig Fig], Plot has an *SVG* method to convert its objects into [ClassSVG SVG].
+
+All graphics primatives must supply a *SVG* method with the same arguments.

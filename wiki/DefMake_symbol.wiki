@@ -21,3 +21,9 @@ Symbol templates come from a dictionary in the svgfig namespace called *symbol_t
 || "box" || a square box ||
 || "uptri" || an upward-pointing triangle ||
 || "downtri" || a downward-pointing triangle ||
+
+{{{
+>>> import svgfig
+>>> svgfig.symbol_templates
+{'box': <symbol (1 sub) overflow='visible' viewBox='0 0 1 1' />, ...
+}}}

@@ -19,3 +19,9 @@ Symbol templates come from a dictionary in the svgfig namespace called *symbol_t
 
 || "arrow_start" || an arrow suitable for the start of a line or path ||
 || "arrow_end" || an arrow suitable for the end of a line or path ||
+
+{{{
+>>> import svgfig
+>>> svgfig.marker_templates
+{'arrow_end': <marker (1 sub) refY='3.6' refX='1.5' markerUnits='strokeWidth'...
+}}}

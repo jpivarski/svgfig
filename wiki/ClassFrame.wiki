@@ -37,10 +37,6 @@ The following are keyword options, with their default values:
 || text_attr || {} || a dictionary of attributes for label text ||
 || axis_attr || {} || a dictionary of attributes for the axis lines ||
 
-== SVG method ==
-
-Just like [ClassFig Fig], Frame has an *SVG* method to convert its objects into [ClassSVG SVG].
-
 == Default values ==
 
 Frame has several default values which affect the drawing output.
@@ -56,3 +52,9 @@ for that time onward.
 || text_yaxis_offset || 2. || distance between the y axis and the y labels (SVG units) ||
 || text_xtitle_offset || 6. || distance between the x axis and the xtitle (SVG units) ||
 || text_ytitle_offset || 12. || distance between the y axis and the ytitle (SVG units) ||
+
+== SVG method ==
+
+Just like [ClassFig Fig], Frame has an *SVG* method to convert its objects into [ClassSVG SVG].
+
+All graphics primatives must supply a *SVG* method with the same arguments.

@@ -14,7 +14,7 @@ increases y downward and most plotting applications increase y upward.
 
 == Arguments ==
 
-*window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=None, ylogbase=None, minusInfinity=-1000, flipx=False, flipy=True)*
+*window(xmin, xmax, ymin, ymax, x, y, width, height, xlogbase, ylogbase, minusInfinity, flipx, flipy)*
 
 || xmin, xmax || _*required*_ || "inner" x range ||
 || ymin, ymax || _*required*_ || "inner" y range ||
