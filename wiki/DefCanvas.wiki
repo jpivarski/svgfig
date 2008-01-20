@@ -30,5 +30,10 @@ Creates a top-level [ClassSVG SVG] object with the same arguments, but
 draws an outline around the viewBox and fills the background with
 "cornsilk" (yellowish) to make it easier to find.
 
-Use this to optimize the box outline, then drop the "_outline" for a
+Use this to optimize the box outline, then drop the "outline" for a
 normal canvas.
+{{{
+>>> canvas_outline(...)
+>>> # I like it
+>>> canvas(...)
+}}}
