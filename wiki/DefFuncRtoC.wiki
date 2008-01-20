@@ -1,7 +1,7 @@
 #summary DefFuncRtoC
 #labels Reference
 
-= DefFuncRtoC =
+= funcRtoC =
 
 == Arguments ==
 

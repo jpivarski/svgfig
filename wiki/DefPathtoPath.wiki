@@ -1,7 +1,7 @@
 #summary DefPathtoPath
 #labels Reference
 
-= DefPathtoPath =
+= pathtoPath =
 
 == Arguments ==
 

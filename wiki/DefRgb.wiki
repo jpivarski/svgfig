@@ -1,7 +1,7 @@
 #summary Create an RGB hex string from three numbers
 #labels Reference
 
-= def rgb =
+= rgb =
 
 Returns a string of the form "#xxyyzz" where xx, yy, and zz are hexadecimal.
 

@@ -1,7 +1,7 @@
 #summary Load an SVG image from XML text
 #labels Reference
 
-= def load =
+= load =
 
 Loads an SVG image from an XML file on disk.  Returns an [ClassSVG SVG] object.
 
@@ -11,7 +11,7 @@ Loads an SVG image from an XML file on disk.  Returns an [ClassSVG SVG] object.
 
 || fileName || _*required*_ || name of the SVG file ||
 
-= def load_stream =
+= load_stream =
 
 Loads an SVG image from an XML stream.  Returns an [ClassSVG SVG] object.
 

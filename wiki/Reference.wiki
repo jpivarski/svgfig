@@ -1,6 +1,8 @@
 #summary Reference
 #labels Featured
 
+= [http://code.google.com/p/svgfig/w/list?q=label:Reference Alphabetized index and search bar] =
+
 = Table of Contents =
 
 == Fundamentals ==

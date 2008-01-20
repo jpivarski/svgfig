@@ -1,7 +1,7 @@
 #summary Coordinate transform mapping an "inner coordinate" rectangle to an "outer coordinate" rectangle; may be logarithmic
 #labels Reference
 
-= def window =
+= window =
 
 The window function creates a coordinate transformation that maps two
 "inner" points (xmin, ymin), (xmax, ymax) to two outer points (x, y),

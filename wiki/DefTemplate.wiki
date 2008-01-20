@@ -1,7 +1,7 @@
 #summary Create an SVG object from a template on disk
 #labels Reference
 
-= def template =
+= template =
 
 Loads an SVG image from disk, like [Defload load], but replaces all
 instances of <REPLACEME /> with an [ClassSVG SVG] object of your

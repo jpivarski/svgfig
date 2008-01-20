@@ -1,7 +1,7 @@
 #summary Create a top-level <svg /> object, which defines the aspect ratio for the whole image
 #labels Reference
 
-= def canvas =
+= canvas =
 
 Creates a top-level [ClassSVG SVG] object, allowing the user to
 control the image size and aspect ratio.
@@ -24,7 +24,7 @@ control the image size and aspect ratio.
 || style || "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle" ||
 || font-family || "Helvetica,Arial,FreeSans,Sans,sans,sans-serif" ||
 
-= def canvas_outline =
+= canvas_outline =
 
 Creates a top-level [ClassSVG SVG] object with the same arguments, but
 draws an outline around the viewBox and fills the background with
