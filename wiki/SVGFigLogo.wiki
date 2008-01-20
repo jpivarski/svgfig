@@ -3,10 +3,16 @@
 
 = SVGFig logo =
 
-_(tested in svgfig-1.0.0)_
+To make the SVGFig logo, I converted the text "SVGFig" into a path and
+increased the number of control points in [http://www.inkscape.org Inkscape],
+then transformed the path with a very nonlinear function in SVGFig.
 
-The SVGFig logo was made in SVGFig.  I'm only half-satisfied by it: is
-someone interested in making a better one?
+The function is f(x, y) = x + 2 x y^2^, y (1 + 3/2 x + 4 x^2^).  It
+bulges on the left and right due to the x^2^ term in the y coordinate
+and trails toward the left on the top and bottom due to the y^2^ term
+in the x coordinate.
+
+For more examples, see the [ExampleGallery Example Gallery].
 
 {{{
 import svgfig
