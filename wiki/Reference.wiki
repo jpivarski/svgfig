@@ -3,6 +3,8 @@
 
 = Alphabetized Index and Search Bar =
 
+[http://code.google.com/p/svgfig/w/list?q=label:Reference http://svgfig.googlecode.com/svn/wiki/alphabetized_list.png]
+
 [http://code.google.com/p/svgfig/w/list?q=label:Reference Click here]
 
 = Table of Contents =
