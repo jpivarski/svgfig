@@ -9,7 +9,7 @@ of the transformation.
 
 == Arguments ==
 
-*Axes(xmin, xmax, ymin, ymax, atx=0, aty=0, xticks=-10, xminiticks=True, xlabels=True, xlogbase=None, yticks=-10, yminiticks=True, ylabels=True, ylogbase=None, arrows=None, text_attr={}, attribute=value)*
+*Axes(xmin, xmax, ymin, ymax, atx, aty, xticks, xminiticks, xlabels, xlogbase, yticks, yminiticks, ylabels, ylogbase, arrows, text_attr, attribute=value)*
 
 || xmin, xmax || _*required*_ || the x range ||
 || ymin, ymax || _*required*_ || the y range ||
