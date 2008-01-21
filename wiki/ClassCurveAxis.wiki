@@ -1,9 +1,9 @@
 #summary Draw an axis along a parametric curve
 #labels Reference
 
-= class CurveAxis =
+= class !CurveAxis =
 
-CurveAxis draws a Python callable as an axis along a parametric curve.
+!CurveAxis draws a Python callable as an axis along a parametric curve.
 Curves are adaptively sampled, meaning that the function is evaluated
 at more points near corners and along curves and at fewer points along
 straight segments.
@@ -13,7 +13,7 @@ consecutive points are nearly linear, or until reaching a recursion limit.
 
 == Arguments ==
 
-*CurveAxis(f, low, high, ticks, miniticks, labels, logbase, arrow_start, arrow_end, text_attr, attribute=value)*
+*!CurveAxis(f, low, high, ticks, miniticks, labels, logbase, arrow_start, arrow_end, text_attr, attribute=value)*
 
 || f || _*required*_ || a Python callable or string in the form "f(t), g(t)", just like [ClassCurve Curve] ||
 || low, high || _*required*_ || left and right endpoints ||
@@ -38,16 +38,16 @@ could reference the wrong markers.
 
 == SVG method ==
 
-CurveAxis has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+!CurveAxis has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
 == Defaults ==
 
-CurveAxis has defaults as described in [GeneralPrimative General features for all primatives].
+!CurveAxis has defaults as described in [GeneralPrimative General features for all primatives].
 
 || defaults || {"stroke-width":"0.25pt"} || default SVG attributes for the curve and tick marks ||
 || text_defaults || {"stroke":"none", "fill":"black", "font-size":5} || default SVG attributes for the text ||
 
-CurveAxis also has the same defaults as [ClassCurve Curve].  
+!CurveAxis also has the same defaults as [ClassCurve Curve].  
 
 || random_sampling || True || if False, bisect with a point exactly halfway between pairs of points; if True, randomly choose a point between 30% and 70% ||
 || recursion_limit || 15 || number of subdivisions before giving up; if 15, sampling algorithm can visit _at most_ 2^15^ points ||
@@ -56,7 +56,7 @@ CurveAxis also has the same defaults as [ClassCurve Curve].
 
 == Special data members ==
 
-After the CurveAxis has been evaluated with *SVG*, it gains three
+After the !CurveAxis has been evaluated with *SVG*, it gains three
 new data memebers.
   * *last_ticks*: explicit dict of value, label pairs for major ticks
   * *last_miniticks*: explicit list of values for miniticks
