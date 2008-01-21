@@ -62,7 +62,7 @@ new data memebers.
   * *last_miniticks*: explicit list of values for miniticks
   * *last_samples*: an iterable of Curve.Sample objects:
 {{{
->>> c = Curve(funcRtoR("x**2"), 0, 1)
+>>> c = CurveAxis(funcRtoR("x**2"), 0, 1)
 >>> c.SVG()
 >>> for s in c.last_samples:
 ...     print s.x, s.y, s.X, s.Y
