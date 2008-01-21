@@ -1,11 +1,93 @@
-#summary ClassAxes
+#summary Draw a coordinate axis over a specified region
 #labels Reference
 
-= ClassAxes =
+= class Axes =
+
+Axes draws coordinate axes.  The grid will be curved in
+non-linear transformations, and can be a good way to "feel" the shape
+of the transformation.
 
 == Arguments ==
 
-== Return value ==
+*Axes(xmin, xmax, ymin, ymax, atx=0, aty=0, xticks=-10, xminiticks=True, xlabels=True, xlogbase=None, yticks=-10, yminiticks=True, ylabels=True, ylogbase=None, arrows=None, text_attr={}, attribute=value)*
 
-== Examples ==
+|| xmin, xmax || _*required*_ || the x range ||
+|| ymin, ymax || _*required*_ || the y range ||
+|| atx, aty || _default_=0, 0 || point where the axes try to cross; if outside the range, the axes will cross at the closest corner ||
+|| xticks || _default_=-10 || request ticks according to the [TickSpecification standard tick specification] ||
+|| xminiticks || _default_=True || request miniticks according to the [TickSpecification standard minitick specification] ||
+|| xlabels || True || request tick labels according to the [TickSpecification standard tick label specification] ||
+|| xlogbase || _default_=None || if a number, the x axis is logarithmic with ticks at the given base (10 being the most common) ||
+|| yticks || _default_=-10 || request ticks according to the [TickSpecification standard tick specification] ||
+|| yminiticks || _default_=True || request miniticks according to the [TickSpecification standard minitick specification] ||
+|| ylabels || True || request tick labels according to the [TickSpecification standard tick label specification] ||
+|| ylogbase || _default_=None || if a number, the y axis is logarithmic with ticks at the given base (10 being the most common) ||
+|| arrows || _default_=None || if a new string identifier, draw arrows referenced by that identifier ||
+|| text_attr || _default_={} || SVG attributes for the text labels ||
+|| attribute=value pairs || _keyword list_ || SVG attributes for all lines ||
 
+To draw arrows on the ends of the axes, pass a new text identifier to
+`arrows`.  Axes will then create four new SVG marker objects with this
+structure:
+{{{
+SVG("marker", SVG("path", d="M 9 3.6 L 10.5 0 L 0 3.6 L 10.5 7.2 L 9 3.6 Z"), \
+              viewBox="0 0 10.5 7.2", refX="9", refY="3.6", markerWidth="10.5", markerHeight="7.2", \
+              markerUnits="strokeWidth", orient="auto", stroke="none", fill="black")
+}}}
+and identifiers ending in ".xstart", ".xend", ".ystart", ".yend".
+These identifiers must be unique, or the axes will reference the wrong markers.
+
+== Defaults ==
+
+Axes have the following defaults, as described in [GeneralPrimative General features for all primatives].
+
+|| defaults || {"stroke-width":"0.25pt"} ||
+|| text_defaults || {"stroke":"none", "fill":"black", "font-size":5} ||
+
+= class XAxis =
+
+Only draws the x axis.
+
+== Arguments == 
+
+*XAxis(xmin, xmax, aty, ticks, miniticks, labels, logbase, arrow_start, arrow_end, exclude, text_attr, attribute=value)*
+
+|| xmin, xmax || _*required*_ || the x range ||
+|| aty || _default_=0 || y position to draw the axis ||
+|| ticks || _default_=-10 || request ticks according to the [TickSpecification standard tick specification] ||
+|| miniticks || _default_=True || request miniticks according to the [TickSpecification standard minitick specification] ||
+|| labels || True || request tick labels according to the [TickSpecification standard tick label specification] ||
+|| logbase || _default_=None || if a number, the x axis is logarithmic with ticks at the given base (10 being the most common) ||
+|| arrow_start || _default_=None || if a new string identifier, draw an arrow at the low-end of the axis, referenced by that identifier ||
+|| arrow_end || _default_=None || if a new string identifier, draw an arrow at the high-end of the axis, referenced by that identifier ||
+|| exclude || _default_=None || if a (low, high) pair, don't draw text labels within this range ||
+|| text_attr || _default_={} || SVG attributes for the text labels ||
+|| attribute=value pairs || _keyword list_ || SVG attributes for all lines ||
+
+The `exclude` option is provided for Axes to keep text from
+overlapping where the axes cross.  Normal users are not likely to need
+it.
+
+== Defaults ==
+
+XAxis has the following defaults, as described in [GeneralPrimative General features for all primatives].
+
+|| defaults || {"stroke-width":"0.25pt"} || default SVG attributes for all lines ||
+|| text_defaults || {"stroke":"none", "fill":"black", "font-size":5, "dominant-baseline":"text-before-edge"} || default SVG attributes for text labels ||
+|| text_start || -1 || position relative to the axis (in SVG units) to set text labels ||
+|| text_angle || 0 || angle (in degrees) to rotate text ||
+
+XAxis also has the same defaults as [ClassCurve Curve].
+
+|| random_sampling || True || if False, bisect with a point exactly halfway between pairs of points; if True, randomly choose a point between 30% and 70% ||
+|| recursion_limit || 15 || number of subdivisions before giving up; if 15, sampling algorithm can visit _at most_ 2^15^ points ||
+|| linearity_limit || 0.05 || maximum deviation (in SVG units) from a straight line ||
+|| discontinuity_limit || 5 || minimum deviation (in SVG units) between points that is considered continuous ||
+
+= class YAxis =
+
+Only draws the y axis; arguments and defaults are similar to XAxis.
+
+== SVG method ==
+
+Axes, XAxis, and YAxis have *SVG* members, as described in [GeneralPrimative General features for all primatives].
