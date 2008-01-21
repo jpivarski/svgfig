@@ -17,7 +17,7 @@ consecutive points are nearly linear, or until reaching a recursion limit.
 *Curve(f, low, high, loop, attribute=value)*
 
 || f || _*required*_ || a Python callable or string in the form "f(t), g(t)" ||
-|| low, high || _*required*_ || left and right endpoints" ||
+|| low, high || _*required*_ || left and right endpoints ||
 || loop || _default_=False || if True, connect the endpoints ||
 || attribute=value pairs || _keyword list_ || SVG attributes ||
 
