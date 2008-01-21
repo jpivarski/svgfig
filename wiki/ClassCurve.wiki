@@ -36,7 +36,7 @@ The following are all equivalent:
 
 == SVG method ==
 
-Curve has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Curve has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
 == Path method ==
 

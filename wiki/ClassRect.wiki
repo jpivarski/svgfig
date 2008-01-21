@@ -17,7 +17,7 @@ sides will curve.
 
 == SVG method ==
 
-Rect has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Rect has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
 == Path method ==
 

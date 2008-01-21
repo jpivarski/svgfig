@@ -25,7 +25,7 @@ The format of the tuples in `d` depends on the `mode`.
 
 == SVG method ==
 
-Poly has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Poly has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
 == Path method ==
 

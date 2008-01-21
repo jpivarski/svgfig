@@ -13,7 +13,7 @@ Draws at text string at a specified point in global coordinates.
 
 == SVG method ==
 
-!TextGlobal has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+!TextGlobal has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
 == Defaults ==
 

@@ -43,7 +43,7 @@ When a Ticks is evaluated with *SVG*, it will gain two members.
 
 == SVG method ==
 
-Ticks has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Ticks has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
 
 == Other methods ==
 
