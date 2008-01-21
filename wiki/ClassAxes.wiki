@@ -58,8 +58,8 @@ Only draws the x axis.
 || miniticks || _default_=True || request miniticks according to the [TickSpecification standard minitick specification] ||
 || labels || True || request tick labels according to the [TickSpecification standard tick label specification] ||
 || logbase || _default_=None || if a number, the x axis is logarithmic with ticks at the given base (10 being the most common) ||
-|| arrow_start || _default_=None || if a new string identifier, draw an arrow at the low-end of the axis, referenced by that identifier ||
-|| arrow_end || _default_=None || if a new string identifier, draw an arrow at the high-end of the axis, referenced by that identifier ||
+|| arrow_start || _default_=None || if a new string identifier, draw an arrow at the low-end of the axis, referenced by that identifier; if an SVG marker object, use that marker ||
+|| arrow_end || _default_=None || if a new string identifier, draw an arrow at the high-end of the axis, referenced by that identifier; if an SVG marker object, use that marker ||
 || exclude || _default_=None || if a (low, high) pair, don't draw text labels within this range ||
 || text_attr || _default_={} || SVG attributes for the text labels ||
 || attribute=value pairs || _keyword list_ || SVG attributes for all lines ||
