@@ -64,8 +64,6 @@ All SVGFig classes and functions are defined in wiki pages: [http://code.google.
   * [TickSpecification Standard tick specification methods]
 
   * [ClassAxes Axes]: draws an orthogonal coordinate axis in the local coordinate system
-    * [ClassXAxis XAxis]: just the x axis
-    * [ClassYAxis YAxis]: just the y axis
   * [ClassTicks Ticks]: superclass of everything with tick marks; implements the tick-guessing algorithm
   * [ClassCurveAxis CurveAxis]: draws ticks along a parametric function
     * [ClassLineAxis LineAxis]: draws ticks along a line; useful for measuring the distance between points
