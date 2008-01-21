@@ -45,3 +45,7 @@ XErrorBars and YErrorBars have *SVG* members, as described in [GeneralPrimative 
 XErrorBars and YErrorBars have the following defaults, as described in [GeneralPrimative General features for all primatives].
 
 || defaults || {"stroke-width":"0.25pt"} ||
+
+== Trivia ==
+
+Error bars are implemented with short coordinate axes that usually have only two unlabeled tickmarks.

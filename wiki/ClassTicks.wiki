@@ -1,11 +1,58 @@
-#summary ClassTicks
+#summary Superclass for everything that draws tickmarks
 #labels Reference
 
-= ClassTicks =
+= class Ticks =
+
+Ticks is the superclass for everything that draws tickmarks.  By
+itself, it can draw ticks along a curve which isn't itself drawn.
+Maybe you'll find that useful.
 
 == Arguments ==
 
-== Return value ==
+*Ticks(f, low, high, ticks, miniticks, labels, logbase, arrow_start, arrow_end, text_attr, attribute=value)*
 
-== Examples ==
+|| f || _*required*_ || parametric function along which ticks will be drawn; has the same format as the function used in [ClassCurve Curve] ||
+|| low, high || _*required*_ || range of the independent variable ||
+|| ticks || _default_=-10 || request ticks according to the [TickSpecification standard tick specification] ||
+|| miniticks || _default_=True || request miniticks according to the [TickSpecification standard minitick specification] ||
+|| labels || True || request tick labels according to the [TickSpecification standard tick label specification] ||
+|| logbase || _default_=None || if a number, the axis is logarithmic with ticks at the given base (10 being the most common) ||
+|| arrow_start || _default_=None || if a new string identifier, draw an arrow at the low-end of the axis, referenced by that identifier; if an SVG marker object, use that marker ||
+|| arrow_end || _default_=None || if a new string identifier, draw an arrow at the high-end of the axis, referenced by that identifier; if an SVG marker object, use that marker ||
+|| text_attr || _default_={} || SVG attributes for the text labels ||
+|| attribute=value pairs || _keyword list_ || SVG attributes for the tick marks ||
 
+== Defaults ==
+
+Ticks has the following defaults, as described in [GeneralPrimative General features for all primatives].
+
+|| text_defaults || {"stroke":"none", "fill":"black", "font-size":5} || default SVG attributes for text labels ||
+|| tick_start || -1.5 || position relative to the axis (in SVG units) to start the ticks ||
+|| tick_end || 1.5 || position relative to the axis (in SVG units) to end the ticks ||
+|| minitick_start || -1.5 || position relative to the axis (in SVG units) to start the miniticks ||
+|| minitick_end || 1.5 || position relative to the axis (in SVG units) to end the miniticks ||
+|| text_start || 2.5 || position relative to the axis (in SVG units) to set text ||
+|| text_angle || 0 || angle (in degrees) to rotate text ||
+
+== Special data members ==
+
+When a Ticks is evaluated with *SVG*, it will gain two members.
+
+  * *last_ticks*: explicit dict of value, label pairs for major ticks
+  * *last_miniticks*: explicit list of values for miniticks
+
+== SVG method ==
+
+Ticks has a *SVG* member, as described in [GeneralPrimative General features for all primatives].
+
+== Other methods ==
+
+Ticks has a number of other methods which are usually only used internally.
+
+  * *interpret()*: evaluate and return optimal ticks and miniticks according to the [TickSpecification standard minitick specification]
+  * *orient_tickmark(t, trans=None)*: return the position, normalized local x vector, normalized local y vector, and angle of a tick at position t
+  * *compute_ticks(N, format)*: return less than -N or exactly N optimal linear ticks
+  * *regular_miniticks(N)*: return exactly N linear ticks
+  * *compute_miniticks(original_ticks)*: return optimal linear miniticks, given a set of ticks
+  * *compute_logticks(base, N, format)*: return less than -N or exactly N optimal logarithmic ticks
+  * *compute_logminiticks(base)*: return optimal logarithmic miniticks, given a set of ticks

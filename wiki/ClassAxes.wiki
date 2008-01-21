@@ -76,6 +76,10 @@ XAxis has the following defaults, as described in [GeneralPrimative General feat
 || text_defaults || {"stroke":"none", "fill":"black", "font-size":5, "dominant-baseline":"text-before-edge"} || default SVG attributes for text labels ||
 || text_start || -1 || position relative to the axis (in SVG units) to set text labels ||
 || text_angle || 0 || angle (in degrees) to rotate text ||
+|| tick_start || -1.5 || position relative to the axis (in SVG units) to start the ticks ||
+|| tick_end || 1.5 || position relative to the axis (in SVG units) to end the ticks ||
+|| minitick_start || -1.5 || position relative to the axis (in SVG units) to start the miniticks ||
+|| minitick_end || 1.5 || position relative to the axis (in SVG units) to end the miniticks ||
 
 XAxis also has the same defaults as [ClassCurve Curve].
 
@@ -86,7 +90,29 @@ XAxis also has the same defaults as [ClassCurve Curve].
 
 = class YAxis =
 
-Only draws the y axis; arguments and defaults are similar to XAxis.
+Only draws the y axis; arguments are similar to XAxis.
+
+== Defaults ==
+
+YAxis has the following defaults, as described in [GeneralPrimative General features for all primatives].
+
+|| defaults || {"stroke-width":"0.25pt"} || default SVG attributes for all lines ||
+|| text_defaults || {"stroke":"none", "fill":"black", "font-size":5, "text-anchor":"end", "dominant-baseline":"middle"} || default SVG attributes for text labels ||
+|| text_start || 2.5 || position relative to the axis (in SVG units) to set text labels ||
+|| text_angle || 90 || angle (in degrees) to rotate text ||
+|| tick_start || -1.5 || position relative to the axis (in SVG units) to start the ticks ||
+|| tick_end || 1.5 || position relative to the axis (in SVG units) to end the ticks ||
+|| minitick_start || -1.5 || position relative to the axis (in SVG units) to start the miniticks ||
+|| minitick_end || 1.5 || position relative to the axis (in SVG units) to end the miniticks ||
+
+YAxis also has the same defaults as [ClassCurve Curve].
+
+== Special data members ==
+
+When an XAxis or a YAxis is evaluated with *SVG*, it will gain two members.
+
+  * *last_ticks*: explicit dict of value, label pairs for major ticks
+  * *last_miniticks*: explicit list of values for miniticks
 
 == SVG method ==
 
