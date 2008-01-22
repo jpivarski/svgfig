@@ -20,10 +20,10 @@ parent, which is the opposite order of XML.
 Python attribute names cannot contain colons or hyphens,
 so the following conversions are made:
 
-|| "__" (two underscores) || become a colon ":" ||
-|| "_" (one underscore) || becomes a hyphen "-" ||
+|| "`__`" (two underscores) || become a colon "`:`" ||
+|| "`_`" (one underscore) || becomes a hyphen "`-`" ||
 
-Thus, "xmlns__xlink" becomes "xmlns:xlink" and "marker_start" becomes "marker-start".
+Thus, "`xmlns__xlink`" becomes "`xmlns:xlink`" and "`marker_start`" becomes "`marker-start`".
 
 === Examples ===
 
@@ -230,4 +230,3 @@ use the *clone* method.
 
 || fileName || _default_="tmp.svg" || temporary fileName: note that "tmp.svg" will be overwritten if not specified ||
 || encoding || _default_="utf-8" || file encoding ||
-
