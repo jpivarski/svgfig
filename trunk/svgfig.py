@@ -26,6 +26,66 @@ def rgb(r, g, b, maximum=1.):
   return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)), max(0, min(g*255./maximum, 255)), max(0, min(b*255./maximum, 255)))
 
 class SVG:
+  """A tree representation of an SVG image or image fragment.
+
+SVG(t, sub, sub, sub..., attribute=value)
+
+t                       required             SVG type name
+sub                     optional list        nested SVG elements or text/Unicode
+attribute=value pairs   optional keywords    SVG attributes
+
+In attribute names, \"__\" becomes \":\" and \"_\" becomes \"-\".
+
+SVG in XML
+
+<g id=\"mygroup\" fill=\"blue\">
+    <rect x=\"1\" y=\"1\" width=\"2\" height=\"2\" />
+    <rect x=\"3\" y=\"3\" width=\"2\" height=\"2\" />
+</g>
+
+SVG in Python
+
+>>> svg = SVG(\"g\", SVG(\"rect\", x=1, y=1, width=2, height=2), \ 
+...                SVG(\"rect\", x=3, y=3, width=2, height=2), \ 
+...           id=\"mygroup\", fill=\"blue\")
+
+Sub-elements and attributes may be accessed through tree-indexing:
+
+>>> svg = SVG(\"text\", SVG(\"tspan\", \"hello there\"), stroke=\"none\", fill=\"black\")
+>>> svg[0]
+<tspan (1 sub) />
+>>> svg[0, 0]
+'hello there'
+>>> svg[\"fill\"]
+'black'
+
+Iteration is depth-first:
+
+>>> svg = SVG(\"g\", SVG(\"g\", SVG(\"line\", x1=0, y1=0, x2=1, y2=1)), \
+...                SVG(\"text\", SVG(\"tspan\", \"hello again\")))
+... 
+>>> for ti, s in svg:
+...     print ti, repr(s)
+... 
+(0,) <g (1 sub) />
+(0, 0) <line x2=1 y1=0 x1=0 y2=1 />
+(0, 0, 'x2') 1
+(0, 0, 'y1') 0
+(0, 0, 'x1') 0
+(0, 0, 'y2') 1
+(1,) <text (1 sub) />
+(1, 0) <tspan (1 sub) />
+(1, 0, 0) 'hello again'
+
+Use \"print\" to navigate:
+
+>>> print svg
+None                 <g (2 sub) />
+[0]                      <g (1 sub) />
+[0, 0]                       <line x2=1 y1=0 x1=0 y2=1 />
+[1]                      <text (1 sub) />
+[1, 0]                       <tspan (1 sub) />
+"""
   def __init__(self, *t_sub, **attr):
     if len(t_sub) == 0: raise TypeError, "SVG element must have a t (SVG type)"
 
@@ -52,6 +112,8 @@ class SVG:
     self.attr = attr
 
   def __getitem__(self, ti):
+    """Index is a list that descends tree, returning a sub-element if
+it ends with a number and an attribute if it ends with a string."""
     obj = self
     if isinstance(ti, (list, tuple)):
       for i in ti[:-1]: obj = obj[i]
@@ -61,6 +123,8 @@ class SVG:
     else: return obj.attr[ti]
 
   def __setitem__(self, ti, value):
+    """Index is a list that descends tree, returning a sub-element if
+it ends with a number and an attribute if it ends with a string."""
     obj = self
     if isinstance(ti, (list, tuple)):
       for i in ti[:-1]: obj = obj[i]
@@ -70,6 +134,8 @@ class SVG:
     else: obj.attr[ti] = value
 
   def __delitem__(self, ti):
+    """Index is a list that descends tree, returning a sub-element if
+it ends with a number and an attribute if it ends with a string."""
     obj = self
     if isinstance(ti, (list, tuple)):
       for i in ti[:-1]: obj = obj[i]
@@ -79,22 +145,34 @@ class SVG:
     else: del obj.attr[ti]
 
   def __contains__(self, value):
+    """x in svg == True iff x is an attribute in svg."""
     return value in self.attr
 
   def __eq__(self, other):
+    """x == y iff x represents the same SVG as y."""
     if id(self) == id(other): return True
     return isinstance(other, SVG) and self.t == other.t and self.sub == other.sub and self.attr == other.attr
 
   def __ne__(self, other):
+    """x != y iff x does not represent the same SVG as y."""
     return not (self == other)
 
-  def append(self, x): self.sub.append(x)
+  def append(self, x):
+    """Appends x to the list of sub-elements (drawn last, overlaps
+other primatives)."""
+    self.sub.append(x)
 
-  def prepend(self, x): self.sub[0:0] = [x]
+  def prepend(self, x):
+    """Prepends x to the list of sub-elements (drawn first may be
+overlapped by other primatives)."""
+    self.sub[0:0] = [x]
 
-  def extend(self, x): self.sub.extend(x)
+  def extend(self, x):
+    """Extends list of sub-elements by a list x."""
+    self.sub.extend(x)
 
   def clone(self, shallow=False):
+    """Deep copy of SVG tree.  Set shallow=True for a shallow copy."""
     if shallow:
       return copy.copy(self)
     else:
@@ -102,6 +180,8 @@ class SVG:
 
   ### nested class
   class SVGDepthIterator:
+    """Manages SVG iteration."""
+
     def __init__(self, svg, ti, depth_limit):
       self.svg = svg
       self.ti = ti
@@ -131,14 +211,26 @@ class SVG:
   ### end nested class
 
   def depth_first(self, depth_limit=None):
+    """Returns a depth-first generator over the SVG.  If depth_limit
+is a number, stop recursion at that depth."""
     return self.SVGDepthIterator(self, (), depth_limit)
 
   def breadth_first(self, depth_limit=None):
+    """Not implemented yet.  Any ideas on how to do it?
+
+Returns a breadth-first generator over the SVG.  If depth_limit
+is a number, stop recursion at that depth."""
     raise NotImplementedError, "Got an algorithm for breadth-first searching a tree without effectively copying the tree?"
 
   def __iter__(self): return self.depth_first()
 
   def items(self, sub=True, attr=True, text=True):
+    """Get a recursively-generated list of tree-index, sub-element/attribute pairs.
+
+If sub == False, do not show sub-elements.
+If attr == False, do not show attributes.
+If text == False, do not show text/Unicode sub-elements.
+"""
     output = []
     for ti, s in self:
       show = False
@@ -150,15 +242,41 @@ class SVG:
       if show: output.append((ti, s))
     return output
 
-  def keys(self, sub=True, attr=True, text=True): return [ti for ti, s in self.items(sub, attr, text)]
+  def keys(self, sub=True, attr=True, text=True):
+    """Get a recursively-generated list of tree-indexes.
 
-  def values(self, sub=True, attr=True, text=True): return [s for ti, s in self.items(sub, attr, text)]
+If sub == False, do not show sub-elements.
+If attr == False, do not show attributes.
+If text == False, do not show text/Unicode sub-elements.
+"""
+    return [ti for ti, s in self.items(sub, attr, text)]
+
+  def values(self, sub=True, attr=True, text=True):
+    """Get a recursively-generated list of sub-elements and attributes.
+
+If sub == False, do not show sub-elements.
+If attr == False, do not show attributes.
+If text == False, do not show text/Unicode sub-elements.
+"""
+    return [s for ti, s in self.items(sub, attr, text)]
 
   def __repr__(self): return self.xml(depth_limit=0)
 
-  def __str__(self): return self.tree(sub=True, attr=False, text=False)
+  def __str__(self):
+    """Print (actually, return a string of) the tree in a form useful for browsing."""
+    return self.tree(sub=True, attr=False, text=False)
 
   def tree(self, depth_limit=None, sub=True, attr=True, text=True, tree_width=20, obj_width=80):
+    """Print (actually, return a string of) the tree in a form useful for browsing.
+
+If depth_limit == a number, stop recursion at that depth.
+If sub == False, do not show sub-elements.
+If attr == False, do not show attributes.
+If text == False, do not show text/Unicode sub-elements.
+tree_width is the number of characters reserved for printing tree indexes.
+obj_width is the number of characters reserved for printing sub-elements/attributes.
+"""
+
     output = []
 
     line = "%s %s" % (("%%-%ds" % tree_width) % repr(None), ("%%-%ds" % obj_width) % (repr(self))[0:obj_width])
@@ -178,6 +296,16 @@ class SVG:
     return "\n".join(output)
 
   def xml(self, indent="    ", newl="\n", depth_limit=None, depth=0):
+    """Get an XML representation of the SVG.
+
+indent      string used for indenting
+newl        string used for newlines
+If depth_limit == a number, stop recursion at that depth.
+depth       starting depth (not useful for users)
+
+print svg.xml()
+"""
+
     attrstr = []
     for n, v in self.attr.items(): attrstr.append(" %s=%s" % (n, repr(v)))
     attrstr = "".join(attrstr)
@@ -201,6 +329,12 @@ class SVG:
       return "%s<%s (%d sub)%s />" % (indent * depth, self.t, len(self.sub), attrstr)
 
   def standalone_xml(self, indent="    ", newl="\n"):
+    """Get an XML representation of the SVG that can be saved/rendered.
+
+indent      string used for indenting
+newl        string used for newlines
+"""
+
     if self.t == "svg": top = self
     else: top = canvas(self)
     return "<?xml version=\"1.0\" standalone=\"no\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n\n"+("".join(top.__standalone_xml(indent, newl)))
@@ -230,6 +364,17 @@ class SVG:
     return output
 
   def save(self, fileName="tmp.svg", encoding="utf-8", compresslevel=None):
+    """Save to a file for viewing.  Note that svg.save() overwrites \"tmp.svg\".
+
+fileName 	default=\"tmp.svg\" 	note that \"tmp.svg\" will be overwritten if
+                                        no fileName is specified. If the extension
+                                        is \".svgz\" or \".gz\", the output will be gzipped
+encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
+compresslevel 	default=None 	        if a number, the output will be gzipped with that
+                                        compression level (1-9, 1 being fastest and 9 most
+                                        thorough)
+"""
+
     if compresslevel != None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
       import gzip
       if compresslevel == None:
@@ -247,20 +392,63 @@ class SVG:
       f.close()
 
   def inkview(self, fileName="tmp.svg", encoding="utf-8"):
+    """View in \"inkview\", assuming that program is available on your system.
+Note that svg.inkview() overwrites \"tmp.svg\".
+
+fileName 	default=\"tmp.svg\" 	note that \"tmp.svg\" will be overwritten if
+                                        no fileName is specified. If the extension
+                                        is \".svgz\" or \".gz\", the output will be gzipped
+encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
+"""
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkview", ("inkview", fileName))
 
   def inkscape(self, fileName="tmp.svg", encoding="utf-8"):
+    """View in \"inkscape\", assuming that program is available on your system.
+Note that svg.inkscape() overwrites \"tmp.svg\".
+
+fileName 	default=\"tmp.svg\" 	note that \"tmp.svg\" will be overwritten if
+                                        no fileName is specified. If the extension
+                                        is \".svgz\" or \".gz\", the output will be gzipped
+encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
+"""
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkscape", ("inkscape", fileName))
 
   def firefox(self, fileName="tmp.svg", encoding="utf-8"):
+    """View in \"firefox\", assuming that program is available on your system.
+Note that svg.firefox() overwrites \"tmp.svg\".
+
+fileName 	default=\"tmp.svg\" 	note that \"tmp.svg\" will be overwritten if
+                                        no fileName is specified. If the extension
+                                        is \".svgz\" or \".gz\", the output will be gzipped
+encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
+"""
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "firefox", ("firefox", fileName))
 
 ######################################################################
 
 def canvas(*sub, **attr):
+  """Creates a top-level SVG object, allowing the user to control the
+image size and aspect ratio.
+
+canvas(sub, sub, sub..., attribute=value)
+
+sub                     optional list       nested SVG elements or text/Unicode
+attribute=value pairs   optional keywords   SVG attributes
+
+Default attribute values:
+
+width           \"400px\"
+height          \"400px\"
+viewBox         \"0 0 100 100\"
+xmlns           \"http://www.w3.org/2000/svg\"
+xmlns:xlink     \"http://www.w3.org/1999/xlink\"
+version         \"1.1\"
+style           \"stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle\"
+font-family     \"Helvetica,Arial,FreeSans?,Sans,sans,sans-serif\"
+"""
   defaults = {"width": "400px", "height": "400px", "viewBox": "0 0 100 100", \
               "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "version":"1.1", \
               "style": "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle", \
@@ -275,6 +463,8 @@ def canvas(*sub, **attr):
     return SVG("svg", *sub, **attr)
 
 def canvas_outline(*sub, **attr):
+  """Same as canvas(), but draws an outline around the drawable area,
+so that you know how close your image is to the edges."""
   svg = canvas(*sub, **attr)
   match = re.match("[, \t]*([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]*", svg["viewBox"])
   if match == None: raise ValueError, "canvas viewBox is incorrectly formatted"
@@ -284,6 +474,23 @@ def canvas_outline(*sub, **attr):
   return svg
 
 def template(fileName, svg, replaceme="REPLACEME"):
+  """Loads an SVG image from a file, replacing instances of
+<REPLACEME /> with a given svg object.
+
+fileName         required                name of the template SVG
+svg              required                SVG object for replacement
+replaceme        default=\"REPLACEME\"   fake SVG element to be replaced by the given object
+
+>>> print load(\"template.svg\")
+None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
+[0]                      <rect height=u'100' width=u'100' stroke=u'none' y=u'0' x=u'0' fill=u'yellow'
+[1]                      <REPLACEME />
+>>> 
+>>> print template(\"template.svg\", SVG(\"circle\", cx=50, cy=50, r=30))
+None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
+[0]                      <rect height=u'100' width=u'100' stroke=u'none' y=u'0' x=u'0' fill=u'yellow'
+[1]                      <circle cy=50 cx=50 r=30 />
+"""
   output = load(fileName)
   for ti, s in output:
     if isinstance(s, SVG) and s.t == replaceme:
@@ -292,9 +499,13 @@ def template(fileName, svg, replaceme="REPLACEME"):
 
 ######################################################################
 
-def load(fileName=None): return load_stream(file(fileName))
+def load(fileName):
+  """Loads an SVG image from a file."""
+  return load_stream(file(fileName))
 
 def load_stream(stream):
+  """Loads an SVG image from a stream (can be a string or a file object)."""
+
   from xml.sax import saxutils, make_parser
   from xml.sax.handler import feature_namespaces, feature_external_ges, feature_external_pes
 
@@ -626,9 +837,14 @@ class Frame:
 def pathtoPath(svg):
   if not isinstance(svg, SVG) or svg.t != "path":
     raise TypeError, "Only SVG <path /> objects can be converted into Paths"
-  attr = svg.attr
+  attr = dict(svg.attr)
   d = attr["d"]
   del attr["d"]
+  for key in attr.keys():
+    if not isinstance(key, str):
+      value = attr[key]
+      del attr[key]
+      attr[str(key)] = value
   return Path(d, **attr)
 
 class Path:
@@ -645,7 +861,7 @@ class Path:
     self.attr.update(attr)
 
   def parse_whitespace(self, index, pathdata):
-    while index < len(pathdata) and pathdata[index] in (" ", "\t", "\r", "\n"): index += 1
+    while index < len(pathdata) and pathdata[index] in (" ", "\t", "\r", "\n", ","): index += 1
     return index, pathdata
 
   def parse_command(self, index, pathdata):
@@ -1481,10 +1697,10 @@ class VLine(Line):
     self.attr.update(attr)
     Line.__init__(self, x, y1, x, y2, **self.attr)
 
-  def SVG(self, trans=None):
+  def Path(self, trans=None, local=False):
     self.x1 = self.x
     self.x2 = self.x
-    return Line.SVG(self, trans)
+    return Line.Path(self, trans, local)
 
 class HLine(Line):
   defaults = {}
@@ -1498,10 +1714,10 @@ class HLine(Line):
     self.attr.update(attr)
     Line.__init__(self, x1, y, x2, y, **self.attr)
 
-  def SVG(self, trans=None):
+  def Path(self, trans=None, local=False):
     self.y1 = self.y
     self.y2 = self.y
-    return Line.SVG(self, trans)
+    return Line.Path(self, trans, local)
 
 ######################################################################
 
@@ -1673,14 +1889,19 @@ class Ticks:
       defs = SVG("defs")
 
       if self.arrow_start != False and self.arrow_start != None:
-        if not isinstance(self.arrow_start, basestring):
+        if isinstance(self.arrow_start, SVG):
+          defs.append(self.arrow_start)
+        elif isinstance(self.arrow_start, basestring):
+          defs.append(make_marker(self.arrow_start, "arrow_start"))
+        else:
           raise TypeError, "arrow_start must be False/None or an id string for the new marker"
-        defs.append(make_marker(self.arrow_start, "arrow_start"))
 
-      if self.arrow_end != False and self.arrow_end != None:
-        if not isinstance(self.arrow_end, basestring):
+        if isinstance(self.arrow_end, SVG):
+          defs.append(self.arrow_end)
+        elif isinstance(self.arrow_end, basestring):
+          defs.append(make_marker(self.arrow_end, "arrow_end"))
+        else:
           raise TypeError, "arrow_end must be False/None or an id string for the new marker"
-        defs.append(make_marker(self.arrow_end, "arrow_end"))
 
       output.append(defs)
 
@@ -2002,10 +2223,16 @@ class CurveAxis(Curve, Ticks):
     ticks = Ticks.SVG(self, trans) # returns a <g />
 
     if self.arrow_start != False and self.arrow_start != None:
-      func.attr["marker-start"] = "url(#%s)" % self.arrow_start
+      if isinstance(self.arrow_start, basestring):
+        func.attr["marker-start"] = "url(#%s)" % self.arrow_start
+      else:
+        func.attr["marker-start"] = "url(#%s)" % self.arrow_start.id
 
     if self.arrow_end != False and self.arrow_end != None:
-      func.attr["marker-end"] = "url(#%s)" % self.arrow_end
+      if isinstance(self.arrow_end, basestring):
+        func.attr["marker-end"] = "url(#%s)" % self.arrow_end
+      else:
+        func.attr["marker-end"] = "url(#%s)" % self.arrow_end.id
 
     ticks.append(func)
     return ticks
@@ -2052,10 +2279,16 @@ class LineAxis(Line, Ticks):
     self.high = self.end
 
     if self.arrow_start != False and self.arrow_start != None:
-      line.attr["marker-start"] = "url(#%s)" % self.arrow_start
+      if isinstance(self.arrow_start, basestring):
+        line.attr["marker-start"] = "url(#%s)" % self.arrow_start
+      else:
+        line.attr["marker-start"] = "url(#%s)" % self.arrow_start.id
 
     if self.arrow_end != False and self.arrow_end != None:
-      line.attr["marker-end"] = "url(#%s)" % self.arrow_end
+      if isinstance(self.arrow_end, basestring):
+        line.attr["marker-end"] = "url(#%s)" % self.arrow_end
+      else:
+        line.attr["marker-end"] = "url(#%s)" % self.arrow_end.id
 
     ticks = Ticks.SVG(self, trans) # returns a <g />
     ticks.append(line)
