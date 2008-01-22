@@ -23,6 +23,10 @@ hacks = {}
 hacks["inkscape-text-vertical-shift"] = None
 
 def rgb(r, g, b, maximum=1.):
+  """Create an SVG color string \"#xxyyzz\" from r, g, and b.
+
+r,g,b = 0 is black and r,g,b = maximum is white.
+"""
   return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)), max(0, min(g*255./maximum, 255)), max(0, min(b*255./maximum, 255)))
 
 class SVG:
