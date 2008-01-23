@@ -11,12 +11,14 @@ coordinates with parts defined in a coordinate transform.
 
 == Arguments ==
 
-*!LineGlobal(x1, y1, x2, y2, arrow_start, arrow_end, attribute=value)*
+*!LineGlobal(x1, y1, x2, y2, local1, local2, arrow_start, arrow_end, attribute=value)*
 
 || x1, y1 || _*required*_ || the starting point ||
 || x2, y2 || _*required*_ || the ending point ||
-|| arrow_start || default=None || if an identifier string/Unicode, draw a new arrow object at the beginning of the line; if a marker, draw that marker instead ||
-|| arrow_end || default=None || same for the end of the line ||
+|| local1 || _default_=False || If True, interpret first point as a local coordinate (that is, apply the transformation) ||
+|| local2 || _default_=False || If True, interpret second point as a local coordinate (that is, apply the transformation) ||
+|| arrow_start || _default_=None || if an identifier string/Unicode, draw a new arrow object at the beginning of the line; if a marker, draw that marker instead ||
+|| arrow_end || _default_=None || same for the end of the line ||
 || attribute=value pairs || _keyword list_ || SVG attributes ||
 
 If a coordinate is global, it can be expressed as a string with SVG
