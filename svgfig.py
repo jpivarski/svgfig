@@ -2069,6 +2069,14 @@ attribute=value pairs   keyword list    SVG attributes
     return line
 
 class VLine(Line):
+  """Draws a vertical line.
+
+VLine(y1, y2, x, attribute=value)
+
+y1, y2                  required        y range
+x                       required        x position
+attribute=value pairs   keyword list    SVG attributes
+"""
   defaults = {}
 
   def __repr__(self):
@@ -2089,6 +2097,14 @@ global coordinates.  If local=True, return a Path in local coordinates
     return Line.Path(self, trans, local)
 
 class HLine(Line):
+  """Draws a horizontal line.
+
+HLine(x1, x2, y, attribute=value)
+
+x1, x2                  required        x range
+y                       required        y position
+attribute=value pairs   keyword list    SVG attributes
+"""
   defaults = {}
 
   def __repr__(self):
@@ -2111,6 +2127,14 @@ global coordinates.  If local=True, return a Path in local coordinates
 ######################################################################
 
 class Rect(Curve):
+  """Draws a rectangle.
+
+Rect(x1, y1, x2, y2, attribute=value)
+
+x1, y1                  required        the starting point
+x2, y2                  required        the ending point
+attribute=value pairs   keyword list    SVG attributes
+"""
   defaults = {}
 
   def __repr__(self):
@@ -2158,6 +2182,22 @@ global coordinates.  If local=True, return a Path in local coordinates
 ######################################################################
 
 class Ellipse(Curve):
+  """Draws an ellipse from a semimajor vector (ax,ay) and a semiminor
+length (b).
+
+Ellipse(x, y, ax, ay, b, attribute=value)
+
+x, y                    required        the center of the ellipse/circle
+ax, ay                  required        a vector indicating the length
+                                        and direction of the semimajor axis
+b                       required        the length of the semiminor axis.
+                                        If equal to sqrt(ax2 + ay2), the
+                                        ellipse is a circle
+attribute=value pairs   keyword list    SVG attributes
+
+(If sqrt(ax**2 + ay**2) is less than b, then (ax,ay) is actually the
+semiminor axis.)
+"""
   defaults = {}
 
   def __repr__(self):
@@ -2190,6 +2230,9 @@ global coordinates.  If local=True, return a Path in local coordinates
 ######################################################################
 
 def unumber(x):
+  """Converts numbers to a Unicode string, taking advantage of special
+Unicode characters to make nice minus signs and scientific notation.
+"""
   output = u"%g" % x
 
   if output[0] == u"-":
@@ -2224,6 +2267,64 @@ def unumber(x):
   return output
 
 class Ticks:
+  """Superclass for all graphics primatives that draw ticks,
+miniticks, and tick labels.  This class only draws the ticks.
+
+Ticks(f, low, high, ticks, miniticks, labels, logbase, arrow_start,
+      arrow_end, text_attr, attribute=value)
+
+f                       required        parametric function along which ticks
+                                        will be drawn; has the same format as
+                                        the function used in Curve
+low, high               required        range of the independent variable
+ticks                   default=-10     request ticks according to the standard
+                                        tick specification (see below)
+miniticks               default=True    request miniticks according to the
+                                        standard minitick specification (below)
+labels                  True            request tick labels according to the
+                                        standard tick label specification (below)
+logbase                 default=None    if a number, the axis is logarithmic with
+                                        ticks at the given base (usually 10)
+arrow_start             default=None    if a new string identifier, draw an arrow
+                                        at the low-end of the axis, referenced by
+                                        that identifier; if an SVG marker object,
+                                        use that marker
+arrow_end               default=None    if a new string identifier, draw an arrow
+                                        at the high-end of the axis, referenced by
+                                        that identifier; if an SVG marker object,
+                                        use that marker
+text_attr               default={}      SVG attributes for the text labels
+attribute=value pairs   keyword list    SVG attributes for the tick marks 
+
+Standard tick specification:
+
+    * True: same as -10 (below).
+    * Positive number N: draw exactly N ticks, including the endpoints. To
+      subdivide an axis into 10 equal-sized segments, ask for 11 ticks.
+    * Negative number -N: draw at least N ticks. Ticks will be chosen with
+      \"natural\" values, multiples of 2 or 5.
+    * List of values: draw a tick mark at each value.
+    * Dict of value, label pairs: draw a tick mark at each value, labeling
+      it with the given string. This lets you say things like {3.14159: \"pi\"}.
+    * False or None: no ticks.
+
+Standard minitick specification:
+
+    * True: draw miniticks with \"natural\" values, more closely spaced than
+      the ticks.
+    * Positive number N: draw exactly N miniticks, including the endpoints.
+      To subdivide an axis into 100 equal-sized segments, ask for 101 miniticks.
+    * Negative number -N: draw at least N miniticks.
+    * List of values: draw a minitick mark at each value.
+    * False or None: no miniticks. 
+
+Standard tick label specification:
+
+    * True: use the unumber function (described below)
+    * Format string: standard format strings, e.g. \"%5.2f\" for 12.34
+    * Python callable: function that converts numbers to strings
+    * False or None: no labels 
+"""
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
   tick_start = -1.5
@@ -2254,6 +2355,11 @@ class Ticks:
     self.text_attr.update(text_attr)
 
   def orient_tickmark(self, t, trans=None):
+    """Return the position, normalized local x vector, normalized
+local y vector, and angle of a tick at position t.
+
+Normally only used internally.
+"""
     if isinstance(trans, basestring): trans = totrans(trans)
     if trans == None:
       f = self.f
@@ -2345,6 +2451,12 @@ class Ticks:
     return output
 
   def interpret(self):
+    """Evaluate and return optimal ticks and miniticks according to
+the standard minitick specification.
+
+Normally only used internally.
+"""
+
     if self.labels == None or self.labels == False:
       format = lambda x: ""
 
@@ -2433,6 +2545,10 @@ class Ticks:
       raise TypeError, "ticks must be None/False, a number of desired ticks, a list of numbers, or a dictionary of explicit markers"
 
   def compute_ticks(self, N, format):
+    """Return less than -N or exactly N optimal linear ticks.
+
+Normally only used internally.
+"""
     if self.low >= self.high: raise ValueError, "low must be less than high"
     if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
 
@@ -2505,6 +2621,10 @@ class Ticks:
       highN = math.floor(1.*self.high / granularity)
 
   def regular_miniticks(self, N):
+    """Return exactly N linear ticks.
+
+Normally only used internally.
+"""
     output = []
     x = self.low
     for i in xrange(N):
@@ -2513,6 +2633,10 @@ class Ticks:
     return output
 
   def compute_miniticks(self, original_ticks):
+    """Return optimal linear miniticks, given a set of ticks.
+
+Normally only used internally.
+"""
     if len(original_ticks) < 2: original_ticks = ticks(self.low, self.high)
     original_ticks = original_ticks.keys()
     original_ticks.sort()
@@ -2538,6 +2662,10 @@ class Ticks:
     return output
 
   def compute_logticks(self, base, N, format):
+    """Return less than -N or exactly N optimal logarithmic ticks.
+
+Normally only used internally.
+"""
     if self.low >= self.high: raise ValueError, "low must be less than high"
     if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
 
@@ -2585,6 +2713,10 @@ class Ticks:
     return output
 
   def compute_logminiticks(self, base):
+    """Return optimal logarithmic miniticks, given a set of ticks.
+
+Normally only used internally.
+"""
     if self.low >= self.high: raise ValueError, "low must be less than high"
 
     lowN = math.floor(math.log(self.low, base))
@@ -2604,6 +2736,34 @@ class Ticks:
 ######################################################################
 
 class CurveAxis(Curve, Ticks):
+  """Draw an axis with tick marks along a parametric curve.
+
+CurveAxis(f, low, high, ticks, miniticks, labels, logbase, arrow_start, arrow_end,
+text_attr, attribute=value)
+
+f                      required         a Python callable or string in
+                                        the form \"f(t), g(t)\", just like Curve
+low, high              required         left and right endpoints
+ticks                  default=-10      request ticks according to the standard
+                                        tick specification (see help(Ticks))
+miniticks              default=True     request miniticks according to the
+                                        standard minitick specification
+labels                 True             request tick labels according to the
+                                        standard tick label specification
+logbase                default=None     if a number, the x axis is logarithmic
+                                        with ticks at the given base (10 being
+                                        the most common)
+arrow_start            default=None     if a new string identifier, draw an
+                                        arrow at the low-end of the axis,
+                                        referenced by that identifier; if an
+                                        SVG marker object, use that marker
+arrow_end              default=None     if a new string identifier, draw an
+                                        arrow at the high-end of the axis,
+                                        referenced by that identifier; if an
+                                        SVG marker object, use that marker
+text_attr              default={}       SVG attributes for the text labels
+attribute=value pairs  keyword list     SVG attributes
+"""
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
 
@@ -2637,6 +2797,33 @@ class CurveAxis(Curve, Ticks):
     return ticks
 
 class LineAxis(Line, Ticks):
+  """Draws an axis with tick marks along a line.
+
+LineAxis(x1, y1, x2, y2, start, end, ticks, miniticks, labels, logbase,
+arrow_start, arrow_end, text_attr, attribute=value)
+
+x1, y1                  required        starting point
+x2, y2                  required        ending point
+start, end              default=0, 1    values to start and end labeling
+ticks                   default=-10     request ticks according to the standard
+                                        tick specification (see help(Ticks))
+miniticks               default=True    request miniticks according to the
+                                        standard minitick specification
+labels                  True            request tick labels according to the
+                                        standard tick label specification
+logbase                 default=None    if a number, the x axis is logarithmic
+                                        with ticks at the given base (usually 10)
+arrow_start             default=None    if a new string identifier, draw an arrow
+                                        at the low-end of the axis, referenced by
+                                        that identifier; if an SVG marker object,
+                                        use that marker
+arrow_end               default=None    if a new string identifier, draw an arrow
+                                        at the high-end of the axis, referenced by
+                                        that identifier; if an SVG marker object,
+                                        use that marker
+text_attr               default={}      SVG attributes for the text labels
+attribute=value pairs   keyword list    SVG attributes
+"""
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
 
@@ -2695,6 +2882,37 @@ class LineAxis(Line, Ticks):
     return ticks
   
 class XAxis(LineAxis):
+  """Draws an x axis with tick marks.
+
+XAxis(xmin, xmax, aty, ticks, miniticks, labels, logbase, arrow_start, arrow_end,
+exclude, text_attr, attribute=value)
+
+xmin, xmax              required        the x range
+aty                     default=0       y position to draw the axis
+ticks                   default=-10     request ticks according to the standard
+                                        tick specification (see help(Ticks))
+miniticks               default=True    request miniticks according to the
+                                        standard minitick specification
+labels                  True            request tick labels according to the
+                                        standard tick label specification
+logbase                 default=None    if a number, the x axis is logarithmic
+                                        with ticks at the given base (usually 10)
+arrow_start             default=None    if a new string identifier, draw an arrow
+                                        at the low-end of the axis, referenced by
+                                        that identifier; if an SVG marker object,
+                                        use that marker
+arrow_end               default=None    if a new string identifier, draw an arrow
+                                        at the high-end of the axis, referenced by
+                                        that identifier; if an SVG marker object,
+                                        use that marker
+exclude                 default=None    if a (low, high) pair, don't draw text
+                                        labels within this range
+text_attr               default={}      SVG attributes for the text labels
+attribute=value pairs   keyword list    SVG attributes for all lines
+
+The exclude option is provided for Axes to keep text from overlapping
+where the axes cross. Normal users are not likely to need it.
+"""
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5, "dominant-baseline":"text-before-edge"}
   text_start = -1.
@@ -2716,6 +2934,37 @@ class XAxis(LineAxis):
     return LineAxis.SVG(self, trans)
 
 class YAxis(LineAxis):
+  """Draws a y axis with tick marks.
+
+YAxis(ymin, ymax, atx, ticks, miniticks, labels, logbase, arrow_start, arrow_end,
+exclude, text_attr, attribute=value)
+
+ymin, ymax              required        the y range
+atx                     default=0       x position to draw the axis
+ticks                   default=-10     request ticks according to the standard
+                                        tick specification (see help(Ticks))
+miniticks               default=True    request miniticks according to the
+                                        standard minitick specification
+labels                  True            request tick labels according to the
+                                        standard tick label specification
+logbase                 default=None    if a number, the y axis is logarithmic
+                                        with ticks at the given base (usually 10)
+arrow_start             default=None    if a new string identifier, draw an arrow
+                                        at the low-end of the axis, referenced by
+                                        that identifier; if an SVG marker object,
+                                        use that marker
+arrow_end               default=None    if a new string identifier, draw an arrow
+                                        at the high-end of the axis, referenced by
+                                        that identifier; if an SVG marker object,
+                                        use that marker
+exclude                 default=None    if a (low, high) pair, don't draw text
+                                        labels within this range
+text_attr               default={}      SVG attributes for the text labels
+attribute=value pairs   keyword list    SVG attributes for all lines
+
+The exclude option is provided for Axes to keep text from overlapping
+where the axes cross. Normal users are not likely to need it.
+"""
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5, "text-anchor":"end", "dominant-baseline":"middle"}
   text_start = 2.5
@@ -2737,6 +2986,37 @@ class YAxis(LineAxis):
     return LineAxis.SVG(self, trans)
 
 class Axes:
+  """Draw a pair of intersecting x-y axes.
+
+Axes(xmin, xmax, ymin, ymax, atx, aty, xticks, xminiticks, xlabels, xlogbase,
+yticks, yminiticks, ylabels, ylogbase, arrows, text_attr, attribute=value)
+
+xmin, xmax               required       the x range
+ymin, ymax               required       the y range
+atx, aty                 default=0, 0   point where the axes try to cross;
+                                        if outside the range, the axes will
+                                        cross at the closest corner
+xticks                   default=-10    request ticks according to the standard
+                                        tick specification (see help(Ticks))
+xminiticks               default=True   request miniticks according to the
+                                        standard minitick specification
+xlabels                  True           request tick labels according to the
+                                        standard tick label specification
+xlogbase                 default=None   if a number, the x axis is logarithmic
+                                        with ticks at the given base (usually 10)
+yticks                   default=-10    request ticks according to the standard
+                                        tick specification
+yminiticks               default=True   request miniticks according to the
+                                        standard minitick specification
+ylabels                  True           request tick labels according to the
+                                        standard tick label specification
+ylogbase                 default=None   if a number, the y axis is logarithmic
+                                        with ticks at the given base (usually 10)
+arrows                   default=None   if a new string identifier, draw arrows
+                                        referenced by that identifier
+text_attr                default={}     SVG attributes for the text labels
+attribute=value pairs    keyword list   SVG attributes for all lines
+"""
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
 
@@ -2786,6 +3066,24 @@ class Axes:
 ######################################################################
 
 class HGrid(Ticks):
+  """Draws the horizontal lines of a grid over a specified region
+using the standard tick specification (see help(Ticks)) to place the
+grid lines.
+
+HGrid(xmin, xmax, low, high, ticks, miniticks, logbase, mini_attr, attribute=value)
+
+xmin, xmax              required        the x range
+low, high               required        the y range
+ticks                   default=-10     request ticks according to the standard
+                                        tick specification (see help(Ticks))
+miniticks               default=False   request miniticks according to the
+                                        standard minitick specification
+logbase                 default=None    if a number, the axis is logarithmic
+                                        with ticks at the given base (usually 10)
+mini_attr               default={}      SVG attributes for the minitick-lines
+                                        (if miniticks != False)
+attribute=value pairs   keyword list    SVG attributes for the major tick lines
+"""
   defaults = {"stroke-width":"0.25pt", "stroke":"gray"}
   mini_defaults = {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"}
 
@@ -2818,6 +3116,24 @@ class HGrid(Ticks):
     return SVG("g", Path(d=ticksd, **self.attr).SVG(), Path(d=miniticksd, **self.mini_attr).SVG())
     
 class VGrid(Ticks):
+  """Draws the vertical lines of a grid over a specified region
+using the standard tick specification (see help(Ticks)) to place the
+grid lines.
+
+HGrid(ymin, ymax, low, high, ticks, miniticks, logbase, mini_attr, attribute=value)
+
+ymin, ymax              required        the y range
+low, high               required        the x range
+ticks                   default=-10     request ticks according to the standard
+                                        tick specification (see help(Ticks))
+miniticks               default=False   request miniticks according to the
+                                        standard minitick specification
+logbase                 default=None    if a number, the axis is logarithmic
+                                        with ticks at the given base (usually 10)
+mini_attr               default={}      SVG attributes for the minitick-lines
+                                        (if miniticks != False)
+attribute=value pairs   keyword list    SVG attributes for the major tick lines
+"""
   defaults = {"stroke-width":"0.25pt", "stroke":"gray"}
   mini_defaults = {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"}
 
@@ -2850,6 +3166,23 @@ class VGrid(Ticks):
     return SVG("g", Path(d=ticksd, **self.attr).SVG(), Path(d=miniticksd, **self.mini_attr).SVG())
 
 class Grid(Ticks):
+  """Draws a grid over a specified region using the standard tick
+specification (see help(Ticks)) to place the grid lines.
+
+Grid(xmin, xmax, ymin, ymax, ticks, miniticks, logbase, mini_attr, attribute=value)
+
+xmin, xmax              required        the x range
+ymin, ymax              required        the y range
+ticks                   default=-10     request ticks according to the standard
+                                        tick specification (see help(Ticks))
+miniticks               default=False   request miniticks according to the
+                                        standard minitick specification
+logbase                 default=None    if a number, the axis is logarithmic
+                                        with ticks at the given base (usually 10)
+mini_attr               default={}      SVG attributes for the minitick-lines
+                                        (if miniticks != False)
+attribute=value pairs   keyword list    SVG attributes for the major tick lines
+"""
   defaults = {"stroke-width":"0.25pt", "stroke":"gray"}
   mini_defaults = {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"}
 
@@ -2892,6 +3225,24 @@ class Grid(Ticks):
 ######################################################################
 
 class XErrorBars:
+  """Draws x error bars at a set of points. This is usually used
+before (under) a set of Dots at the same points.
+
+XErrorBars(d, attribute=value)
+
+d                       required        list of (x,y,xerr...) points
+attribute=value pairs   keyword list    SVG attributes
+
+If points in d have
+
+    * 3 elements, the third is the symmetric error bar
+    * 4 elements, the third and fourth are the asymmetric lower and
+      upper error bar. The third element should be negative,
+      e.g. (5, 5, -1, 2) is a bar from 4 to 7.
+    * more than 4, a tick mark is placed at each value. This lets
+      you nest errors from different sources, correlated and
+      uncorrelated, statistical and systematic, etc.
+"""
   defaults = {"stroke-width":"0.25pt"}
 
   def __repr__(self):
@@ -2920,6 +3271,24 @@ class XErrorBars:
     return output
 
 class YErrorBars:
+  """Draws y error bars at a set of points. This is usually used
+before (under) a set of Dots at the same points.
+
+YErrorBars(d, attribute=value)
+
+d                       required        list of (x,y,yerr...) points
+attribute=value pairs   keyword list    SVG attributes
+
+If points in d have
+
+    * 3 elements, the third is the symmetric error bar
+    * 4 elements, the third and fourth are the asymmetric lower and
+      upper error bar. The third element should be negative,
+      e.g. (5, 5, -1, 2) is a bar from 4 to 7.
+    * more than 4, a tick mark is placed at each value. This lets
+      you nest errors from different sources, correlated and
+      uncorrelated, statistical and systematic, etc.
+"""
   defaults = {"stroke-width":"0.25pt"}
 
   def __repr__(self):
