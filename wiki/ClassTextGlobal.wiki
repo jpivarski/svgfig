@@ -7,7 +7,7 @@ Draws at text string at a specified point in global coordinates.
 
 == Arguments ==
 
-*TextGlobal(x, y, d, attribute=value)*
+*!TextGlobal(x, y, d, attribute=value)*
 
 || x, y || _*required*_ || location of the point in global coordinates ||
 || d || _*required*_ || text/Unicode string ||
