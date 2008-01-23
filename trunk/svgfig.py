@@ -555,6 +555,18 @@ def load_stream(stream):
 ######################################################################
 
 def totrans(expr, vars=("x", "y"), globals=None, locals=None):
+  """Converts to a coordinate transformation (a function that accepts
+two arguments and returns two values).
+
+expr       required                  a string expression or a function
+                                     of two real or one complex value
+vars       default=(\"x\", \"y\")    independent variable names;
+                                     a singleton (\"z\",) is interpreted
+                                     as complex
+globals    default=None              dict of global variables
+locals     default=None              dict of local variables
+"""
+
   if callable(expr):
     if expr.func_code.co_argcount == 2:
       return expr
@@ -588,6 +600,22 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
     raise TypeError, "vars must have 2 or 1 elements"
 
 def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=None, ylogbase=None, minusInfinity=-1000, flipx=False, flipy=True):
+  """Creates and returns a coordinate transformation (a function that
+accepts two arguments and returns two values) that transforms from
+    (xmin, ymin), (xmax, ymax)
+to
+    (x, y), (x + width, y + height).
+
+xlogbase, ylogbase    default=None, None     if a number, transform
+                                             logarithmically with given base
+minusInfinity         default=-1000          what to return if
+                                             log(0 or negative) is attempted
+flipx                 default=False          if true, reverse the direction of x
+flipy                 default=True           if true, reverse the direction of y
+
+(When composing windows, be sure to set flipy=False.)
+"""
+
   if flipx:
     ox1 = x + width
     ox2 = x
@@ -634,10 +662,34 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=Non
   return output
 
 def rotate(angle, cx=0, cy=0):
+  """Creates and returns a coordinate transformation which rotates
+around (cx,cy) by \"angle\" degrees."""
   angle *= math.pi/180.
   return lambda x, y: (cx + math.cos(angle)*(x - cx) - math.sin(angle)*(y - cy), cy + math.sin(angle)*(x - cx) + math.cos(angle)*(y - cy))
 
 class Fig:
+  """Stores graphics primitive objects and applies a single coordinate
+transformation to them. To compose coordinate systems, nest Fig
+objects.
+
+Fig(obj, obj, obj..., trans=function)
+
+obj     optional list    a list of drawing primatives
+trans   default=None     a coordinate transformation function
+
+>>> fig = Fig(Line(0,0,1,1), Rect(0.2,0.2,0.8,0.8), trans=\"2*x, 2*y\")
+>>> print fig.SVG().xml()
+<g>
+    <path d='M0 0L2 2' />
+    <path d='M0.4 0.4L1.6 0.4ZL1.6 1.6ZL0.4 1.6ZL0.4 0.4ZZ' />
+</g>
+>>> print Fig(fig, trans=\"x/2., y/2.\").SVG().xml()
+<g>
+    <path d='M0 0L1 1' />
+    <path d='M0.2 0.2L0.8 0.2ZL0.8 0.8ZL0.2 0.8ZL0.2 0.2ZZ' />
+</g>
+"""
+
   def __repr__(self):
     if self.trans == None:
       return "<Fig (%d items)>" % len(self.d)
@@ -655,6 +707,11 @@ class Fig:
       raise TypeError, "Fig() got unexpected keyword arguments %s" % kwds.keys()
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object.
+
+Coordinate transformations in nested Figs will be composed.
+"""
+
     if trans == None: trans = self.trans
     if isinstance(trans, basestring): trans = totrans(trans)
 
@@ -681,6 +738,39 @@ class Fig:
     return output
 
 class Plot:
+  """Acts like Fig, but draws a coordinate axis. You also need to supply plot ranges.
+
+Plot(xmin, xmax, ymin, ymax, obj, obj, obj..., keyword options...)
+
+xmin, xmax      required        minimum and maximum x values (in the objs' coordinates)
+ymin, ymax      required        minimum and maximum y values (in the objs' coordinates)
+obj             optional list   drawing primatives
+keyword options keyword list    options defined below
+
+The following are keyword options, with their default values:
+
+trans           None          transformation function
+x, y            5, 5          upper-left corner of the Plot in SVG coordinates
+width, height   90, 90        width and height of the Plot in SVG coordinates
+flipx, flipy    False, True   flip the sign of the coordinate axis
+minusInfinity   -1000         if an axis is logarithmic and an object is plotted at 0 or
+                              a negative value, -1000 will be used as a stand-in for NaN
+atx, aty        0, 0          the place where the coordinate axes cross
+xticks          -10           request ticks according to the standard tick specification
+                              (see help(Ticks))
+xminiticks      True          request miniticks according to the standard minitick
+                              specification
+xlabels         True          request tick labels according to the standard tick label
+                              specification
+xlogbase        None          if a number, the axis and transformation are logarithmic
+                              with ticks at the given base (10 being the most common)
+(same for y)
+arrows          None          if a new identifier, create arrow markers and draw them
+                              at the ends of the coordinate axes
+text_attr       {}            a dictionary of attributes for label text
+axis_attr       {}            a dictionary of attributes for the axis lines
+"""
+
   def __repr__(self):
     if self.trans == None:
       return "<Plot (%d items)>" % len(self.d)
@@ -722,6 +812,7 @@ class Plot:
       raise TypeError, "Plot() got unexpected keyword arguments %s" % kwds.keys()
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     if trans == None: trans = self.trans
     if isinstance(trans, basestring): trans = totrans(trans)
 
@@ -751,6 +842,36 @@ class Frame:
     return "<Frame (%d items)>" % len(self.d)
 
   def __init__(self, xmin, xmax, ymin, ymax, *d, **kwds):
+    """Acts like Fig, but draws a coordinate frame around the data. You also need to supply plot ranges.
+
+Frame(xmin, xmax, ymin, ymax, obj, obj, obj..., keyword options...)
+
+xmin, xmax      required        minimum and maximum x values (in the objs' coordinates)
+ymin, ymax      required        minimum and maximum y values (in the objs' coordinates)
+obj             optional list   drawing primatives
+keyword options keyword list    options defined below
+
+The following are keyword options, with their default values:
+
+x, y            20, 5         upper-left corner of the Frame in SVG coordinates
+width, height   75, 80        width and height of the Frame in SVG coordinates
+flipx, flipy    False, True   flip the sign of the coordinate axis
+minusInfinity   -1000         if an axis is logarithmic and an object is plotted at 0 or
+                              a negative value, -1000 will be used as a stand-in for NaN
+xtitle          None          if a string, label the x axis
+xticks          -10           request ticks according to the standard tick specification
+                              (see help(Ticks))
+xminiticks      True          request miniticks according to the standard minitick
+                              specification
+xlabels         True          request tick labels according to the standard tick label
+                              specification
+xlogbase        None          if a number, the axis and transformation are logarithmic
+                              with ticks at the given base (10 being the most common)
+(same for y)
+text_attr       {}            a dictionary of attributes for label text
+axis_attr       {}            a dictionary of attributes for the axis lines
+"""
+
     self.xmin, self.xmax, self.ymin, self.ymax = xmin, xmax, ymin, ymax
     self.d = list(d)
     defaults = {"x":20, "y":5, "width":75, "height":80, "flipx":False, "flipy":True, "minusInfinity":-1000, \
@@ -790,6 +911,8 @@ class Frame:
       raise TypeError, "Frame() got unexpected keyword arguments %s" % kwds.keys()
 
   def SVG(self):
+    """Apply the window transformation and return an SVG object."""
+
     self.last_window = window(self.xmin, self.xmax, self.ymin, self.ymax, x=self.x, y=self.y, width=self.width, height=self.height, \
                               xlogbase=self.xlogbase, ylogbase=self.ylogbase, minusInfinity=self.minusInfinity, flipx=self.flipx, flipy=self.flipy)
 
@@ -839,6 +962,7 @@ class Frame:
 ######################################################################
 
 def pathtoPath(svg):
+  """Converts SVG(\"path\", d=\"...\") into Path(d=[...])."""
   if not isinstance(svg, SVG) or svg.t != "path":
     raise TypeError, "Only SVG <path /> objects can be converted into Paths"
   attr = dict(svg.attr)
@@ -852,6 +976,42 @@ def pathtoPath(svg):
   return Path(d, **attr)
 
 class Path:
+  """Path represents an SVG path, an arbitrary set of curves and
+straight segments. Unlike SVG(\"path\", d=\"...\"), Path stores
+coordinates as a list of numbers, rather than a string, so that it is
+transformable in a Fig.
+
+Path(d, attribute=value)
+
+d                       required        path data
+attribute=value pairs   keyword list    SVG attributes
+
+See http://www.w3.org/TR/SVG/paths.html for specification of paths
+from text.
+
+Internally, Path data is a list of tuples with these definitions:
+
+    * (\"Z/z\",): close the current path
+    * (\"H/h\", x) or (\"V/v\", y): a horizontal or vertical line
+      segment to x or y
+    * (\"M/m/L/l/T/t\", x, y, global): moveto, lineto, or smooth
+      quadratic curveto point (x, y). If global=True, (x, y) should
+      not be transformed.
+    * (\"S/sQ/q\", cx, cy, cglobal, x, y, global): polybezier or
+      smooth quadratic curveto point (x, y) using (cx, cy) as a
+      control point. If cglobal or global=True, (cx, cy) or (x, y)
+      should not be transformed.
+    * (\"C/c\", c1x, c1y, c1global, c2x, c2y, c2global, x, y, global):
+      cubic curveto point (x, y) using (c1x, c1y) and (c2x, c2y) as
+      control points. If c1global, c2global, or global=True, (c1x, c1y),
+      (c2x, c2y), or (x, y) should not be transformed.
+    * (\"A/a\", rx, ry, rglobal, x-axis-rotation, angle, large-arc-flag,
+      sweep-flag, x, y, global): arcto point (x, y) using the
+      aforementioned parameters.
+    * (\",/.\", rx, ry, rglobal, angle, x, y, global): an ellipse at
+      point (x, y) with radii (rx, ry). If angle is 0, the whole
+      ellipse is drawn; otherwise, a partial ellipse is drawn.
+"""
   defaults = {}
 
   def __repr__(self):
@@ -865,10 +1025,12 @@ class Path:
     self.attr.update(attr)
 
   def parse_whitespace(self, index, pathdata):
+    """Part of Path's text-command parsing algorithm; used internally."""
     while index < len(pathdata) and pathdata[index] in (" ", "\t", "\r", "\n", ","): index += 1
     return index, pathdata
 
   def parse_command(self, index, pathdata):
+    """Part of Path's text-command parsing algorithm; used internally."""
     index, pathdata = self.parse_whitespace(index, pathdata)
 
     if index >= len(pathdata): return None, index, pathdata
@@ -880,6 +1042,7 @@ class Path:
       return None, index, pathdata
 
   def parse_number(self, index, pathdata):
+    """Part of Path's text-command parsing algorithm; used internally."""
     index, pathdata = self.parse_whitespace(index, pathdata)
 
     if index >= len(pathdata): return None, index, pathdata
@@ -897,6 +1060,7 @@ class Path:
       return None, index, pathdata
 
   def parse_boolean(self, index, pathdata):
+    """Part of Path's text-command parsing algorithm; used internally."""
     index, pathdata = self.parse_whitespace(index, pathdata)
 
     if index >= len(pathdata): return None, index, pathdata
@@ -909,6 +1073,8 @@ class Path:
       return None, index, pathdata
 
   def parse(self, pathdata):
+    """Parses text-commands, converting them into a list of tuples.
+Called by the constructor."""
     output = []
     index = 0
     while True:
@@ -1016,6 +1182,7 @@ class Path:
     return output
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     x, y, X, Y = None, None, None, None
@@ -1240,6 +1407,14 @@ class Path:
 ######################################################################
 
 def funcRtoC(expr, var="t", globals=None, locals=None):
+  """Converts a complex \"z(t)\" string to a function acceptable for Curve.
+
+expr    required        string in the form \"z(t)\"
+var     default=\"t\"   name of the independent variable
+globals default=None    dict of global variables used in the expression;
+                        you may want to use Python's builtin globals()
+locals  default=None    dict of local variables
+"""
   g = cmath.__dict__
   if globals != None: g.update(globals)
   output = eval("lambda %s: (%s)" % (var, expr), g, locals)
@@ -1249,6 +1424,14 @@ def funcRtoC(expr, var="t", globals=None, locals=None):
   return output2
 
 def funcRtoR2(expr, var="t", globals=None, locals=None):
+  """Converts a \"f(t), g(t)\" string to a function acceptable for Curve.
+
+expr    required        string in the form \"f(t), g(t)\"
+var     default=\"t\"   name of the independent variable
+globals default=None    dict of global variables used in the expression;
+                        you may want to use Python's builtin globals()
+locals  default=None    dict of local variables
+"""
   g = math.__dict__
   if globals != None: g.update(globals)
   output = eval("lambda %s: (%s)" % (var, expr), g, locals)
@@ -1256,6 +1439,14 @@ def funcRtoR2(expr, var="t", globals=None, locals=None):
   return output
 
 def funcRtoR(expr, var="x", globals=None, locals=None):
+  """Converts a \"f(x)\" string to a function acceptable for Curve.
+
+expr    required        string in the form \"f(x)\"
+var     default=\"x\"   name of the independent variable
+globals default=None    dict of global variables used in the expression;
+                        you may want to use Python's builtin globals()
+locals  default=None    dict of local variables
+"""
   g = math.__dict__
   if globals != None: g.update(globals)
   output = eval("lambda %s: (%s, %s)" % (var, var, expr), g, locals)
@@ -1263,6 +1454,16 @@ def funcRtoR(expr, var="x", globals=None, locals=None):
   return output
 
 class Curve:
+  """Draws a parametric function as a path.
+
+Curve(f, low, high, loop, attribute=value)
+
+f                      required         a Python callable or string in
+                                        the form \"f(t), g(t)\"
+low, high              required         left and right endpoints
+loop                   default=False    if True, connect the endpoints
+attribute=value pairs  keyword list     SVG attributes
+"""
   defaults = {}
   random_sampling = True
   recursion_limit = 15
@@ -1330,6 +1531,9 @@ class Curve:
   ### end nested class
 
   def sample(self, trans=None):
+    """Adaptive-sampling algorithm that chooses the best sample points
+for a parametric curve between two endpoints and detects
+discontinuities.  Called by SVG()."""
     oldrecursionlimit = sys.getrecursionlimit()
     sys.setrecursionlimit(self.recursion_limit + 100)
     try:
@@ -1370,6 +1574,9 @@ class Curve:
       sys.setrecursionlimit(oldrecursionlimit)
 
   def subsample(self, left, right, depth, trans=None):
+    """Part of the adaptive-sampling algorithm that chooses the best
+sample points.  Called by sample()."""
+
     if self.random_sampling:
       mid = self.Sample(left.t + random.uniform(0.3, 0.7) * (right.t - left.t))
     else:
@@ -1398,9 +1605,14 @@ class Curve:
         mid.y = mid.Y = None
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     return self.Path(trans).SVG()
 
   def Path(self, trans=None, local=False):
+    """Apply the transformation \"trans\" and return a Path object in
+global coordinates.  If local=True, return a Path in local coordinates
+(which must be transformed again)."""
+
     if isinstance(trans, basestring): trans = totrans(trans)
     if isinstance(self.f, basestring): self.f = funcRtoR2(self.f)
 
@@ -1423,6 +1635,42 @@ class Curve:
 ######################################################################
 
 class Poly:
+  """Draws a curve specified by a sequence of points. The curve may be
+piecewise linear, like a polygon, or a Bezier curve.
+
+Poly(d, mode, loop, attribute=value)
+
+d                       required        list of tuples representing points
+                                        and possibly control points
+mode                    default=\"L\"   \"lines\", \"bezier\", \"velocity\",
+                                        \"foreback\", \"smooth\", or an abbreviation
+loop                    default=False   if True, connect the first and last
+                                        point, closing the loop
+attribute=value pairs   keyword list    SVG attributes
+
+The format of the tuples in d depends on the mode.
+
+\"lines\"/\"L\"         d=[(x,y), (x,y), ...]
+                                        piecewise-linear segments joining the (x,y) points
+\"bezier\"/\"B\"        d=[(x, y, c1x, c1y, c2x, c2y), ...]
+                                        Bezier curve with two control points (control points
+                                        preceed (x,y), as in SVG paths). If (c1x,c1y) and
+                                        (c2x,c2y) both equal (x,y), you get a linear
+                                        interpolation (\"lines\")
+\"velocity\"/\"V\"      d=[(x, y, vx, vy), ...]
+                                        curve that passes through (x,y) with velocity (vx,vy)
+                                        (one unit of arclength per unit time); in other words,
+                                        (vx,vy) is the tangent vector at (x,y). If (vx,vy) is
+                                        (0,0), you get a linear interpolation (\"lines\").
+\"foreback\"/\"F\"      d=[(x, y, bx, by, fx, fy), ...]
+                                        like \"velocity\" except that there is a left derivative
+                                        (bx,by) and a right derivative (fx,fy). If (bx,by)
+                                        equals (fx,fy) (with no minus sign), you get a
+                                        \"velocity\" curve
+\"smooth\"/\"S\"        d=[(x,y), (x,y), ...]
+                                        a \"velocity\" interpolation with (vx,vy)[i] equal to
+                                        ((x,y)[i+1] - (x,y)[i-1])/2: the minimal derivative
+"""
   defaults = {}
 
   def __repr__(self):
@@ -1437,9 +1685,13 @@ class Poly:
     self.attr.update(attr)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     return self.Path(trans).SVG()
 
   def Path(self, trans=None, local=False):
+    """Apply the transformation \"trans\" and return a Path object in
+global coordinates.  If local=True, return a Path in local coordinates
+(which must be transformed again)."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     if self.mode[0] == "L" or self.mode[0] == "l": mode = "L"
@@ -1538,6 +1790,13 @@ class Poly:
 ######################################################################
 
 class Text:
+  """Draws at text string at a specified point in local coordinates.
+
+x, y                   required      location of the point in local coordinates
+d                      required      text/Unicode string
+attribute=value pairs  keyword list  SVG attributes 
+"""
+
   defaults = {"stroke":"none", "fill":"black", "font-size":5}
 
   def __repr__(self):
@@ -1551,6 +1810,7 @@ class Text:
     self.attr.update(attr)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     X, Y = self.x, self.y
@@ -1558,6 +1818,12 @@ class Text:
     return SVG("text", self.d, x=X, y=Y, **self.attr)
 
 class TextGlobal:
+  """Draws at text string at a specified point in global coordinates.
+
+x, y                   required      location of the point in global coordinates
+d                      required      text/Unicode string
+attribute=value pairs  keyword list  SVG attributes 
+"""
   defaults = {"stroke":"none", "fill":"black", "font-size":5}
 
   def __repr__(self):
@@ -1571,6 +1837,7 @@ class TextGlobal:
     self.attr.update(attr)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     return SVG("text", self.d, x=self.x, y=self.y, **self.attr)
 
 ######################################################################
@@ -1582,12 +1849,27 @@ symbol_templates = {"dot": SVG("symbol", SVG("circle", cx=0, cy=0, r=1, stroke="
                     }
 
 def make_symbol(id, shape="dot", **attr):
+  """Creates a new instance of an SVG symbol to avoid cross-linking objects.
+
+id                    required         a new identifier (string/Unicode)
+shape                 default=\"dot\"  the shape name from symbol_templates
+attribute=value list  keyword list     modify the SVG attributes of the new symbol
+"""
   output = copy.deepcopy(symbol_templates[shape])
   for i in output.sub: i.attr.update(attr)
   output["id"] = id
   return output
 
 class Dots:
+  """Dots draws SVG symbols at a set of points.
+
+d                      required               list of (x,y) points
+symbol                 default=\"Untitled\"   SVG symbol or a new identifier to
+                                              label an auto-generated symbol
+width, height          default=1, 1           width and height of the symbols
+                                              in SVG coordinates
+attribute=value pairs  keyword list           SVG attributes
+"""
   defaults = {}
 
   def __repr__(self):
@@ -1605,6 +1887,7 @@ class Dots:
     else: self.symbol = make_symbol(symbol)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     output = SVG("g", SVG("defs", self.symbol))
@@ -1630,27 +1913,78 @@ marker_templates = {"arrow_start": SVG("marker", SVG("path", d="M 9 3.6 L 10.5 0
                     }
 
 def make_marker(id, shape, **attr):
+  """Creates a new instance of an SVG marker to avoid cross-linking objects.
+
+id                     required         a new identifier (string/Unicode)
+shape                  default=\"dot\"  the shape name from marker_templates
+attribute=value list   keyword list     modify the SVG attributes of the new marker
+"""
   output = copy.deepcopy(marker_templates[shape])
   for i in output.sub: i.attr.update(attr)
   output["id"] = id
   return output
 
 class Line(Curve):
+  """Draws a line between two points.
+
+Line(x1, y1, x2, y2, arrow_start, arrow_end, attribute=value)
+
+x1, y1                  required        the starting point
+x2, y2                  required        the ending point
+arrow_start             default=None    if an identifier string/Unicode,
+                                        draw a new arrow object at the
+                                        beginning of the line; if a marker,
+                                        draw that marker instead
+arrow_end               default=None    same for the end of the line
+attribute=value pairs   keyword list    SVG attributes
+"""
   defaults = {}
 
   def __repr__(self):
     return "<Line (%g, %g) to (%g, %g) %s>" % (self.x1, self.y1, self.x2, self.y2, self.attr)
 
-  def __init__(self, x1, y1, x2, y2, **attr):
+  def __init__(self, x1, y1, x2, y2, arrow_start=None, arrow_end=None, **attr):
     self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
+    self.arrow_start, self.arrow_end = arrow_start, arrow_end
 
     self.attr = dict(self.defaults)
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    return self.Path(trans).SVG()
+    """Apply the transformation \"trans\" and return an SVG object."""
+
+    line = self.Path(trans).SVG()
+
+    if (self.arrow_start != False and self.arrow_start != None) or (self.arrow_end != False and self.arrow_end != None):
+      defs = SVG("defs")
+
+      if self.arrow_start != False and self.arrow_start != None:
+        if isinstance(self.arrow_start, SVG):
+          defs.append(self.arrow_start)
+          line.attr["marker-start"] = self.arrow_start["id"]
+        elif isinstance(self.arrow_start, basestring):
+          defs.append(make_marker(self.arrow_start, "arrow_start"))
+          line.attr["marker-start"] = self.arrow_start
+        else:
+          raise TypeError, "arrow_start must be False/None or an id string for the new marker"
+
+        if isinstance(self.arrow_end, SVG):
+          defs.append(self.arrow_end)
+          line.attr["marker-end"] = self.arrow_end["id"]
+        elif isinstance(self.arrow_end, basestring):
+          defs.append(make_marker(self.arrow_end, "arrow_end"))
+          line.attr["marker-end"] = self.arrow_end
+        else:
+          raise TypeError, "arrow_end must be False/None or an id string for the new marker"
+
+      return SVG("g", defs, line)
+
+    return line
 
   def Path(self, trans=None, local=False):
+    """Apply the transformation \"trans\" and return a Path object in
+global coordinates.  If local=True, return a Path in local coordinates
+(which must be transformed again)."""
     self.f = lambda t: (self.x1 + t*(self.x2 - self.x1), self.y1 + t*(self.y2 - self.y1))
     self.low = 0.
     self.high = 1.
@@ -1662,6 +1996,24 @@ class Line(Curve):
       return Curve.Path(self, trans, local)
 
 class LineGlobal:
+  """Draws a line between two points, one or both of which is in
+global coordinates.
+
+Line(x1, y1, x2, y2, lcoal1, local2, arrow_start, arrow_end, attribute=value)
+
+x1, y1                  required        the starting point
+x2, y2                  required        the ending point
+local1                  default=False   if True, interpret first point as a
+                                        local coordinate (apply transform)
+local2                  default=False   if True, interpret second point as a
+                                        local coordinate (apply transform)
+arrow_start             default=None    if an identifier string/Unicode,
+                                        draw a new arrow object at the
+                                        beginning of the line; if a marker,
+                                        draw that marker instead
+arrow_end               default=None    same for the end of the line
+attribute=value pairs   keyword list    SVG attributes
+"""
   defaults = {}
 
   def __repr__(self):
@@ -1671,15 +2023,16 @@ class LineGlobal:
 
     return "<LineGlobal %s(%s, %s) to %s(%s, %s) %s>" % (local1, str(self.x1), str(self.y1), local2, str(self.x2), str(self.y2), self.attr)
 
-  def __init__(self, x1, y1, x2, y2, local1=False, local2=False, **attr):
+  def __init__(self, x1, y1, x2, y2, local1=False, local2=False, arrow_start=None, arrow_end=None, **attr):
     self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
-    self.local1 = local1
-    self.local2 = local2
+    self.local1, self.local2 = local1, local2
+    self.arrow_start, self.arrow_end = arrow_start, arrow_end
 
     self.attr = dict(self.defaults)
     self.attr.update(attr)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     X1, Y1, X2, Y2 = self.x1, self.y1, self.x2, self.y2
@@ -1687,7 +2040,33 @@ class LineGlobal:
     if self.local1: X1, Y1 = trans(X1, Y1)
     if self.local2: X2, Y2 = trans(X2, Y2)
 
-    return SVG("path", d="M%s %s L%s %s" % (X1, Y1, X2, Y2), **self.attr)
+    line = SVG("path", d="M%s %s L%s %s" % (X1, Y1, X2, Y2), **self.attr)
+
+    if (self.arrow_start != False and self.arrow_start != None) or (self.arrow_end != False and self.arrow_end != None):
+      defs = SVG("defs")
+
+      if self.arrow_start != False and self.arrow_start != None:
+        if isinstance(self.arrow_start, SVG):
+          defs.append(self.arrow_start)
+          line.attr["marker-start"] = self.arrow_start["id"]
+        elif isinstance(self.arrow_start, basestring):
+          defs.append(make_marker(self.arrow_start, "arrow_start"))
+          line.attr["marker-start"] = self.arrow_start
+        else:
+          raise TypeError, "arrow_start must be False/None or an id string for the new marker"
+
+        if isinstance(self.arrow_end, SVG):
+          defs.append(self.arrow_end)
+          line.attr["marker-end"] = self.arrow_end["id"]
+        elif isinstance(self.arrow_end, basestring):
+          defs.append(make_marker(self.arrow_end, "arrow_end"))
+          line.attr["marker-end"] = self.arrow_end
+        else:
+          raise TypeError, "arrow_end must be False/None or an id string for the new marker"
+
+      return SVG("g", defs, line)
+
+    return line
 
 class VLine(Line):
   defaults = {}
@@ -1702,6 +2081,9 @@ class VLine(Line):
     Line.__init__(self, x, y1, x, y2, **self.attr)
 
   def Path(self, trans=None, local=False):
+    """Apply the transformation \"trans\" and return a Path object in
+global coordinates.  If local=True, return a Path in local coordinates
+(which must be transformed again)."""
     self.x1 = self.x
     self.x2 = self.x
     return Line.Path(self, trans, local)
@@ -1719,6 +2101,9 @@ class HLine(Line):
     Line.__init__(self, x1, y, x2, y, **self.attr)
 
   def Path(self, trans=None, local=False):
+    """Apply the transformation \"trans\" and return a Path object in
+global coordinates.  If local=True, return a Path in local coordinates
+(which must be transformed again)."""
     self.y1 = self.y
     self.y2 = self.y
     return Line.Path(self, trans, local)
@@ -1738,9 +2123,13 @@ class Rect(Curve):
     self.attr.update(attr)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     return self.Path(trans).SVG()
 
   def Path(self, trans=None, local=False):
+    """Apply the transformation \"trans\" and return a Path object in
+global coordinates.  If local=True, return a Path in local coordinates
+(which must be transformed again)."""
     if trans == None:
       return Path([("M", self.x1, self.y1, not local), ("L", self.x2, self.y1, not local), ("L", self.x2, self.y2, not local), ("L", self.x1, self.y2, not local), ("Z",)], **self.attr)
 
@@ -1781,9 +2170,13 @@ class Ellipse(Curve):
     self.attr.update(attr)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     return self.Path(trans).SVG()
 
   def Path(self, trans=None, local=False):
+    """Apply the transformation \"trans\" and return a Path object in
+global coordinates.  If local=True, return a Path in local coordinates
+(which must be transformed again)."""
     angle = math.atan2(self.ay, self.ax) + math.pi/2.
     bx = self.b * math.cos(angle)
     by = self.b * math.sin(angle)
@@ -1882,6 +2275,7 @@ class Ticks:
     return (X, Y), (xhatx, xhaty), (yhatx, yhaty), angle
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     self.last_ticks, self.last_miniticks = self.interpret()
@@ -2223,6 +2617,7 @@ class CurveAxis(Curve, Ticks):
     Ticks.__init__(self, f, low, high, ticks, miniticks, labels, logbase, arrow_start, arrow_end, tattr, **attr)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     func = Curve.SVG(self, trans)
     ticks = Ticks.SVG(self, trans) # returns a <g />
 
@@ -2275,6 +2670,7 @@ class LineAxis(Line, Ticks):
     return ticks2, miniticks
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     line = Line.SVG(self, trans) # must be evaluated first, to set self.f, self.low, self.high
 
     f01 = self.f
@@ -2314,6 +2710,7 @@ class XAxis(LineAxis):
     LineAxis.__init__(self, xmin, aty, xmax, aty, xmin, xmax, ticks, miniticks, labels, logbase, arrow_start, arrow_end, exclude, tattr, **attr)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     self.y1 = self.aty
     self.y2 = self.aty
     return LineAxis.SVG(self, trans)
@@ -2334,6 +2731,7 @@ class YAxis(LineAxis):
     LineAxis.__init__(self, atx, ymin, atx, ymax, ymin, ymax, ticks, miniticks, labels, logbase, arrow_start, arrow_end, exclude, tattr, **attr)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     self.x1 = self.atx
     self.x2 = self.atx
     return LineAxis.SVG(self, trans)
@@ -2360,6 +2758,7 @@ class Axes:
     self.attr.update(attr)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     atx, aty = self.atx, self.aty
     if atx < self.xmin: atx = self.xmin
     if atx > self.xmax: atx = self.xmax
@@ -2405,6 +2804,7 @@ class HGrid(Ticks):
     Ticks.__init__(self, None, low, high, ticks, miniticks, None, logbase)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     self.last_ticks, self.last_miniticks = Ticks.interpret(self)
 
     ticksd = []
@@ -2436,6 +2836,7 @@ class VGrid(Ticks):
     Ticks.__init__(self, None, low, high, ticks, miniticks, None, logbase)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     self.last_ticks, self.last_miniticks = Ticks.interpret(self)
 
     ticksd = []
@@ -2468,6 +2869,7 @@ class Grid(Ticks):
     Ticks.__init__(self, None, None, None, ticks, miniticks, None, logbase)
 
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     self.low, self.high = self.xmin, self.xmax
     self.last_xticks, self.last_xminiticks = Ticks.interpret(self)
     self.low, self.high = self.ymin, self.ymax
@@ -2502,6 +2904,7 @@ class XErrorBars:
     self.attr.update(attr)
     
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans) # only once
 
     output = SVG("g")
@@ -2529,6 +2932,7 @@ class YErrorBars:
     self.attr.update(attr)
     
   def SVG(self, trans=None):
+    """Apply the transformation \"trans\" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans) # only once
 
     output = SVG("g")
