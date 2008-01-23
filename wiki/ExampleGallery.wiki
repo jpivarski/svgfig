@@ -1,5 +1,5 @@
 #summary Example Gallery
 #labels Featured
 
-|| [SVGFigLogo http://svgfig.googlecode.com/svn/wiki/svgfig_logo.png] ||
+|| [http://code.google.com/p/svgfig/wiki/SVGFigLogo http://svgfig.googlecode.com/svn/wiki/svgfig_logo.png] ||
 || [SVGFigLogo SVGFig logo] ||
