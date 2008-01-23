@@ -116,4 +116,4 @@ When an XAxis or a YAxis is evaluated with *SVG*, it will gain two members.
 
 == SVG method ==
 
-Axes, XAxis, and YAxis have *SVG* members, as described in [GeneralPrimative General features for all primatives].
+Axes, XAxis, and YAxis have *SVG* methods, as described in [GeneralPrimative General features for all primatives].

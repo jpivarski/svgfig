@@ -38,7 +38,7 @@ could reference the wrong markers.
 
 == SVG method ==
 
-!CurveAxis has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
+!CurveAxis has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
 
 == Defaults ==
 

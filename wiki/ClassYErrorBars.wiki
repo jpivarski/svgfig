@@ -38,7 +38,7 @@ In all respects, XErrorBars acts like YErrorBars.
 
 == SVG method ==
 
-XErrorBars and YErrorBars have *SVG* members, as described in [GeneralPrimative General features for all primatives].
+XErrorBars and YErrorBars have *SVG* methods, as described in [GeneralPrimative General features for all primatives].
 
 == Defaults ==
 

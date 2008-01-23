@@ -23,11 +23,11 @@ Adding an arrow changes the structure of the output SVG.
 
 == SVG method ==
 
-Line has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Line has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
 
 == Path method ==
 
-Line has a *Path* member, as described in [GeneralPrimative General features for all primatives].
+Line has a *Path* method, as described in [GeneralPrimative General features for all primatives].
 
 Arrows are ignored by the Path method.
 

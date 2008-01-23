@@ -19,11 +19,11 @@ if passed through a non-linear coordinate transformation.
 
 == SVG method ==
 
-Ellipse has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Ellipse has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
 
 == Path method ==
 
-Ellipse has a *Path* member, as described in [GeneralPrimative General features for all primatives].
+Ellipse has a *Path* method, as described in [GeneralPrimative General features for all primatives].
 
 == Defaults ==
 

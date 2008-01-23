@@ -36,11 +36,11 @@ The following are all equivalent:
 
 == SVG method ==
 
-Curve has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Curve has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
 
 == Path method ==
 
-Curve has a *Path* member, as described in [GeneralPrimative General features for all primatives].
+Curve has a *Path* method, as described in [GeneralPrimative General features for all primatives].
 
 == Defaults ==
 

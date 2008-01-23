@@ -15,7 +15,7 @@ Draws at text string at a specified point in local coordinates.
 
 == SVG method ==
 
-Text has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Text has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
 
 == Defaults ==
 

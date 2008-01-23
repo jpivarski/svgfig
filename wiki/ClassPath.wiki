@@ -45,7 +45,7 @@ relative.
 
 == SVG method ==
 
-Path has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
+Path has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
 
 == Considerations ==
 

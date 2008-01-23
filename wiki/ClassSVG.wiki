@@ -159,7 +159,7 @@ Sometimes, you will want a more compact expression: `str(svg)` and
 <g (2 sub) />
 }}}
 
-The output can be more carefully controlled with the *tree* member function.
+The output can be more carefully controlled with the *tree* method.
 
 *tree(depth_limit, sub, attr, text, tree_width, obj_width)*
 
@@ -170,7 +170,7 @@ The output can be more carefully controlled with the *tree* member function.
 || tree_width || _default_=20 || number of characters allotted for tree indexes ||
 || obj_width || _default_=80 || number of characters allotted for the SVG objects ||
 
-To turn the SVG object into a real XML fragment, use the *xml* member function.
+To turn the SVG object into a real XML fragment, use the *xml* method.
 
 *xml(indent, newl, depth_limit)*
 
@@ -178,7 +178,7 @@ To turn the SVG object into a real XML fragment, use the *xml* member function.
 || newl || _default_="\n" || newline character ||
 || depth_limit || _default_=None || if a number, limit the recursion depth ||
 
-For XML that can be saved into a file, use the *standalone_xml* member function.
+For XML that can be saved into a file, use the *standalone_xml* method.
 
 *standalone_xml(indent, newl)*
 
