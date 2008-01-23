@@ -1,6 +1,12 @@
 #summary Revision history: what was changed/added in each release
 #labels Featured
 
+== Latest source ==
+
+[http://svgfig.googlecode.com/svn/trunk/ Source tree]
+
+  * nothing yet
+
 == svgfig-1.1.0 ==
 
 [http://svgfig.googlecode.com/files/svgfig-1.1.0.tgz svgfig-1.1.0.tgz]
