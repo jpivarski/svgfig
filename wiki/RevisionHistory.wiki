@@ -1,0 +1,15 @@
+#summary Revision history: what was changed/added in each release
+#labels Featured
+
+== svgfig-1.1.0 ==
+
+[http://svgfig.googlecode.com/files/svgfig-1.1.0.tgz svgfig-1.1.0.tgz]
+
+  * added arrows to [ClassLine Line] and [ClassLineGlobal LineGlobal]
+  * added Python documentation strings to everything (copied from [Reference Reference]).
+
+== svgfig-1.0.0 ==
+
+[http://svgfig.googlecode.com/files/svgfig-1.0.0.tgz svgfig-1.0.0.tgz]
+
+  * first release
