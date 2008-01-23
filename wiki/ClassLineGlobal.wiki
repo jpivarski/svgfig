@@ -11,20 +11,21 @@ coordinates with parts defined in a coordinate transform.
 
 == Arguments ==
 
-*!LineGlobal(x1, y1, x2, y2, local1, local2, attribute=value)*
+*!LineGlobal(x1, y1, x2, y2, arrow_start, arrow_end, attribute=value)*
 
 || x1, y1 || _*required*_ || the starting point ||
 || x2, y2 || _*required*_ || the ending point ||
-|| local1, local2 || _default_=False, False || if True, transform this point ||
+|| arrow_start || default=None || if an identifier string/Unicode, draw a new arrow object at the beginning of the line; if a marker, draw that marker instead ||
+|| arrow_end || default=None || same for the end of the line ||
 || attribute=value pairs || _keyword list_ || SVG attributes ||
 
 If a coordinate is global, it can be expressed as a string with SVG
 units, like "2 cm".
 
+To add arrows to the ends of the line, you need to supply a _new_ identifier.  If the identifier references another object (SVG `id` attribute), the renderer will attempt to place that object instead (if it's a marker).
+
+Adding an arrow changes the structure of the output SVG.
+
 == SVG method ==
 
-LineGlobal has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
-
-== Path method ==
-
-LineGlobal has a *Path* member, as described in [GeneralPrimative General features for all primatives].
+!LineGlobal has an *SVG* member, as described in [GeneralPrimative General features for all primatives].
