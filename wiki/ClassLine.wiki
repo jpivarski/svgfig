@@ -9,11 +9,17 @@ curve.
 
 == Arguments ==
 
-*Line(x1, y1, x2, y2, attribute=value)*
+*Line(x1, y1, x2, y2, arrow_start, arrow_end, attribute=value)*
 
 || x1, y1 || _*required*_ || the starting point ||
 || x2, y2 || _*required*_ || the ending point ||
+|| arrow_start || default=None || if an identifier string/Unicode, draw a new arrow object at the beginning of the line; if a marker, draw that marker instead ||
+|| arrow_end || default=None || same for the end of the line ||
 || attribute=value pairs || _keyword list_ || SVG attributes ||
+
+To add arrows to the ends of the line, you need to supply a _new_ identifier.  If the identifier references another object (SVG `id` attribute), the renderer will attempt to place that object instead (if it's a marker).
+
+Adding an arrow changes the structure of the output SVG.
 
 == SVG method ==
 
@@ -22,6 +28,8 @@ Line has an *SVG* member, as described in [GeneralPrimative General features for
 == Path method ==
 
 Line has a *Path* member, as described in [GeneralPrimative General features for all primatives].
+
+Arrows are ignored by the Path method.
 
 == Defaults ==
 
