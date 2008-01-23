@@ -7,6 +7,8 @@ Draws at text string at a specified point in local coordinates.
 
 == Arguments ==
 
+*Text(x, y, d, attribute=value)*
+
 || x, y || _*required*_ || location of the point in local coordinates ||
 || d || _*required*_ || text/Unicode string ||
 || attribute=value pairs || _keyword list_ || SVG attributes ||
