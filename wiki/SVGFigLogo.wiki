@@ -48,7 +48,8 @@ SVG = svgfig.SVG
 defs = SVG("defs", \
            SVG("radialGradient", SVG("stop", stop_color="white", stop_opacity=0, offset="0%") \
                                , SVG("stop", stop_color="white", stop_opacity=1, offset="100%") \
-                               , cx=100, cy=50, r=100, gradientTransform="translate(0,25) scale(1,0.5)", gradientUnits="userSpaceOnUse", id="theRadGrad"), \
+                               , cx=100, cy=50, r=100, gradientTransform="translate(0,25) scale(1,0.5)" \
+                               , gradientUnits="userSpaceOnUse", id="theRadGrad"), \
            SVG("clipPath", SVG("rect", x=0, y=0, width=200, height=100), id="theClip")
            )
 
