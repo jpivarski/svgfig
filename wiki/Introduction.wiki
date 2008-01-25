@@ -27,7 +27,7 @@ To do the same in Python, load SVGFig and assign `s` to a new instance of the [C
 <rect y=10 width=60 height=60 x=10 />
 }}}
 
-In XML, elements can be nested, and the resulting tree structure is meaningful in Scalable Vector Graphics.  Graphics can be organized by grouping them in "g" elements, and many attributes can be inherited.  Let's create two rectangles and group them in a "g".
+In XML, elements can be nested, and the resulting tree structure is meaningful in for images.  Graphical objects can be organized by grouping them in "g" elements, and many attributes can be inherited.  Let's create two rectangles and group them in a "g".
 {{{
 >>> s = SVG("rect", x=10, y=10, width=60, height=60, fill="red")
 >>> s2 = SVG("rect", x=30, y=30, width=60, height=60, fill="blue")
