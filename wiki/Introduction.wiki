@@ -59,7 +59,7 @@ viewBox="0 0 100 100">
 </svg>
 }}}
 
-These are necessary parts of Scalable Vector Graphics images, but it would be inconvenient to have to construct them every time you want to look at a graphics fragment.  The `save` method determines whether it is being called from a whole image or a fragment, and constructs the appropriate output.  (See [DefCanvas canvas] to make canvases explicitly.)
+The header is a necessary part of a Scalable Vector Graphics image, but it would be inconvenient to have to construct it every time you want to look at a graphics fragment.  The `save` method determines whether it is being called from a whole image or a fragment, and constructs the appropriate output.  (See [DefCanvas canvas] to make canvases explicitly.)
 
 It was also unnecessary to specify a file name.  Without an argument, `save` overwrites "tmp.svg" in the current directory.  *Be careful that you don't keep anything important in "tmp.svg"!*
 
