@@ -69,7 +69,7 @@ It was also unnecessary to specify a file name.  Without an argument, `save` ove
 
 Building images by calling `save` and reloading in a web browser is reminiscent of writing web pages in HTML, but you can also call a viewer from Python, assuming that you have it installed on your system.  The [ClassSVG SVG] class has `firefox`, `inkview`, and `inkscape` methods, which write to a file just like `save`, but then immediately load it in a renderer.
 
-To load Scalable Vector Graphics files from XML into Python, use the [DefLoad load] function.
+To load Scalable Vector Graphics files from XML into Python, use the [Defload load] function.
 
 === Navigating SVG images in Python ===
 
@@ -154,5 +154,3 @@ If you need to know more about the Python language, see the [http://www.python.o
 Of course, all the SVGFig documentation is available [Reference on this site] and through Python's `help` command.
 
 = Fig =
-
-
