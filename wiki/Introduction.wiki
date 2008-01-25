@@ -11,13 +11,15 @@ SVGFig is a [http://www.python.org Python] extension module that defines two new
 
 The [ClassSVG SVG] class is a document object model of the Scalable Vector Graphics image, meaning that the tree of objects normally represented in XML is represented instead in linked Python data structures.
 
+=== Constructing SVG images ===
+
 In XML-SVG, a rectangle can be expressed with the following command.
 {{{
 <rect x="10" y="10" width="60" height="60" />
 }}}
-To do the same in Python, load the [ClassSVG SVG] class from SVGFig and assign `s` to a new instance.  (See [HowToInstall "How to Install"] if the `import` command doesn't work.)
+To do the same in Python, load SVGFig and assign `s` to a new instance of the [ClassSVG SVG] class.  (See [HowToInstall "How to Install"] if the `import` command doesn't work.)
 {{{
->>> from svgfig import SVG
+>>> from svgfig import *
 >>> s = SVG("rect", x=10, y=10, width=60, height=60)
 >>> print s.xml()
 <rect y=10 width=60 height=60 x=10 />
@@ -37,6 +39,8 @@ When we applied the `fill_opacity="50%"` attribute to the group, it was applied 
 >>> g.attr
 {'fill-opacity': '50%'}
 }}}
+
+=== Saving and viewing ===
 
 The `save` method didn't simply call `xml` and write the output to disk.  If you look at "tmp.svg", you would see that the contents include a header and a top-level <svg /> object.
 {{{
@@ -64,6 +68,10 @@ The header is a necessary part of a Scalable Vector Graphics image, but it would
 It was also unnecessary to specify a file name.  Without an argument, `save` overwrites "tmp.svg" in the current directory.  *Be careful that you don't keep anything important in "tmp.svg"!*
 
 Building images by calling `save` and reloading in a web browser is reminiscent of writing web pages in HTML, but you can also call a viewer from Python, assuming that you have it installed on your system.  The [ClassSVG SVG] class has `firefox`, `inkview`, and `inkscape` methods, which write to a file just like `save`, but then immediately load it in a renderer.
+
+To load Scalable Vector Graphics files from XML into Python, use the [DefLoad load] function.
+
+=== Navigating SVG images in Python ===
 
 Fairly often, you'll also want to explore the [ClassSVG SVG] object to see what's in it without looking at the full XML output.  Python's `print` command outputs the tree structure.
 {{{
@@ -134,6 +142,8 @@ Just about everything in Python can be used in a `for` loop, and [ClassSVG SVG] 
 (0, 0, 0, 'fill-opacity') '50%'
 }}}
 
+=== More documentation ===
+
 So now that you know how to build a Scalable Vector Graphic image in principle, what are the commands?
   * [http://www.w3.org/Graphics/SVG/ The W3C specification] is the definitive reference, but it can sometimes be hard to understand.
   * I often draw what I want to learn in [http://www.inkscape.org Inkscape] and save as "Plain SVG," then look at the output.
@@ -141,4 +151,8 @@ So now that you know how to build a Scalable Vector Graphic image in principle, 
 
 If you need to know more about the Python language, see the [http://www.python.org/ official website].  If you just need to look something up, see [http://rgruet.free.fr/ Richard Gruet's quick reference pages].
 
+Of course, all the SVGFig documentation is available [Reference on this site] and through Python's `help` command.
+
 = Fig =
+
+
