@@ -7,7 +7,7 @@ SVGFig is a [http://www.python.org Python] extension module that defines two new
 
 [ClassFig Fig] builds a mathematical figure by applying a coordinate transformation to graphics primatives.  Unlike the the strictly linear transformations in the Scalable Vector Graphics command-set, [ClassFig Fig] transformations can be any Python function.  Moreover, one often wants to transform only the mathematically-meaningful coordinates and not the widths of lines, lengths of tick marks, or radii of circular points, so [ClassFig Fig] allows you to make such a distinction.  [ClassFig Fig] transformations are composed by nesting, so you can make self-similar images by recursion.
 
-= SVG =
+= The SVG Class =
 
 The [ClassSVG SVG] class is a document object model of the Scalable Vector Graphics image, meaning that the tree of objects normally represented in XML is represented instead in linked Python data structures.
 
@@ -153,4 +153,4 @@ If you need to know more about the Python language, see the [http://www.python.o
 
 Of course, all the SVGFig documentation is available [Reference on this site] and through Python's `help` command.
 
-= Fig =
+= The Fig Class =
