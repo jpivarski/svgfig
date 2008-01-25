@@ -7,10 +7,14 @@
 
 [http://code.google.com/p/svgfig/w/list?q=label:Reference http://svgfig.googlecode.com/svn/wiki/alphabetized_list.png]
 
+----
+
 = Tutorials =
 
   * [Introduction Introduction]
   * [ExampleGallery Example Gallery]
+
+----
 
 = Reference Table of Contents =
 
