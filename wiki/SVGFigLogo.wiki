@@ -39,7 +39,7 @@ text_and_grid = svgfig.Fig(thegrid, svgfig.Fig(symm, trans="x-0.1,y"), trans="x 
 
 # Combine them all and convert to SVG (note the nested Figs)
 svg = svgfig.Fig(text_and_grid, curveaxis, trans=svgfig.window(-0.8, 0.7, -1, 1.1, width=200, flipy=False)).SVG()
-# print svg # it's complicated, but clear that our background grid is svg[0,0]
+print svg # it's complicated, but clear that our background grid is svg[0,0]
 
 # Define a radial gradient and a clipping rectangle in SVG
 # (I learned how to do this by drawing it in Inkscape and looking at the output)
