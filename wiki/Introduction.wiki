@@ -9,7 +9,7 @@ SVGFig is a [http://www.python.org Python] extension module that defines two new
 
 = The SVG Class =
 
-The [ClassSVG SVG] class is a document object model of the Scalable Vector Graphics image, meaning that the tree of objects normally represented in XML is represented instead in linked Python data structures.
+The [ClassSVG SVG] class is a document object model of a Scalable Vector Graphics image, meaning that the tree of objects normally represented in XML is represented instead in linked Python data structures.
 
 === Constructing SVG images ===
 
