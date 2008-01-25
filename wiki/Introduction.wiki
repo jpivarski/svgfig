@@ -52,6 +52,13 @@ The `save` method didn't simply call `xml` and write the output to disk.  If you
 </svg>
 }}}
 
+These are necessary parts of Scalable Vector Graphics images, but it would be inconvenient to have to construct them every time you want to look at a graphics fragment.  The `save` method determines whether it is being called from a whole image or a fragment, and constructs the appropriate output.  (See [DefCanvas canvas] to make canvases explicitly.)
+
+It was also unnecessary to specify a file name.  Without an argument, `save` overwrites "tmp.svg" in the current directory.  *Be careful that you don't keep anything important in "tmp.svg"!*
+
+Building images by calling `save` and reloading in a web browser is reminiscent of writing web pages in HTML, but you can also call a viewer from Python, assuming that you have it installed on your system.  The [ClassSVG SVG] class has `firefox`, `inkview`, and `inkscape` methods, which write to a file just like `save`, but then immediately load it in a renderer.
+
+
 
 
 
