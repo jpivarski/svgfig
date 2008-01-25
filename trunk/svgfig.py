@@ -3096,10 +3096,10 @@ attribute=value pairs   keyword list    SVG attributes for the major tick lines
     self.mini_attr = dict(self.mini_defaults)
     self.mini_attr.update(mini_attr)
 
+    Ticks.__init__(self, None, low, high, ticks, miniticks, None, logbase)
+
     self.attr = dict(self.defaults)
     self.attr.update(attr)
-
-    Ticks.__init__(self, None, low, high, ticks, miniticks, None, logbase)
 
   def SVG(self, trans=None):
     """Apply the transformation \"trans\" and return an SVG object."""
@@ -3146,10 +3146,10 @@ attribute=value pairs   keyword list    SVG attributes for the major tick lines
     self.mini_attr = dict(self.mini_defaults)
     self.mini_attr.update(mini_attr)
 
+    Ticks.__init__(self, None, low, high, ticks, miniticks, None, logbase)
+
     self.attr = dict(self.defaults)
     self.attr.update(attr)
-
-    Ticks.__init__(self, None, low, high, ticks, miniticks, None, logbase)
 
   def SVG(self, trans=None):
     """Apply the transformation \"trans\" and return an SVG object."""
@@ -3196,10 +3196,10 @@ attribute=value pairs   keyword list    SVG attributes for the major tick lines
     self.mini_attr = dict(self.mini_defaults)
     self.mini_attr.update(mini_attr)
 
+    Ticks.__init__(self, None, None, None, ticks, miniticks, None, logbase)
+
     self.attr = dict(self.defaults)
     self.attr.update(attr)
-
-    Ticks.__init__(self, None, None, None, ticks, miniticks, None, logbase)
 
   def SVG(self, trans=None):
     """Apply the transformation \"trans\" and return an SVG object."""
