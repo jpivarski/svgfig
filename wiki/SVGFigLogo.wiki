@@ -37,7 +37,7 @@ thegrid = svgfig.Grid(-1, 1, -1.2, 1.3, ticks=20, stroke=svgfig.rgb(0.8,0.8,1.))
 # Transform the text and the grid together, but not the semicircular axis
 text_and_grid = svgfig.Fig(thegrid, svgfig.Fig(symm, trans="x-0.1,y"), trans="x + 2*x*y**2, y*(1+1.5*x+4*x**2)")
 
-# Combine them all and convert to SVG
+# Combine them all and convert to SVG (note the nested Figs)
 svg = svgfig.Fig(text_and_grid, curveaxis, trans=svgfig.window(-0.8, 0.7, -1, 1.1, width=200, flipy=False)).SVG()
 # print svg # it's complicated, but clear that our background grid is svg[0,0]
 
