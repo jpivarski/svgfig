@@ -20,7 +20,9 @@ In XML-SVG, a rectangle can be expressed with the following command.
 To do the same in Python, load SVGFig and assign `s` to a new instance of the [ClassSVG SVG] class.  (See [HowToInstall "How to Install"] if the `import` command doesn't work.)
 {{{
 >>> from svgfig import *
+>>> 
 >>> s = SVG("rect", x=10, y=10, width=60, height=60)
+>>> 
 >>> print s.xml()
 <rect y=10 width=60 height=60 x=10 />
 }}}
