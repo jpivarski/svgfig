@@ -43,7 +43,10 @@ The `save` method didn't simply call `xml` and write the output to disk.  If you
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
-<svg style="stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle" xmlns="http://www.w3.org/2000/svg" height="400px" width="400px" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" font-family="Helvetica,Arial,FreeSans,Sans,sans,sans-serif" viewBox="0 0 100 100">
+<svg style="stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle"
+xmlns="http://www.w3.org/2000/svg" height="400px" width="400px" version="1.1"
+xmlns:xlink="http://www.w3.org/1999/xlink" font-family="Helvetica,Arial,FreeSans,Sans,sans,sans-serif"
+viewBox="0 0 100 100">
 
 <g fill-opacity="50%">
 
