@@ -98,7 +98,7 @@ The blue square is the second sub-element (1) of the first sub-element (0) of th
 <rect y=30 width=60 fill='blue' x=30 height=60 />
 }}}
 
-We can use this kind of indexing to replace and delete elements, too.
+This kind of indexing replaces and deletes elements, too.
 {{{
 >>> g2[0, 0, 0, 1] = SVG("circle", cx=60, cy=60, r=30, fill="blue")
 >>> print g2
