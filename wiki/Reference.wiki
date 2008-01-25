@@ -1,18 +1,18 @@
 #summary Home page for all documentation
 #labels Featured
 
+= Tutorials =
+
+  * [Introduction Introduction]
+  * [ExampleGallery Example Gallery]
+
+----
+
 = Alphabetized Index =
 
 [http://code.google.com/p/svgfig/w/list?q=label:Reference Click here] for an alphabetized list of all SVGFig reference pages.  (Note that you can search their contents.)
 
 [http://code.google.com/p/svgfig/w/list?q=label:Reference http://svgfig.googlecode.com/svn/wiki/alphabetized_list.png]
-
-----
-
-= Tutorials =
-
-  * [Introduction Introduction]
-  * [ExampleGallery Example Gallery]
 
 ----
 
