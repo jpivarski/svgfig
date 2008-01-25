@@ -115,11 +115,27 @@ A tree index that ends in a string references the attribute (no underscore/hyphe
 '50%'
 }}}
 
+Just about everything in Python can be used in a `for` loop, and [ClassSVG SVG] is no exception.  Iterating over an [ClassSVG SVG] object performs a depth-first walk over all the sub-elements and attributes, returning (tree index, element) pairs.  The only thing you don't step over in the loop is the top-level object (which has no tree index).
+{{{
+>>> for ti, s in g2:
+...     print ti, repr(s)
+... 
+(0,) <g (1 sub) />
+(0, 0) <g (1 sub) />
+(0, 0, 0) <g (1 sub) fill-opacity='50%' />
+(0, 0, 0, 0) <circle cy=60 cx=60 r=30 fill='blue' />
+(0, 0, 0, 0, 'cy') 60
+(0, 0, 0, 0, 'cx') 60
+(0, 0, 0, 0, 'r') 30
+(0, 0, 0, 0, 'fill') 'blue'
+(0, 0, 0, 'fill-opacity') '50%'
+}}}
 
+So now that you know how to build a Scalable Vector Graphic image in principle, what are the commands?
+  * [http://www.w3.org/Graphics/SVG/ The W3C specification] is the definitive reference, but it can sometimes be hard to understand.
+  * I often draw what I want to learn in [http://www.inkscape.org Inkscape] and save as "Plain SVG," then look at the output.
+  * [http://www.w3schools.com/svg/default.asp W3 Schools] has a good tutorial.
 
-
-
-
-
+If you need to know more about the Python language, see the [http://www.python.org/ official website].  If you just need to look something up, see [http://rgruet.free.fr/ Richard Gruet's quick reference pages].
 
 = Fig =
