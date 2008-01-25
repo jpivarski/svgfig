@@ -32,7 +32,7 @@ In XML, elements can be nested, and the resulting tree structure is meaningful i
 }}}
 Look at "tmp.svg" in a web browser or other Scalable Vector Graphics renderer.  You should see two overlapping, translucent squares.  In a graphics program like [http://www.inkscape.org/ Inkscape], the two squares should be grouped and moveable as a single object.
 
-When we applied the `fill_opacity="50%"` attribute to the group, it was applied to all objects inside the group.  That can be overridden by giving one of the rectangles an explicit `fill_opacity`.  In the Scalable Vector Graphics specification, this attribute is actually called "fill-opacity", but Python would interpret the hyphen as attempting to subtract "opacity" from "fill", so we need to make some character substitutions.  An underscore (`_`) is mapped to a hyphen (`-`), and two underscores (`__`) are mapped to a colon (`:`).  Python uses the correct attribute names whenever they are quoted, e.g,
+When we applied the `fill_opacity="50%"` attribute to the group, it was applied to all objects inside the group.  That can be overridden by giving one of the rectangles an explicit `fill_opacity`.  In the Scalable Vector Graphics specification, this attribute is actually called "fill-opacity", with a hyphen, not an underscore.  Python would interpret the hyphen as an attempt to subtract "opacity" from "fill", so we need to make some character substitutions.  An underscore (`_`) is mapped to a hyphen (`-`), and two underscores (`__`) are mapped to a colon (`:`).  Python uses the correct attribute names whenever they are quoted, e.g,
 {{{
 >>> g.attr
 {'fill-opacity': '50%'}
