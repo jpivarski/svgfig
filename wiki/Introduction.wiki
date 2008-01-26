@@ -36,6 +36,8 @@ In XML, elements can be nested, and the resulting tree structure is meaningful f
 }}}
 Look at "tmp.svg" in a web browser or other Scalable Vector Graphics renderer.  You should see two overlapping, translucent squares.  In a graphics program like [http://www.inkscape.org/ Inkscape], the two squares should be grouped and moveable as a single object.
 
+[http://svgfig.googlecode.com/svn/wiki/introduction-1.png]
+
 When we applied the `fill_opacity="50%"` attribute to the group, it was applied to all objects inside the group.  That can be overridden by giving one of the rectangles an explicit `fill_opacity`.  In the Scalable Vector Graphics specification, this attribute is actually called "fill-opacity", with a hyphen, not an underscore.  Python would interpret the hyphen as an attempt to subtract "opacity" from "fill", so we need to make some character substitutions.  An underscore (`_`) is mapped to a hyphen (`-`), and two underscores (`__`) are mapped to a colon (`:`).  Python uses the correct attribute names whenever they are quoted, e.g,
 {{{
 >>> g.attr
@@ -111,7 +113,10 @@ None                 <g (1 sub) />
 [0, 0, 0, 0]                         <rect y=10 width=60 fill='red' x=10 height=60 />                
 [0, 0, 0, 1]                         <circle cy=60 cx=60 r=30 fill='blue' />                         
 >>> g2.inkview()   # to look at it
->>> 
+}}}
+[http://svgfig.googlecode.com/svn/wiki/introduction-2.png]
+
+{{{
 >>> del g2[0, 0, 0, 0]
 >>> print g2
 None                 <g (1 sub) />                                                                   
@@ -121,6 +126,7 @@ None                 <g (1 sub) />
 [0, 0, 0, 0]                         <circle cy=60 cx=60 r=30 fill='blue' />                         
 >>> g2.inkview()
 }}}
+[http://svgfig.googlecode.com/svn/wiki/introduction-3.png]
 
 Tree indexes ending in strings reference attributes (no underscore/hyphen substitution).
 {{{
@@ -192,13 +198,12 @@ None                 <g (3 sub) />
 [1]                      <path d='M2 1L6 2' />                                                       
 [2]                      <path d='M6 2L0 0' />                                                  
 }}}
+
 {{{
 >>> t = "0.1 + 0.4*x, 0.1 + 0.4*y"                                                              >>> rect = Rect(0.05, 0.05, 0.95, 0.95, fill="blue", fill_opacity=0.3)                          >>> Fig(rect, Fig(rect, Fig(rect, Fig(rect, trans=t), trans=t), trans=t), \
 ...     trans=window(0,1,0,1)).SVG().inkview()
 }}}
-
-
-
+[http://svgfig.googlecode.com/svn/wiki/introduction-4.png]
 
 
 
