@@ -5,7 +5,7 @@
 
 [http://svgfig.googlecode.com/svn/trunk/ Source tree]
 
-  * nothing yet
+  * minor bug-fixes that I discover and fix as I develop the examples; will become 1.1.1 as soon as I'm done
 
 == svgfig-1.1.0 ==
 
