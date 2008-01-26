@@ -241,13 +241,18 @@ Transformations must be Python functions that map (x,y) to (x',y'), but there ar
 (2, 2)
 }}}
 
+Transformations can also be functions from the complex plane to itself.  The [DefTotrans totrans] function converts such functions into standard form, whether they are strings or functions of one argument.
+{{{
+>>> from svgfig import *
+>>> t = lambda z: z*(1 + 0.3j) + 0.4*z**2
+>>> Fig(Fig(Grid(-1, 1, -1, 1), trans=totrans(t)), trans=window(-2.5, 2.5, -2.5, 2.5)).SVG().inkview()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/introduction-6.png]
 
-
-
-
-
-
-
-
+Another convenient transformation maps a rectangle in one system to a rectangle in another system, usually used as a window on your graphics (roughly corresponds to viewBoxes in SVG).  The [DefWindow window] function can also make logarithmic and semi-log transformations, useful for [ClassPlot Plot] and [ClassFrame Frame].
+{{{
+>>> window(-1, 1, -1, 1)
+<function (-1, 1), (-1, 1) -> (0, 100), (100, 0) at 0xb7c03304>
+}}}
 
 
