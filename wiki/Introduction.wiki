@@ -256,4 +256,27 @@ Often the outermost transformation will be a [DefWindow window], which maps a re
 }}}
 By default, windows flip the y axis, because Scalable Vector Graphics increases y downward, the opposite of the usual coordinate plane.  Windows can also be logarithmic and semi-log, a feature usually used in [ClassPlot Plot] and [ClassFrame Frame].
 
+=== (Almost) Everything's a Parametric Function ===
 
+The [ClassCurve Curve] class draws parametric functions.
+{{{
+>>> Curve("0.3*t*cos(t), 0.3*t*sin(t)", 0, 30.5, loop=True).SVG(window(-10, 10, -10, 10)).inkview()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/introduction-7.png]
+Just like coordinate transformations, there are helper functions ([DefFuncRtoR funcRtoR], [DefFuncRtoR2 funcRtoR2], [DefFuncRtoC funcRtoC]) for putting an expression into standard form: a function from a real variable (usually "t") to the plane.
+
+The special thing about [ClassCurve Curve] is that it chooses its sample points dynamically.  If part of a curve is nearly linear, [ClassCurve Curve] will evaluate fewer points in that region.
+
+{{{
+>>> w = window(-0.2, 5.2, -1.5, 1.5)
+>>> curve = Curve(funcRtoR("sin(1./x)"), 0.05, 5, stroke="blue")
+>>> print curve.SVG(w)
+None                 <path stroke='blue' d='M4.62963 19.5685L4.92473 32.8153L5.0819 24.5128L5.3947 83
+>>> dots = Dots()
+>>> for s in curve.last_samples:
+...     if s.y != None:
+...         dots.d.append((s.x, s.y))
+... 
+>>> Fig(curve, dots, trans=w).SVG().inkview()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/introduction-8.png]
