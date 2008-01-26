@@ -308,9 +308,17 @@ This also gives us the opportunity to make arbitrarily-curved coordinate axes.  
 >>> curve = CurveAxis("t*cos(t), t*sin(t)", 0, 10, ticks=11, arrow_end="a")
 >>> curve.SVG()
 <g (15 sub) />
+>>> curve.last_ticks
+{0: '', 1.0: '', 2.0: u'2', 3.0: u'3', 4.0: u'4', 5.0: u'5', 6.0: u'6', 7.0: u'7', 8.0: u'8', 9.0: u'9', 10.0: u'10'}
 >>> curve.ticks = curve.last_ticks
 >>> curve.ticks[0] = ""
 >>> curve.ticks[1] = ""
 >>> curve.SVG(window(-10, 10, -10, 10)).inkview()
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-11.png]
+
+= Closing the Loop =
+
+[ClassFig Figs] can make [ClassSVG SVGs], but can [ClassSVG SVGs] make [ClassFig Figs]?  To a limited extent, yes.  One of SVGFig's graphics primatives, [ClassPath Path], represents a Scalable Vector Graphics <path />.  [ClassPath Path] parses the path data string, converting it into a list of tuples that can be distorted by coordinate transformations.  This is how the SVGFig logo was constructed: see [SVGFigLogo SVGFigLogo] for an example.
+
+[http://code.google.com/p/svgfig/wiki/SVGFigLogo http://svgfig.googlecode.com/svn/wiki/introduction-12.png]
