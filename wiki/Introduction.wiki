@@ -199,13 +199,33 @@ None                 <g (3 sub) />
 [2]                      <path d='M6 2L0 0' />                                                  
 }}}
 
+This can be used to make self-similar figures from recursion.  (I'm not sure why I think that's as wonderful as I do...)
 {{{
 >>> t = "0.1 + 0.4*x, 0.1 + 0.4*y"
 >>> rect = Rect(0.05, 0.05, 0.95, 0.95, fill="blue", fill_opacity=0.3)
->>> Fig(rect, Fig(rect, Fig(rect, Fig(rect, trans=t), trans=t), trans=t), \
-...     trans=window(0,1,0,1)).SVG().inkview()
+>>> def recursive(depth=0):
+...     if depth < 4:
+...         return Fig(rect, recursive(depth + 1), trans=t)
+...     else:
+...         return Fig()
+... 
+>>> recursive().SVG(window(0,1,0,1)).inkview()
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-4.png]
+
+Transformations are Python functions that map (x,y) to (x',y').  
+
+
+
+
+{{{
+>>> import random
+>>> Poly([(random.gauss(0,1), random.gauss(0,1)) for i in xrange(30)], "smooth", \
+...      loop=True).SVG(window(-3, 3, -3, 3)).inkview()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/introduction-5.png]
+
+
 
 
 
