@@ -282,10 +282,15 @@ The special thing about [ClassCurve Curve] is that it chooses its sample points 
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-8.png]
 
-
-
-
-
+The adaptive sampling algorithm even detects discontinuities and breaks the curve, rather than draw a mathematically-inaccurate step.
+{{{
+>>> def f(x):
+...     if x < 1: return x, 1
+...     else: return x, 2
+... 
+>>> Plot(-1, 4, -1, 4, Curve(f, -1, 4, stroke="red"), arrows="a").SVG().inkview()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/introduction-9.png]
 
 
 
