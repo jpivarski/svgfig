@@ -266,7 +266,7 @@ The [ClassCurve Curve] class draws parametric functions.
 
 Just like coordinate transformations, there are helper functions ([DefFuncRtoR funcRtoR], [DefFuncRtoR2 funcRtoR2], [DefFuncRtoC funcRtoC]) for putting an expression into standard form: a function from a real variable (usually "t") to the plane.
 
-The special thing about [ClassCurve Curve] is that it chooses its sample points dynamically.  If part of a curve is nearly linear, [ClassCurve Curve] will evaluate fewer points in that region, and more points if it's highly curved.
+The special thing about [ClassCurve Curve] is that it chooses its sample points dynamically.  If part of a curve is nearly linear, [ClassCurve Curve] will evaluate fewer points in that region, and more points if it's highly curved.  The sample points are chosen in the SVG method, because they depend on the current coordinate transformation.
 {{{
 >>> w = window(0, 12, -12, 12)
 >>> curve = Curve("cosh(t), sinh(t)", -3, 3, stroke="blue")
@@ -292,12 +292,16 @@ The adaptive sampling algorithm even detects discontinuities and breaks the curv
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-9.png]
 
-
-
-
-
-
-
+Since this is such a great algorithm, most of the graphics primatives use it.  [ClassLine Line], [ClassRect Rect], [ClassEllipse Ellipse], etc. are drawn by calling [ClassCurve Curve].
+{{{
+>>> from math import *
+>>> def vortex(x, y):
+...     r = sqrt(x**2 + y**2)
+...     return cos(r)*x + sin(r)*y, -sin(r)*x + cos(r)*y
+... 
+>>> Plot(-1.5, 1.5, -1.5, 1.5, Rect(-1,-1,1,1, stroke="blue"), arrows="a", trans=vortex).SVG().inkview()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/introduction-10.png]
 
 
 
