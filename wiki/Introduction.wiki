@@ -249,8 +249,11 @@ Transformations can also be functions from the complex plane to itself.  The [De
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-6.png]
 
-Another convenient transformation maps a rectangle in one system to a rectangle in another system, usually used as a window on your graphics (roughly corresponds to viewBoxes in SVG).  The [DefWindow window] function can also make logarithmic and semi-log transformations, useful for [ClassPlot Plot] and [ClassFrame Frame].
+Often the outermost transformation will be a [DefWindow window], which maps a rectangle in your working coordinates to a rectangle on the canvas (usually (0,0), (100,100)).
 {{{
 >>> window(-1, 1, -1, 1)
 <function (-1, 1), (-1, 1) -> (0, 100), (100, 0) at 0xb7c03304>
 }}}
+By default, windows flip the y axis, because Scalable Vector Graphics increases y downward, the opposite of the usual coordinate plane.  Windows can also be logarithmic and semi-log, a feature usually used in [ClassPlot Plot] and [ClassFrame Frame].
+
+
