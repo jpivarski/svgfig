@@ -166,19 +166,36 @@ The [ClassFig Fig] class doesn't do much by itself; it's an organizing structure
   * [ClassPath Path]: SVG-like paths
   * [ClassAxes Axes], [ClassLineAxis LineAxis], [ClassCurveAxis CurveAxis]: coordinate axis along various shapes.
 
-Each of these has a SVG method that "draws" the primative by applying a coordinate transform and producing a [ClassSVG SVG] object.  
+Each of these has a SVG method that "draws" the primative by applying a coordinate transform and producing a [ClassSVG SVG] object.
+{{{
+>>> Line(0, 0, 1, 1).SVG("x, 2*y")
+<path d='M0 0L1 2' />
+}}}
 
+[ClassFig Fig] collects a list of primatives and applies a transformation to all of them all.
+{{{
+>>> f = Fig(Line(0,0,1,1), Line(1,1,2,3), Line(2,3,0,0), trans="x, 2*y")
+>>> f
+<Fig (3 items) x,y -> x, 2*y>
+>>> print f.SVG()
+None                 <g (3 sub) />                                                                   
+[0]                      <path d='M0 0L1 2' />                                                       
+[1]                      <path d='M1 2L2 6' />                                                       
+[2]                      <path d='M2 6L0 0' />                                                       
+}}}
 
-
-
-
-
-
-
-
-
-
-
+Moreover, nesting [ClassFig Figs] composes transformations.
+{{{
+>>> print Fig(f, trans="y, x").SVG()
+None                 <g (3 sub) />                                                                   
+[0]                      <path d='M0 0L2 1' />                                                       
+[1]                      <path d='M2 1L6 2' />                                                       
+[2]                      <path d='M6 2L0 0' />                                                  
+}}}
+{{{
+>>> t = "0.1 + 0.4*x, 0.1 + 0.4*y"                                                              >>> rect = Rect(0.05, 0.05, 0.95, 0.95, fill="blue", fill_opacity=0.3)                          >>> Fig(rect, Fig(rect, Fig(rect, Fig(rect, trans=t), trans=t), trans=t), \
+...     trans=window(0,1,0,1)).SVG().inkview()
+}}}
 
 
 
