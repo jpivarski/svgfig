@@ -1,13 +1,13 @@
 #summary Introduction to SVGFig
 #labels Featured,Tutorial
 
-SVGFig is a [http://www.python.org Python] extension module that defines two new classes, [ClassSVG SVG] (_svig_) and [ClassFig Fig] (_fig_).
+SVGFig is a [http://www.python.org Python] extension module that defines two main classes, [ClassSVG SVG] (_svig_) and [ClassFig Fig] (_fig_).
 
 [ClassSVG SVG] represents an image in [http://www.svg.org/ Scalable Vector Graphics] format, a markup language similar to HTML.  By making Scalable Vector Graphics commands accessible to the Python language, the [ClassSVG SVG] class broadens the user's capabilities in much the same way that dynamically-generated HTML did for webpages.  You can write programs that create images.
 
 [ClassFig Fig] builds a mathematical figure by applying a coordinate transformation to graphics primatives.  Unlike the the strictly linear transformations in the Scalable Vector Graphics command-set, [ClassFig Fig] transformations can be any Python function.  Moreover, one often wants to transform only the mathematically-meaningful coordinates and not the widths of lines, lengths of tick marks, or radii of circular points, so [ClassFig Fig] allows you to make such a distinction.  [ClassFig Fig] transformations are composed by nesting, so you can make self-similar images by recursion.
 
-= The SVG Class =
+= SVG =
 
 The [ClassSVG SVG] class is a document object model of a Scalable Vector Graphics image, meaning that the tree of objects normally represented in XML is represented instead in linked Python data structures.
 
@@ -155,4 +155,40 @@ If you need to know more about the Python language, see the [http://www.python.o
 
 Of course, all the SVGFig documentation is available [Reference on this site] and through Python's `help` command.
 
-= The Fig Class =
+= Fig =
+
+The [ClassFig Fig] class doesn't do much by itself; it's an organizing structure.  SVGFig defines a number of classes that draw graphics primatives, including
+  * [ClassLine Line]: connecting two points
+  * [ClassPoly Poly]: connecting a list of points
+  * [ClassRect Rect] and [ClassEllipse Ellipse]: rectangles/squares and ellipses/circles
+  * [ClassDots Dots] and [ClassYErrorBars YErrorBars]: data points and error bars
+  * [ClassCurve Curve]: functions and parametric curves
+  * [ClassPath Path]: SVG-like paths
+  * [ClassAxes Axes], [ClassLineAxis LineAxis], [ClassCurveAxis CurveAxis]: coordinate axis along various shapes.
+
+Each of these has a SVG method that "draws" the primative by applying a coordinate transform and producing a [ClassSVG SVG] object.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
