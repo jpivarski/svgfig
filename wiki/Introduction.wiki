@@ -146,12 +146,12 @@ Just about everything in Python can be used in a `for` loop, and [ClassSVG SVG] 
 
 === More documentation ===
 
-So now that you know how to build a Scalable Vector Graphic image in principle, what are the commands?
-  * [http://www.w3.org/Graphics/SVG/ The W3C specification] is the definitive reference, but it can sometimes be hard to understand.
+Now that you know how to build a Scalable Vector Graphic image in principle, you may be asking, "what are the commands?"
+  * [http://www.w3.org/Graphics/SVG/ The W3C specification] is the definitive reference, but it can sometimes be hard to follow.
   * I often draw what I want to learn in [http://www.inkscape.org Inkscape] and save as "Plain SVG," then look at the output.
   * [http://www.w3schools.com/svg/default.asp W3 Schools] has a good tutorial.
 
-If you need to know more about the Python language, see the [http://www.python.org/ official website].  If you just need to look something up, see [http://rgruet.free.fr/ Richard Gruet's quick reference pages].
+If you need to know more about the Python language, see the [http://www.python.org/ official website].  If you just need to look up a command, see [http://rgruet.free.fr/ Richard Gruet's quick reference pages].
 
 Of course, all the SVGFig documentation is available [Reference on this site] and through Python's `help` command.
 
