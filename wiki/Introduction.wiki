@@ -292,7 +292,7 @@ The adaptive sampling algorithm even detects discontinuities and breaks the curv
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-9.png]
 
-Since this is such a great algorithm, most of the graphics primatives use it.  [ClassLine Line], [ClassRect Rect], [ClassEllipse Ellipse], etc. are drawn by calling [ClassCurve Curve].
+Since this is such a great algorithm, most of the graphics primatives use it.  [ClassLine Line], [ClassRect Rect], [ClassEllipse Ellipse], etc. are all drawn by calling [ClassCurve Curve].  Thus, straight lines (and even coordinate axes) become curves when passed through a curvy coordinate system.
 {{{
 >>> from math import *
 >>> def vortex(x, y):
@@ -303,7 +303,14 @@ Since this is such a great algorithm, most of the graphics primatives use it.  [
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-10.png]
 
-
-
-
-
+This also gives us the opportunity to make arbitrarily-curved coordinate axes.  It could be used to express the 
+{{{
+>>> curve = CurveAxis("t*cos(t), t*sin(t)", 0, 10, ticks=11, arrow_end="a")
+>>> curve.SVG()
+<g (15 sub) />
+>>> curve.ticks = curve.last_ticks
+>>> curve.ticks[0] = ""
+>>> curve.ticks[1] = ""
+>>> curve.SVG(window(-10, 10, -10, 10)).inkview()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/introduction-11.png]
