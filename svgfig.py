@@ -20,7 +20,7 @@ import re, codecs, os, copy, itertools, math, cmath, random, sys, copy
 epsilon = 1e-5
 
 hacks = {}
-hacks["inkscape-text-vertical-shift"] = None
+hacks["inkscape-text-vertical-shift"] = False
 
 def rgb(r, g, b, maximum=1.):
   """Create an SVG color string \"#xxyyzz\" from r, g, and b.
@@ -573,8 +573,8 @@ locals     default=None              dict of local variables
 
     elif expr.func_code.co_argcount == 1:
       split = lambda z: (z.real, z.imag)
-      output = lambda x, y: split(func(x + y*1j))
-      output.func_name = func.func_name
+      output = lambda x, y: split(expr(x + y*1j))
+      output.func_name = expr.func_name
       return output
 
     else:
@@ -693,6 +693,8 @@ trans   default=None     a coordinate transformation function
   def __repr__(self):
     if self.trans == None:
       return "<Fig (%d items)>" % len(self.d)
+    elif isinstance(self.trans, basestring):
+      return "<Fig (%d items) x,y -> %s>" % (len(self.d), self.trans)
     else:
       return "<Fig (%d items) %s>" % (len(self.d), self.trans.func_name)
 
@@ -1017,7 +1019,7 @@ Internally, Path data is a list of tuples with these definitions:
   def __repr__(self):
     return "<Path (%d nodes) %s>" % (len(self.d), self.attr)
 
-  def __init__(self, d, **attr):
+  def __init__(self, d=[], **attr):
     if isinstance(d, basestring): self.d = self.parse(d)
     else: self.d = d
 
@@ -1676,7 +1678,7 @@ The format of the tuples in d depends on the mode.
   def __repr__(self):
     return "<Poly (%d nodes) mode=%s loop=%s %s>" % (len(self.d), self.mode, repr(self.loop), self.attr)
 
-  def __init__(self, d, mode="L", loop=False, **attr):
+  def __init__(self, d=[], mode="L", loop=False, **attr):
     self.d = d
     self.mode = mode
     self.loop = loop
@@ -1875,7 +1877,7 @@ attribute=value pairs  keyword list           SVG attributes
   def __repr__(self):
     return "<Dots (%d nodes) %s>" % (len(self.d), self.attr)
 
-  def __init__(self, d, symbol="Untitled", width=1., height=1., **attr):
+  def __init__(self, d=[], symbol="Untitled", width=1., height=1., **attr):
     self.d = d
     self.width = width
     self.height = height
@@ -1961,19 +1963,19 @@ attribute=value pairs   keyword list    SVG attributes
       if self.arrow_start != False and self.arrow_start != None:
         if isinstance(self.arrow_start, SVG):
           defs.append(self.arrow_start)
-          line.attr["marker-start"] = self.arrow_start["id"]
+          line.attr["marker-start"] = "url(#%s)" % self.arrow_start["id"]
         elif isinstance(self.arrow_start, basestring):
           defs.append(make_marker(self.arrow_start, "arrow_start"))
-          line.attr["marker-start"] = self.arrow_start
+          line.attr["marker-start"] = "url(#%s)" % self.arrow_start
         else:
           raise TypeError, "arrow_start must be False/None or an id string for the new marker"
 
         if isinstance(self.arrow_end, SVG):
           defs.append(self.arrow_end)
-          line.attr["marker-end"] = self.arrow_end["id"]
+          line.attr["marker-end"] = "url(#%s)" % self.arrow_end["id"]
         elif isinstance(self.arrow_end, basestring):
           defs.append(make_marker(self.arrow_end, "arrow_end"))
-          line.attr["marker-end"] = self.arrow_end
+          line.attr["marker-end"] = "url(#%s)" % self.arrow_end
         else:
           raise TypeError, "arrow_end must be False/None or an id string for the new marker"
 
@@ -2048,19 +2050,19 @@ attribute=value pairs   keyword list    SVG attributes
       if self.arrow_start != False and self.arrow_start != None:
         if isinstance(self.arrow_start, SVG):
           defs.append(self.arrow_start)
-          line.attr["marker-start"] = self.arrow_start["id"]
+          line.attr["marker-start"] = "url(#%s)" % self.arrow_start["id"]
         elif isinstance(self.arrow_start, basestring):
           defs.append(make_marker(self.arrow_start, "arrow_start"))
-          line.attr["marker-start"] = self.arrow_start
+          line.attr["marker-start"] = "url(#%s)" % self.arrow_start
         else:
           raise TypeError, "arrow_start must be False/None or an id string for the new marker"
 
         if isinstance(self.arrow_end, SVG):
           defs.append(self.arrow_end)
-          line.attr["marker-end"] = self.arrow_end["id"]
+          line.attr["marker-end"] = "url(#%s)" % self.arrow_end["id"]
         elif isinstance(self.arrow_end, basestring):
           defs.append(make_marker(self.arrow_end, "arrow_end"))
-          line.attr["marker-end"] = self.arrow_end
+          line.attr["marker-end"] = "url(#%s)" % self.arrow_end
         else:
           raise TypeError, "arrow_end must be False/None or an id string for the new marker"
 
@@ -2160,7 +2162,7 @@ global coordinates.  If local=True, return a Path in local coordinates
     else:
       self.low = 0.
       self.high = 1.
-      self.loop = True
+      self.loop = False
 
       self.f = lambda t: (self.x1 + t*(self.x2 - self.x1), self.y1)
       d1 = Curve.Path(self, trans, local).d
@@ -2400,6 +2402,7 @@ Normally only used internally.
         else:
           raise TypeError, "arrow_start must be False/None or an id string for the new marker"
 
+      if self.arrow_end != False and self.arrow_end != None:
         if isinstance(self.arrow_end, SVG):
           defs.append(self.arrow_end)
         elif isinstance(self.arrow_end, basestring):
@@ -2430,8 +2433,9 @@ Normally only used internally.
           Y += math.sin(angle*math.pi/180. + math.pi/2.) * 2. * 2.5
       ########### end hack ###########
 
-      output.append(SVG("text", label, transform="translate(%g, %g) rotate(%g)" % \
-                        (X - yhatx*self.text_start, Y - yhaty*self.text_start, angle), **self.text_attr))
+      if label != "":
+        output.append(SVG("text", label, transform="translate(%g, %g) rotate(%g)" % \
+                          (X - yhatx*self.text_start, Y - yhaty*self.text_start, angle), **self.text_attr))
 
     for t in self.last_miniticks:
       skip = False
@@ -3248,7 +3252,7 @@ If points in d have
   def __repr__(self):
     return "<XErrorBars (%d nodes)>" % len(self.d)
 
-  def __init__(self, d, **attr):
+  def __init__(self, d=[], **attr):
     self.d = d
 
     self.attr = dict(self.defaults)
@@ -3294,7 +3298,7 @@ If points in d have
   def __repr__(self):
     return "<YErrorBars (%d nodes)>" % len(self.d)
 
-  def __init__(self, d, **attr):
+  def __init__(self, d=[], **attr):
     self.d = d
 
     self.attr = dict(self.defaults)
