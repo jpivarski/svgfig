@@ -303,7 +303,7 @@ Since this is such a great algorithm, most of the graphics primatives use it.  [
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-10.png]
 
-This also gives us the opportunity to make arbitrarily-curved coordinate axes.  It could be used to express the 
+This also gives us the opportunity to make arbitrarily-curved coordinate axes.  It could be used to express the parameterization of a curve.
 {{{
 >>> curve = CurveAxis("t*cos(t), t*sin(t)", 0, 10, ticks=11, arrow_end="a")
 >>> curve.SVG()
