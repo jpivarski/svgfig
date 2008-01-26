@@ -263,16 +263,17 @@ The [ClassCurve Curve] class draws parametric functions.
 >>> Curve("0.3*t*cos(t), 0.3*t*sin(t)", 0, 30.5, loop=True).SVG(window(-10, 10, -10, 10)).inkview()
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-7.png]
+
 Just like coordinate transformations, there are helper functions ([DefFuncRtoR funcRtoR], [DefFuncRtoR2 funcRtoR2], [DefFuncRtoC funcRtoC]) for putting an expression into standard form: a function from a real variable (usually "t") to the plane.
 
-The special thing about [ClassCurve Curve] is that it chooses its sample points dynamically.  If part of a curve is nearly linear, [ClassCurve Curve] will evaluate fewer points in that region.
-
+The special thing about [ClassCurve Curve] is that it chooses its sample points dynamically.  If part of a curve is nearly linear, [ClassCurve Curve] will evaluate fewer points in that region, and more points if it's highly curved.
 {{{
->>> w = window(-0.2, 5.2, -1.5, 1.5)
->>> curve = Curve(funcRtoR("sin(1./x)"), 0.05, 5, stroke="blue")
->>> print curve.SVG(w)
-None                 <path stroke='blue' d='M4.62963 19.5685L4.92473 32.8153L5.0819 24.5128L5.3947 83
->>> dots = Dots()
+>>> w = window(0, 12, -12, 12)
+>>> curve = Curve("cosh(t), sinh(t)", -3, 3, stroke="blue")
+>>> curve.SVG(w)
+<path stroke='blue' d='M83.8972 91.7411L21.5276 59.9246L15.4138 56.4835L11.9472 54.2805L9.66986 52.4526L8.93068 51.6057L8.4412
+50.6726L8.3355 49.905L8.76768 48.6373L9.51803 47.7006L11.9977 45.6843L16.5058 42.8762L83.8972 8.25885' />
+>>> dots = Dots([])
 >>> for s in curve.last_samples:
 ...     if s.y != None:
 ...         dots.d.append((s.x, s.y))
@@ -280,3 +281,20 @@ None                 <path stroke='blue' d='M4.62963 19.5685L4.92473 32.8153L5.0
 >>> Fig(curve, dots, trans=w).SVG().inkview()
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-8.png]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
