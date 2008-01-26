@@ -122,7 +122,7 @@ None                 <g (1 sub) />
 >>> g2.inkview()
 }}}
 
-A tree index that ends in a string references the attribute (no underscore/hyphen substitution).
+Tree indexes ending in strings reference attributes (no underscore/hyphen substitution).
 {{{
 >>> g2[0, 0, 0, "fill-opacity"]
 '50%'
