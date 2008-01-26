@@ -213,17 +213,34 @@ This can be used to make self-similar figures from recursion.  (I'm not sure why
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-4.png]
 
-Transformations are Python functions that map (x,y) to (x',y').  
-
-
-
-
+[ClassPlot Plot] and [ClassFrame Frame] are alternatives for [ClassFig Fig] which draw coordinate axes.  This is merely a convenience: [ClassAxes Axes] are graphics primatives like anything else.
 {{{
 >>> import random
->>> Poly([(random.gauss(0,1), random.gauss(0,1)) for i in xrange(30)], "smooth", \
-...      loop=True).SVG(window(-3, 3, -3, 3)).inkview()
+>>> scribble = Poly([(random.gauss(0,1), random.gauss(0,1)) for i in xrange(30)], "smooth", loop=True, stroke="blue")
+>>> Plot(-3, 3, -3, 3, scribble, arrows="a").SVG().firefox()
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-5.png]
+
+(Note: as of version 0.45, Inkscape does not properly apply Scalable Vector Graphics "baseline" attributes.  Use
+{{{
+>>> hacks["inkscape-text-vertical-shift"] = True
+}}}
+to adjust the text labels.)
+
+=== Coordinate Transformations ===
+
+Transformations must be Python functions that map (x,y) to (x',y'), but there are several ways to make them.  The easiest way is with a string in "x', y'" form.  When a primative sees such a string, it converts it into a callable function using the [DefTotrans totrans] function.
+{{{
+>>> Line(0,0,1,1).SVG(totrans("2*x,2*y")), Line(0,0,1,1).SVG("2*x,2*y")
+(<path d='M0 0L2 2' />, <path d='M0 0L2 2' />)
+>>> 
+>>> t = totrans("2*x, 2*y")
+>>> t
+<function x,y -> 2*x, 2*y at 0xb7ca43ac>
+>>> t(1, 1)
+(2, 2)
+}}}
+
 
 
 
