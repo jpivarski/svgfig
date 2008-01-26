@@ -20,7 +20,7 @@ This is applied automatically by [ClassFig Fig], [ClassPlot Plot],
 || locals || _default_=None || dict of local variables ||
 
 All symbols from Python's [http://docs.python.org/lib/module-math.html math library]
-are in scope, so you can say things like "cos(0.1)*x - sin(0.1)*y, sin(0.1)*x + cos(0.1)*y".
+are in scope, so you can say things like `cos(0.1)*x - sin(0.1)*y, sin(0.1)*x + cos(0.1)*y`.
 
 If vars has only one element (e.g. ["z"]), the expression will be
 treated as a complex function, using symbols from Python's
