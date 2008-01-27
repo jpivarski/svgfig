@@ -18,7 +18,7 @@ Nested SVG elements must be specified before the attributes of the
 parent, which is the opposite order of XML.
 
 Python attribute names cannot contain colons or hyphens,
-so the following conversions are made:
+so the following conversions are made (calls a function called `attr_preprocess`):
 
 || "`__`" (two underscores) || become a colon "`:`" ||
 || "`_`" (one underscore) || becomes a hyphen "`-`" ||
