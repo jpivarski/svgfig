@@ -7,7 +7,7 @@ To make the SVGFig logo, I converted the text "SVGFig" into a path and
 increased the number of control points in [http://www.inkscape.org Inkscape],
 then transformed the path with a very nonlinear function in SVGFig.
 
-For more examples, see the [ExampleGallery Example Gallery].
+For more examples, see the [ExampleGallery Example Gallery].  See also the [Introduction Introduction] and [Reference complete documentation].
 
 {{{
 import svgfig
