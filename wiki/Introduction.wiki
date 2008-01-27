@@ -268,16 +268,12 @@ Just like coordinate transformations, there are helper functions ([DefFuncRtoR f
 
 The special thing about [ClassCurve Curve] is that it chooses its sample points dynamically.  If part of a curve is nearly linear, [ClassCurve Curve] will evaluate fewer points in that region, and more points if it's highly curved.  The sample points are chosen in the SVG method, because they depend on the current coordinate transformation.
 {{{
->>> w = window(0, 12, -12, 12)
->>> curve = Curve("cosh(t), sinh(t)", -3, 3, stroke="blue")
+>>> w = window(-12, 12, 0, 12)
+>>> curve = Curve(funcRtoR("sqrt(x**2 + 1)"), -10, 10, stroke="blue")
 >>> curve.SVG(w)
-<path stroke='blue' d='M83.8972 91.7411L21.5276 59.9246L15.4138 56.4835L11.9472 54.2805L9.66986 52.4526L8.93068 51.6057L8.4412
-50.6726L8.3355 49.905L8.76768 48.6373L9.51803 47.7006L11.9977 45.6843L16.5058 42.8762L83.8972 8.25885' />
->>> dots = Dots([])
->>> for s in curve.last_samples:
-...     if s.y != None:
-...         dots.d.append((s.x, s.y))
-... 
+<path stroke='blue' d='M8.33333 16.251L39.8128 77.9873L43.8616 85.162L46.2837 88.8336L47.3048 90.0753L48.218
+90.9365L49.2225 91.5228L50.286 91.6471L51.2078 91.3236L52.3458 90.4368L53.5162 89.0959L55.2252 86.6338L91.6667 16.251' />
+>>> dots = Dots([(s.x, s.y) for s in curve.last_samples])
 >>> Fig(curve, dots, trans=w).SVG().inkview()
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-8.png]
