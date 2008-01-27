@@ -1,0 +1,45 @@
+#summary Square on the Poincare disk
+#labels Example
+
+= Square on the Poincare disk =
+
+
+
+
+{{{
+from svgfig import *
+import math
+
+def one(z): return (z + (1+1j)/2.) / ((1-1j)*z/2. + 1)
+def two(z): return (z + -(1-1j)/2.) / (-(1+1j)*z/2. + 1)
+def three(z): return (z - (1+1j)/2.) / (-(1-1j)*z/2. + 1)
+def four(z): return (z + (1-1j)/2.) / ((1+1j)*z/2. + 1)
+
+def recurse(t, direction, depth=0):
+  if depth == 5: return Fig()
+
+  if direction == one:
+    return Fig(t, recurse(t, two, depth+1), recurse(t, one, depth+1), recurse(t, four, depth+1), trans=totrans(one))
+
+  if direction == two:
+    return Fig(t, recurse(t, three, depth+1), recurse(t, two, depth+1), recurse(t, one, depth+1), trans=totrans(two))
+
+  if direction == three:
+    return Fig(t, recurse(t, four, depth+1), recurse(t, three, depth+1), recurse(t, two, depth+1), trans=totrans(three))
+
+  if direction == four:
+    return Fig(t, recurse(t, one, depth+1), recurse(t, four, depth+1), recurse(t, three, depth+1), trans=totrans(four))
+
+x = 1. - math.sqrt(0.5)
+tile = Path("M -%g -%g L -%g %g L %g %g L %g -%g Z" % ((x,) * 8), fill="purple")
+
+Fig(Ellipse(0, 0, 0, 1, 1, fill="lightgreen"), \
+    tile, \
+    recurse(tile, one), \
+    recurse(tile, two), \
+    recurse(tile, three), \
+    recurse(tile, four)).SVG(window(-1.1, 1.1, -1.1, 1.1)).inkview()
+}}}
+
+|| [http://svgfig.googlecode.com/svn/wiki/ExamplePoincare.svg http://svgfig.googlecode.com/svn/wiki/ExamplePoincare.png] ||
+|| [http://svgfig.googlecode.com/svn/wiki/ExamplePoincare.svg ExamplePoincare.svg] ||
