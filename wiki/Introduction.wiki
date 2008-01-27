@@ -245,7 +245,7 @@ Transformations can also be functions from the complex plane to itself.  The [De
 {{{
 >>> from svgfig import *
 >>> t = lambda z: z*(1 + 0.3j) + 0.4*z**2
->>> Fig(Fig(Grid(-1, 1, -1, 1), trans=totrans(t)), trans=window(-1.8, 2.2, -1.7, 2.3)).SVG().inkview()
+>>> Fig(Fig(Grid(-1, 1, -1, 1, stroke="black"), trans=totrans(t)), trans=window(-1.8, 2.2, -1.7, 2.3)).SVG().inkview()
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-6.png]
 
