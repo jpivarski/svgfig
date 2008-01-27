@@ -44,7 +44,11 @@ Fig(Ellipse(0, 0, 0, 1, 1, fill="lightgreen"), \
     recurse(tile, four)).SVG(window(-1.1, 1.1, -1.1, 1.1)).inkview()
 }}}
 
-Note that we could have loaded a <path /> from a file: we can tile the hyperbolic plane with _anything!_
+=== Comments ===
+
+  * Note that we could have loaded a <path /> from a file: we can tile the hyperbolic plane with _anything!_
+
+  * Only the vertices are transformed, not the edges of the [ClassPath Path].  We could have replaced the [ClassPath Path] with a [ClassRect Rect].  That would have curved the edges, but it takes a long time.  Perhaps the adaptive sampling algorithm could be optimized or compiled.
 
 || [http://svgfig.googlecode.com/svn/wiki/ExamplePoincare.svg http://svgfig.googlecode.com/svn/wiki/ExamplePoincare.png] ||
 || [http://svgfig.googlecode.com/svn/wiki/ExamplePoincare.svg ExamplePoincare.svg] ||
