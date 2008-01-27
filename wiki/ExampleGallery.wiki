@@ -8,3 +8,6 @@
 
 || [http://code.google.com/p/svgfig/wiki/ExamplePoincare http://svgfig.googlecode.com/svn/wiki/ExamplePoincare.png] ||
 || [ExamplePoincare Square on the Poincaré disk] ||
+
+|| [http://code.google.com/p/svgfig/wiki/ExampleRadialPlot http://svgfig.googlecode.com/svn/wiki/ExampleRadialPlot.png] ||
+|| [ExampleRadialPlot A radial (or polar) plot] ||
