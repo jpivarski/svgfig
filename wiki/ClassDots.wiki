@@ -10,7 +10,7 @@ Dots draws SVG symbols at a set of points.
 *Dots(d, symbol, width, height, attribute=value)*
 
 || d || _*required*_ || list of (x,y) points ||
-|| symbol || _default_="Untitled" || SVG symbol or a new identifier to label an auto-generated symbol ||
+|| symbol || _default_=None || SVG symbol or a new identifier to label an auto-generated symbol; if None, use pre-defined `circular_dot` ||
 || width, height || _default_=1, 1 || width and height of the symbols in SVG coordinates ||
 || attribute=value pairs || _keyword list_ || SVG attributes ||
 
