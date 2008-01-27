@@ -1,5 +1,10 @@
 #summary Example Gallery
 #labels Featured
 
+[http://code.google.com/p/svgfig/w/list?q=label:Example Search Examples]
+
 || [http://code.google.com/p/svgfig/wiki/SVGFigLogo http://svgfig.googlecode.com/svn/wiki/svgfig_logo.png] ||
 || [SVGFigLogo SVGFig logo] ||
+
+|| [http://code.google.com/p/svgfig/wiki/ExamplePoincare http://svgfig.googlecode.com/svn/wiki/ExamplePoincare.png] ||
+|| [ExamplePoincare Square on the Poincaré disk] ||
