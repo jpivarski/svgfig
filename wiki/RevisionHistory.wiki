@@ -7,6 +7,14 @@
 
   * latest release is up-to-date.
 
+== svgfig-1.1.2 ==
+
+[http://svgfig.googlecode.com/files/svgfig-1.1.2.tgz svgfig-1.1.2.tgz]
+
+  * minor bugs that I discovered and fixed as I wrote the first two examples in the [ExampleGallery Example Gallery]
+  * these will probably keep coming as I make more examples...
+  * if you find issues that you think might be bugs, please inform me through the [http://code.google.com/p/svgfig/issues/list Issues tab]
+
 == svgfig-1.1.1 ==
 
 [http://svgfig.googlecode.com/files/svgfig-1.1.1.tgz svgfig-1.1.1.tgz]
