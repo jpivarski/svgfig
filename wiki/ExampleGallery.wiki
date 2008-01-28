@@ -1,7 +1,15 @@
 #summary Example Gallery
 #labels Featured
 
-[http://code.google.com/p/svgfig/w/list?q=label:Example Search Examples]
+== Search examples ==
+
+[http://code.google.com/p/svgfig/w/list?q=label:Example Click here] to search examples.
+
+== Want to add an example? ==
+
+[mailto:jpivarski@gmail.com E-mail me!]  If you want to add a lot of examples, I can make you a project member (to have access to the wiki).
+
+== Example Gallery ==
 
 || [http://code.google.com/p/svgfig/wiki/SVGFigLogo http://svgfig.googlecode.com/svn/wiki/svgfig_logo.png] ||
 || [SVGFigLogo SVGFig logo] ||
