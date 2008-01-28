@@ -9,7 +9,7 @@
 
 [mailto:jpivarski@gmail.com E-mail me!]  If you want to add a lot of examples, I can make you a project member (to have access to the wiki).
 
-== Example Gallery ==
+= Example Gallery =
 
 || [http://code.google.com/p/svgfig/wiki/SVGFigLogo http://svgfig.googlecode.com/svn/wiki/svgfig_logo.png] ||
 || [SVGFigLogo SVGFig logo] ||
