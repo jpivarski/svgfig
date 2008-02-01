@@ -29,7 +29,7 @@ return a function in the right format.
 
 The following are all equivalent:
   * `Curve(lambda t: t, t**2, 0, 1)`
-  * `Curve("t, t**2")`
+  * `Curve("t, t**2", 0, 1)`
   * `Curve(funcRtoR2("t, t**2"), 0, 1)`
   * `Curve(funcRtoC("t + (1j)*t**2"), 0, 1)`
   * `Curve(funcRtoR("x**2"), 0, 1)`
