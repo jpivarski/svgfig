@@ -16,8 +16,21 @@
 # 
 # Full licence is in the file COPYING and at http://www.gnu.org/copyleft/gpl.html
 
-import re, codecs, os, copy, itertools, math, cmath, random, sys, copy
+import re, codecs, platform, copy, itertools, math, cmath, random, sys, copy
 epsilon = 1e-5
+
+if re.search("windows", platform.system(), re.I):
+  import _winreg
+  import subprocess
+  
+  tmpdir = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, "Environment"), "TEMP")[0]
+  if tmpdir[0:13] != "%USERPROFILE%":
+    tmpdir = os.path.expanduser("~")
+  else:
+    tmpdir = os.path.expanduser("~") + os.sep + tmpdir[13:]
+
+else:
+  tmpdir = "/tmp"
 
 hacks = {}
 hacks["inkscape-text-vertical-shift"] = False
@@ -28,6 +41,22 @@ def rgb(r, g, b, maximum=1.):
 r,g,b = 0 is black and r,g,b = maximum is white.
 """
   return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)), max(0, min(g*255./maximum, 255)), max(0, min(b*255./maximum, 255)))
+
+def attr_preprocess(attr):
+  for name in attr.keys():
+    name_colon = re.sub("__", ":", name)
+    if name_colon != name:
+      attr[name_colon] = attr[name]
+      del attr[name]
+      name = name_colon
+
+    name_dash = re.sub("_", "-", name)
+    if name_dash != name:
+      attr[name_dash] = attr[name]
+      del attr[name]
+      name = name_dash
+
+  return attr
 
 class SVG:
   """A tree representation of an SVG image or image fragment.
@@ -97,23 +126,10 @@ None                 <g (2 sub) />
     self.t = t_sub[0]
     # the rest are sub-elements
     self.sub = list(t_sub[1:])
-
+    
     # keyword arguments are attributes
     # need to preprocess to handle differences between SVG and Python syntax
-    for name in attr.keys():
-      name_colon = re.sub("__", ":", name)
-      if name_colon != name:
-        attr[name_colon] = attr[name]
-        del attr[name]
-        name = name_colon
-
-      name_dash = re.sub("_", "-", name)
-      if name_dash != name:
-        attr[name_dash] = attr[name]
-        del attr[name]
-        name = name_dash
-
-    self.attr = attr
+    self.attr = attr_preprocess(attr)
 
   def __getitem__(self, ti):
     """Index is a list that descends tree, returning a sub-element if
@@ -367,10 +383,10 @@ newl        string used for newlines
 
     return output
 
-  def save(self, fileName="tmp.svg", encoding="utf-8", compresslevel=None):
+  def save(self, fileName=None, encoding="utf-8", compresslevel=None):
     """Save to a file for viewing.  Note that svg.save() overwrites \"tmp.svg\".
 
-fileName 	default=\"tmp.svg\" 	note that \"tmp.svg\" will be overwritten if
+fileName 	default=None            note that tmpdir+\"tmp.svg\" will be overwritten if
                                         no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
@@ -378,6 +394,8 @@ compresslevel 	default=None 	        if a number, the output will be gzipped wit
                                         compression level (1-9, 1 being fastest and 9 most
                                         thorough)
 """
+
+    if fileName == None: fileName = tmpdir + os.sep + "tmp.svg"
 
     if compresslevel != None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
       import gzip
@@ -395,11 +413,10 @@ compresslevel 	default=None 	        if a number, the output will be gzipped wit
       f.write(self.standalone_xml())
       f.close()
 
-  def inkview(self, fileName="tmp.svg", encoding="utf-8"):
+  def inkview(self, fileName=None, encoding="utf-8"):
     """View in \"inkview\", assuming that program is available on your system.
-Note that svg.inkview() overwrites \"tmp.svg\".
 
-fileName 	default=\"tmp.svg\" 	note that \"tmp.svg\" will be overwritten if
+fileName 	default=None            note that tmpdir+\"tmp.svg\" will be overwritten if
                                         no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
@@ -407,11 +424,10 @@ encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkview", ("inkview", fileName))
 
-  def inkscape(self, fileName="tmp.svg", encoding="utf-8"):
+  def inkscape(self, fileName=None, encoding="utf-8"):
     """View in \"inkscape\", assuming that program is available on your system.
-Note that svg.inkscape() overwrites \"tmp.svg\".
 
-fileName 	default=\"tmp.svg\" 	note that \"tmp.svg\" will be overwritten if
+fileName 	default=None            note that tmpdir+\"tmp.svg\" will be overwritten if
                                         no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
@@ -419,11 +435,10 @@ encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkscape", ("inkscape", fileName))
 
-  def firefox(self, fileName="tmp.svg", encoding="utf-8"):
+  def firefox(self, fileName=None, encoding="utf-8"):
     """View in \"firefox\", assuming that program is available on your system.
-Note that svg.firefox() overwrites \"tmp.svg\".
 
-fileName 	default=\"tmp.svg\" 	note that \"tmp.svg\" will be overwritten if
+fileName 	default=None            note that tmpdir+\"tmp.svg\" will be overwritten if
                                         no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
@@ -1021,7 +1036,7 @@ Internally, Path data is a list of tuples with these definitions:
 
   def __init__(self, d=[], **attr):
     if isinstance(d, basestring): self.d = self.parse(d)
-    else: self.d = d
+    else: self.d = list(d)
 
     self.attr = dict(self.defaults)
     self.attr.update(attr)
@@ -1679,7 +1694,7 @@ The format of the tuples in d depends on the mode.
     return "<Poly (%d nodes) mode=%s loop=%s %s>" % (len(self.d), self.mode, repr(self.loop), self.attr)
 
   def __init__(self, d=[], mode="L", loop=False, **attr):
-    self.d = d
+    self.d = list(d)
     self.mode = mode
     self.loop = loop
 
@@ -1807,7 +1822,7 @@ attribute=value pairs  keyword list  SVG attributes
   def __init__(self, x, y, d, **attr):
     self.x = x
     self.y = y
-    self.d = d
+    self.d = list(d)
     self.attr = dict(self.defaults)
     self.attr.update(attr)
 
@@ -1834,7 +1849,7 @@ attribute=value pairs  keyword list  SVG attributes
   def __init__(self, x, y, d, **attr):
     self.x = x
     self.y = y
-    self.d = d
+    self.d = list(d)
     self.attr = dict(self.defaults)
     self.attr.update(attr)
 
@@ -1858,16 +1873,19 @@ shape                 default=\"dot\"  the shape name from symbol_templates
 attribute=value list  keyword list     modify the SVG attributes of the new symbol
 """
   output = copy.deepcopy(symbol_templates[shape])
-  for i in output.sub: i.attr.update(attr)
+  for i in output.sub: i.attr.update(attr_preprocess(attr))
   output["id"] = id
   return output
+
+circular_dot = make_symbol("circular_dot")
 
 class Dots:
   """Dots draws SVG symbols at a set of points.
 
 d                      required               list of (x,y) points
-symbol                 default=\"Untitled\"   SVG symbol or a new identifier to
-                                              label an auto-generated symbol
+symbol                 default=None           SVG symbol or a new identifier to
+                                              label an auto-generated symbol;
+                                              if None, use pre-defined circular_dot
 width, height          default=1, 1           width and height of the symbols
                                               in SVG coordinates
 attribute=value pairs  keyword list           SVG attributes
@@ -1877,16 +1895,20 @@ attribute=value pairs  keyword list           SVG attributes
   def __repr__(self):
     return "<Dots (%d nodes) %s>" % (len(self.d), self.attr)
 
-  def __init__(self, d=[], symbol="Untitled", width=1., height=1., **attr):
-    self.d = d
+  def __init__(self, d=[], symbol=None, width=1., height=1., **attr):
+    self.d = list(d)
     self.width = width
     self.height = height
 
     self.attr = dict(self.defaults)
     self.attr.update(attr)
 
-    if isinstance(symbol, SVG): self.symbol = symbol
-    else: self.symbol = make_symbol(symbol)
+    if symbol == None:
+      self.symbol = circular_dot
+    elif isinstance(symbol, SVG):
+      self.symbol = symbol
+    else:
+      self.symbol = make_symbol(symbol)
 
   def SVG(self, trans=None):
     """Apply the transformation \"trans\" and return an SVG object."""
@@ -1922,7 +1944,7 @@ shape                  default=\"dot\"  the shape name from marker_templates
 attribute=value list   keyword list     modify the SVG attributes of the new marker
 """
   output = copy.deepcopy(marker_templates[shape])
-  for i in output.sub: i.attr.update(attr)
+  for i in output.sub: i.attr.update(attr_preprocess(attr))
   output["id"] = id
   return output
 
@@ -2865,7 +2887,7 @@ attribute=value pairs   keyword list    SVG attributes
     line = Line.SVG(self, trans) # must be evaluated first, to set self.f, self.low, self.high
 
     f01 = self.f
-    self.f = lambda t: f01((t - self.start) / (self.end - self.start))
+    self.f = lambda t: f01(1. * (t - self.start) / (self.end - self.start))
     self.low = self.start
     self.high = self.end
 
@@ -3253,7 +3275,7 @@ If points in d have
     return "<XErrorBars (%d nodes)>" % len(self.d)
 
   def __init__(self, d=[], **attr):
-    self.d = d
+    self.d = list(d)
 
     self.attr = dict(self.defaults)
     self.attr.update(attr)
@@ -3299,7 +3321,7 @@ If points in d have
     return "<YErrorBars (%d nodes)>" % len(self.d)
 
   def __init__(self, d=[], **attr):
-    self.d = d
+    self.d = list(d)
 
     self.attr = dict(self.defaults)
     self.attr.update(attr)
