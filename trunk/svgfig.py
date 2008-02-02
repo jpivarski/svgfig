@@ -453,6 +453,12 @@ encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
 
 ######################################################################
 
+canvas_defaults = {"width": "400px", "height": "400px", "viewBox": "0 0 100 100", \
+                   "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "version":"1.1", \
+                   "style": "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle", \
+                   "font-family": "Helvetica,Arial,FreeSans,Sans,sans,sans-serif", \
+                   }
+
 def canvas(*sub, **attr):
   """Creates a top-level SVG object, allowing the user to control the
 image size and aspect ratio.
@@ -473,18 +479,13 @@ version         \"1.1\"
 style           \"stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle\"
 font-family     \"Helvetica,Arial,FreeSans?,Sans,sans,sans-serif\"
 """
-  defaults = {"width": "400px", "height": "400px", "viewBox": "0 0 100 100", \
-              "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "version":"1.1", \
-              "style": "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle", \
-              "font-family": "Helvetica,Arial,FreeSans,Sans,sans,sans-serif", \
-              }
-  defaults.update(attr)
-  attr = defaults
+  attributes = dict(canvas_defaults)
+  attributes.update(attr)
 
   if sub == None or sub == ():
-    return SVG("svg", **attr)
+    return SVG("svg", **attributes)
   else:
-    return SVG("svg", *sub, **attr)
+    return SVG("svg", *sub, **attributes)
 
 def canvas_outline(*sub, **attr):
   """Same as canvas(), but draws an outline around the drawable area,
