@@ -15,10 +15,11 @@ The above should save a file called "tmp.svg" in the current working directory (
 
 [http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-1.png]
 
-If you're using [http://www.inkscape.org Inkscape] or Inkview and the labels on the x axis are in the wrong place, it's because Inkscape doesn't correctly handle SVG's `baseline` properties.  I've requested a correction, but in the mean-time, you can get the text to look right with the following:
+If you're using [http://www.inkscape.org Inkscape] or Inkview and the labels on the x axis are in the wrong place, it's because Inkscape doesn't correctly handle SVG's `baseline` properties.  I've requested a correction, but in the mean-time, you can get the text to look right by setting the following,
 {{{
 >>> hacks["inkscape-text-vertical-shift"] = True
 }}}
+and drawing it again.
 
 Now that you can see the plot, let's split apart the line that made it.
 {{{
@@ -30,9 +31,17 @@ Now that you can see the plot, let's split apart the line that made it.
   * The [ClassPlot Plot] constructor creates a [ClassPlot Plot] and fills it with one primative.  We then call [ClassPlot Plot]'s *SVG* member, which applies all transformations and creates a Scalable Vector Graphics drawing as a [ClassSVG SVG] object.  We don't keep a reference to the new [ClassPlot Plot], so it disappears.
   * The [ClassSVG SVG] stays around long enough for us to call its *save* method, which saves it to a file.  You can pass a name explicitly, e.g. `save("filename.svg")` or `save("filename.svgz")` for a compressed image.
 
+Why such long syntax?  It makes all steps in the process manifest, so that it's clear how to take it apart if you have to.  For instance, there are no special commands for overlaying two plots, you just add another [ClassCurve Curve] primative to the list.
+{{{
+>>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2), Curve(funcRtoR("x**3"), -2, 2, stroke="blue")).SVG().save()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-2.png]
 
-
-
+They didn't both need to be [ClassCurve Curves].  All the graphics primatives are the same sorts of objects, so we could overlay an [ClassEllipse Ellipse] instead.  (The `stroke="blue"` attribute is the same because it's passed directly to the Scalable Vector Graphics language.  Any SVG attribute can go there.)
+{{{
+>>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2), Ellipse(0, 0, 1, 2, 1, stroke="blue")).SVG().save()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-3.png]
 
 
 
