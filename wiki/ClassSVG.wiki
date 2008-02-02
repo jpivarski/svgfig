@@ -228,9 +228,9 @@ The default value for default_fileName is "tmp.svg".  In Linux, files are saved 
 >>> import svgfig
 >>> svgfig.default_directory
 u'C:\\Documents and Settings\\Jim\\Desktop'
->>> svgfig.SVG("line", 10, 10, 90, 90).save()  # saves to Desktop\tmp.svg
+>>> svgfig.SVG("line", x1=10, y1=10, x2=90, y2=90).save()  # saves to Desktop\tmp.svg
 >>> svgfig.default_directory += '\\myproject'
->>> svgfig.SVG("line", 10, 10, 90, 90).save()  # saves to Desktop\myproject\tmp.svg
+>>> svgfig.SVG("line", x1=10, y1=10, x2=90, y2=90).save()  # saves to Desktop\myproject\tmp.svg
 }}}
 
 You can use the following commands to view your SVG file (Linux only):
