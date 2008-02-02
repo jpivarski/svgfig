@@ -43,6 +43,34 @@ They didn't both need to be [ClassCurve Curves].  All the graphics primatives ar
 }}}
 [http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-3.png]
 
+Now what about the way that the plot looks?  Normally coordinate axes have arrows.  We can do that in SVGFig, but we need to give the arrows a name.  (SVG refers to markers, such as arrowheads, with URLs, just like a webpage.)
+{{{
+>>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2), arrows="myarrows").SVG().save()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-4.png]
+
+Of course, all of the previous exmaples are the sorts of plots we see in math textbooks.  Physicists usually plot data in boxes like this:
+{{{
+>>> Frame(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2)).SVG().save()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-5.png]
+
+[ClassPlot Plot] and [ClassFrame Frame] are drop-in replacements for [ClassFig Fig], which doesn't draw an axis and doesn't transform to a specified range unless explicitly told to do so.  You can use [ClassFig Fig] to have more control over the axes.  For instance, suppose we only wanted the X axis, and not the y axis:
+{{{
+>>> Fig(Curve(funcRtoR("x**2"), -2, 2), XAxis(-2, 2, 0), trans=window(-2, 2, -2, 6, x=10, width=80)).SVG().save()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-6.png]
+
+The [DefWindow window] transformation passed as a keyword argument to [ClassFig Fig] takes the role of the "-2, 2, -2, 6" that we've been passing to [ClassPlot Plot] and [ClassFrame Frame].  This [DefWindow window] transforms _xmin_, _xmax_, _ymin_, _ymax_ = (-2, 2, -2, 6) to a box in the user coordinates whose upper-left corner is _x_, _y_ = (10, 0) with a width of 80% and a height of 100%.
+
+
+
+
+
+
+
+
+
 
 
 
