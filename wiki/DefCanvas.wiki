@@ -22,7 +22,7 @@ control the image size and aspect ratio.
 || xmlns:xlink || "http://www.w3.org/1999/xlink" ||
 || version || "1.1" ||
 || style || "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle" ||
-|| font-family || "Helvetica,Arial,FreeSans,Sans,sans,sans-serif" ||
+|| font-family || "Helvetica,Arial,!FreeSans,Sans,sans,sans-serif" ||
 
 You can change the defaults through the canvas_defaults variable.  For example,
 {{{
