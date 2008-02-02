@@ -19,18 +19,19 @@
 import re, codecs, os, platform, copy, itertools, math, cmath, random, sys, copy
 epsilon = 1e-5
 
-if re.search("windows", platform.system(), re.I):
-  import _winreg
-  import subprocess
-  
-  tmpdir = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, "Environment"), "TEMP")[0]
-  if tmpdir[0:13] != "%USERPROFILE%":
-    tmpdir = os.path.expanduser("~")
-  else:
-    tmpdir = os.path.expanduser("~") + os.sep + tmpdir[13:]
 
-else:
-  tmpdir = "/tmp"
+if re.search("windows", platform.system(), re.I):
+  try:
+    import _winreg
+    default_directory = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, \
+                       "Software\\Microsoft\\Windows\\Current Version\\Explorer\\Shell Folders"), "Desktop")[0]
+#   tmpdir = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, "Environment"), "TEMP")[0]
+#   if tmpdir[0:13] != "%USERPROFILE%":
+#     tmpdir = os.path.expanduser("~") + tmpdir[13:]
+  except:
+    default_directory = os.path.expanduser("~") + os.sep + "Desktop"
+
+default_fileName = "tmp.svg"
 
 hacks = {}
 hacks["inkscape-text-vertical-shift"] = False
@@ -384,9 +385,9 @@ newl        string used for newlines
     return output
 
   def save(self, fileName=None, encoding="utf-8", compresslevel=None):
-    """Save to a file for viewing.  Note that svg.save() overwrites \"tmp.svg\".
+    """Save to a file for viewing.  Note that svg.save() overwrites the file named default_fileName.
 
-fileName 	default=None            note that tmpdir+\"tmp.svg\" will be overwritten if
+fileName 	default=None            note that default_fileName will be overwritten if
                                         no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
@@ -395,7 +396,11 @@ compresslevel 	default=None 	        if a number, the output will be gzipped wit
                                         thorough)
 """
 
-    if fileName == None: fileName = tmpdir + os.sep + "tmp.svg"
+    if fileName == None:
+      if re.search("windows", platform.system(), re.I) and not os.path.isabs(default_fileName):
+        fileName = default_directory + os.sep + default_fileName
+      else:
+        fileName = default_fileName
 
     if compresslevel != None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
       import gzip
@@ -416,8 +421,8 @@ compresslevel 	default=None 	        if a number, the output will be gzipped wit
   def inkview(self, fileName=None, encoding="utf-8"):
     """View in \"inkview\", assuming that program is available on your system.
 
-fileName 	default=None            note that tmpdir+\"tmp.svg\" will be overwritten if
-                                        no fileName is specified. If the extension
+fileName 	default=None            note that any file named default_fileName will be
+                                        overwritten if no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
 """
@@ -427,8 +432,8 @@ encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
   def inkscape(self, fileName=None, encoding="utf-8"):
     """View in \"inkscape\", assuming that program is available on your system.
 
-fileName 	default=None            note that tmpdir+\"tmp.svg\" will be overwritten if
-                                        no fileName is specified. If the extension
+fileName 	default=None            note that any file named default_fileName will be
+                                        overwritten if no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
 """
@@ -438,8 +443,8 @@ encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
   def firefox(self, fileName=None, encoding="utf-8"):
     """View in \"firefox\", assuming that program is available on your system.
 
-fileName 	default=None            note that tmpdir+\"tmp.svg\" will be overwritten if
-                                        no fileName is specified. If the extension
+fileName 	default=None            note that any file named default_fileName will be
+                                        overwritten if no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
 """
