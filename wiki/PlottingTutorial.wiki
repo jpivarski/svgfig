@@ -1,0 +1,42 @@
+#summary How to make simple plots with SVGFig
+#labels Featured,Tutorial
+
+= Plotting Tutorial =
+
+SVGFig allows you to do sophisticated mathematical drawing and offers a lot of control over the output, but sometimes you just want to make a simple plot.  Here are some examples and tips.
+
+Let's plot x^2^, the "Hello world" of graphing calculators.
+{{{
+>>> from svgfig import *
+>>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2)).SVG().save()
+}}}
+
+The above should save a file called "tmp.svg" in the current working directory (UNIX/Linux/Mac) or on the Desktop (Windows).  Open this file in a web browser or SVG viewer/editor.  It should look like the following.
+
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-1.png]
+
+If you're using [http://www.inkscape.org Inkscape] or Inkview and the labels on the x axis are in the wrong place, it's because Inkscape doesn't correctly handle SVG's `baseline` properties.  I've requested a correction, but in the mean-time, you can get the text to look right with the following:
+{{{
+>>> hacks["inkscape-text-vertical-shift"] = True
+}}}
+
+Now that you can see the plot, let's split apart the line that made it.
+{{{
+>>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2)).SVG().save()
+}}}
+  * [ClassPlot Plot] is a transformable container of primatives, like the "[ClassFig Fig]" in "SVGFig".  The first four arguments set the range: _xmin_, _xmax_, _ymin_, _ymax_.  The rest is a list of primatives that you'd like to draw, in this case, one [ClassCurve Curve].
+  * [ClassCurve Curve] draws a parametric function.  We want to draw a function of one variable, so we construct a parametric function in which the x component is simply linear: x(t), y(t) = t, t^2^.  [ClassCurve Curve] needs endpoints, so we pass -2 and 2.
+  * [DefFuncRtoR funcRtoR] converts a string in "f(x)" form to a parametric function like t, t^2^.
+  * The [ClassPlot Plot] constructor creates a [ClassPlot Plot] and fills it with one primative.  We then call [ClassPlot Plot]'s *SVG* member, which applies all transformations and creates a Scalable Vector Graphics drawing as a [ClassSVG SVG] object.  We don't keep a reference to the new [ClassPlot Plot], so it disappears.
+  * The [ClassSVG SVG] stays around long enough for us to call its *save* method, which saves it to a file.  You can pass a name explicitly, e.g. `save("filename.svg")` or `save("filename.svgz")` for a compressed image.
+
+
+
+
+
+
+
+
+
+
+
