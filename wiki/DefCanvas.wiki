@@ -24,6 +24,16 @@ control the image size and aspect ratio.
 || style || "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle" ||
 || font-family || "Helvetica,Arial,FreeSans,Sans,sans,sans-serif" ||
 
+You can change the defaults through the canvas_defaults variable.  For example,
+{{{
+>>> import svgfig
+>>> svgfig.canvas().attr["font-family"]
+'font-famica,Arial,FreeSans,Sans,sans,sans-serif'
+>>> svgfig.canvas_defaults["font-family"] = "serif"
+>>> svgfig.canvas().attr["font-family"]
+'serif'
+}}}
+
 = canvas_outline =
 
 Creates a top-level [ClassSVG SVG] object with the same arguments, but
