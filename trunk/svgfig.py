@@ -384,6 +384,14 @@ newl        string used for newlines
 
     return output
 
+  def interpret_fileName(self, fileName=None):
+    if fileName == None:
+      if re.search("windows", platform.system(), re.I) and not os.path.isabs(default_fileName):
+        fileName = default_directory + os.sep + default_fileName
+      else:
+        fileName = default_fileName
+    return fileName
+
   def save(self, fileName=None, encoding="utf-8", compresslevel=None):
     """Save to a file for viewing.  Note that svg.save() overwrites the file named default_fileName.
 
@@ -395,12 +403,7 @@ compresslevel 	default=None 	        if a number, the output will be gzipped wit
                                         compression level (1-9, 1 being fastest and 9 most
                                         thorough)
 """
-
-    if fileName == None:
-      if re.search("windows", platform.system(), re.I) and not os.path.isabs(default_fileName):
-        fileName = default_directory + os.sep + default_fileName
-      else:
-        fileName = default_fileName
+    fileName = self.interpret_fileName(fileName)
 
     if compresslevel != None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
       import gzip
@@ -426,6 +429,7 @@ fileName 	default=None            note that any file named default_fileName will
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
 """
+    fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkview", ("inkview", fileName))
 
@@ -437,6 +441,7 @@ fileName 	default=None            note that any file named default_fileName will
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
 """
+    fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkscape", ("inkscape", fileName))
 
@@ -448,6 +453,7 @@ fileName 	default=None            note that any file named default_fileName will
                                         is \".svgz\" or \".gz\", the output will be gzipped
 encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
 """
+    fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "firefox", ("firefox", fileName))
 
