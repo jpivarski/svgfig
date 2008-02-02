@@ -16,7 +16,7 @@
 # 
 # Full licence is in the file COPYING and at http://www.gnu.org/copyleft/gpl.html
 
-import re, codecs, platform, copy, itertools, math, cmath, random, sys, copy
+import re, codecs, os, platform, copy, itertools, math, cmath, random, sys, copy
 epsilon = 1e-5
 
 if re.search("windows", platform.system(), re.I):
