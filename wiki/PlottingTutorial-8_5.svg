@@ -11,17 +11,17 @@
 
 <path stroke-width="0.25pt" d="M16.25 74L16.25 71M38.75 74L38.75 71M95 74L95 71M61.25 74L61.25 71M72.5 74L72.5 71M27.5 74L27.5 71M50 74L50 71M5 74L5 71M83.75 74L83.75 71" />
 
-<text font-size="5" transform="translate(16.25, 73.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">–1.5</text>
+<text font-size="5" transform="translate(16.25, 78.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">–1.5</text>
 
-<text font-size="5" transform="translate(95, 73.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">2</text>
+<text font-size="5" transform="translate(95, 78.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">2</text>
 
-<text font-size="5" transform="translate(72.5, 73.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">1</text>
+<text font-size="5" transform="translate(72.5, 78.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">1</text>
 
-<text font-size="5" transform="translate(27.5, 73.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">–1</text>
+<text font-size="5" transform="translate(27.5, 78.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">–1</text>
 
-<text font-size="5" transform="translate(5, 73.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">–2</text>
+<text font-size="5" transform="translate(5, 78.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">–2</text>
 
-<text font-size="5" transform="translate(83.75, 73.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">1.5</text>
+<text font-size="5" transform="translate(83.75, 78.5) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">1.5</text>
 
 <path stroke-width="0.25pt" d="M5 72.5L95 72.5" />
 
@@ -29,19 +29,19 @@
 
 <path stroke-width="0.25pt" d="M51.5 72.5L48.5 72.5M51.5 50L48.5 50M51.5 27.5L48.5 27.5M51.5 95L48.5 95M51.5 5L48.5 5" />
 
-<text font-size="5" transform="translate(47.5, 50) rotate(0)" text-anchor="end" stroke="none" dominant-baseline="middle" fill="black">2</text>
+<text font-size="5" transform="translate(47.5, 52) rotate(0)" text-anchor="end" stroke="none" dominant-baseline="middle" fill="black">2</text>
 
-<text font-size="5" transform="translate(47.5, 27.5) rotate(0)" text-anchor="end" stroke="none" dominant-baseline="middle" fill="black">4</text>
+<text font-size="5" transform="translate(47.5, 29.5) rotate(0)" text-anchor="end" stroke="none" dominant-baseline="middle" fill="black">4</text>
 
-<text font-size="5" transform="translate(47.5, 95) rotate(0)" text-anchor="end" stroke="none" dominant-baseline="middle" fill="black">–2</text>
+<text font-size="5" transform="translate(47.5, 97) rotate(0)" text-anchor="end" stroke="none" dominant-baseline="middle" fill="black">–2</text>
 
-<text font-size="5" transform="translate(47.5, 5) rotate(0)" text-anchor="end" stroke="none" dominant-baseline="middle" fill="black">6</text>
+<text font-size="5" transform="translate(47.5, 7) rotate(0)" text-anchor="end" stroke="none" dominant-baseline="middle" fill="black">6</text>
 
 <path stroke-width="0.25pt" d="M50 95L50 5" />
 
 </g>
 
-<path d="M5 27.5L9.7636 36.5229L15.1773 45.5529L20.3397 52.9504L23.2949 56.652L27.5618 61.3117L30.042 63.6484L34.392 67.0865L36.6432 68.5355L39.4864 70.0437L41.9741 71.0685L45.0103 71.9467L47.0297 72.3039L49.3715 72.4912L52.1561 72.3967L54.6245 72.0248L57.8158 71.1425L60.2055 70.1855L63.5949 68.3928L66.8383 66.1993L70.0266 63.5875L72.0372 61.708L74.8736 58.7512L77.601 55.5708L81.2869 50.7474L86.2577 43.2862L91.7588 33.7489L95 27.5" />
+<path d="M5 27.5L11.4375 39.4541L16.2016 47.1148L18.8971 51.0024L23.9016 57.3638L27.4901 61.2401L30.4049 63.9674L33.4574 66.4187L35.3246 67.714L38.0949 69.3504L41.1728 70.7685L43.4715 71.5529L45.7475 72.0981L48.1982 72.4279L50.5121 72.4942L53.6172 72.2092L55.963 71.7098L58.7684 70.7914L61.9 69.3531L64.8569 67.5949L67.2078 65.9198L70.2924 63.3493L71.8124 61.927L75.1981 58.3902L78.1103 54.9402L81.8725 49.9254L86.2733 43.2611L92.9505 31.5057L95 27.5" />
 
 </g>
 
