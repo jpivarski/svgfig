@@ -3,8 +3,9 @@
 
 = Tutorials =
 
-  * [Introduction Introduction]
-  * [ExampleGallery Example Gallery]
+  * [Introduction Introduction]: how SVGFig basically works
+  * [PlottingTutorial Plotting Tutorial]: tutorial for plotting mathematical functions
+  * [ExampleGallery Example Gallery]: shows what SVG can do
 
 ----
 
