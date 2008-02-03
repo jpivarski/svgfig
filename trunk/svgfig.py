@@ -328,7 +328,12 @@ print svg.xml()
 """
 
     attrstr = []
-    for n, v in self.attr.items(): attrstr.append(" %s=%s" % (n, repr(v)))
+    for n, v in self.attr.items():
+      if isinstance(v, dict):
+        v = "; ".join(["%s:%s" % (ni, vi) for ni, vi in v.items()])
+      elif isinstance(v, (list, tuple)):
+        v = ", ".join(v)
+      attrstr.append(" %s=%s" % (n, repr(v)))
     attrstr = "".join(attrstr)
 
     if len(self.sub) == 0: return "%s<%s%s />" % (indent * depth, self.t, attrstr)
@@ -363,7 +368,12 @@ newl        string used for newlines
   def __standalone_xml(self, indent, newl):
     output = [u"<%s" % self.t]
 
-    for n, v in self.attr.items(): output.append(u" %s=\"%s\"" % (n, v))
+    for n, v in self.attr.items():
+      if isinstance(v, dict):
+        v = "; ".join(["%s:%s" % (ni, vi) for ni, vi in v.items()])
+      elif isinstance(v, (list, tuple)):
+        v = ", ".join(v)
+      output.append(u" %s=\"%s\"" % (n, v))
 
     if len(self.sub) == 0:
       output.append(u" />%s%s" % (newl, newl))
@@ -461,8 +471,8 @@ encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
 
 canvas_defaults = {"width": "400px", "height": "400px", "viewBox": "0 0 100 100", \
                    "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "version":"1.1", \
-                   "style": "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle", \
-                   "font-family": "Helvetica,Arial,FreeSans,Sans,sans,sans-serif", \
+                   "style": {"stroke":"black", "fill":"none", "stroke-width":"0.5pt", "stroke-linejoin":"round", "text-anchor":"middle"}, \
+                   "font-family": ["Helvetica", "Arial", "FreeSans", "Sans", "sans", "sans-serif"], \
                    }
 
 def canvas(*sub, **attr):
