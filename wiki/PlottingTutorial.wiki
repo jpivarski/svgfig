@@ -63,12 +63,29 @@ Of course, all of the previous exmaples are the sorts of plots we see in math te
 
 The [DefWindow window] transformation passed as a keyword argument to [ClassFig Fig] takes the role of the "-2, 2, -2, 6" that we've been passing to [ClassPlot Plot] and [ClassFrame Frame].  This [DefWindow window] transforms _xmin_, _xmax_, _ymin_, _ymax_ = (-2, 2, -2, 6) to a box in the user coordinates whose upper-left corner is _x_, _y_ = (10, 0) with a width of 80% and a height of 100%.
 
+Though you could construct it from the ground-up, the [ClassPlot Plot] and [ClassFrame Frame] classes provide convenient options for setting tick marks.
+  * You can ask for exactly 10 y-ticks, even though it doesn't divide the range very well.
+{{{
+>>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2), yticks=10).SVG().save()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-7.png]
+  * We can give SVGFig a little more freedom to pick nice tick values (multiples of 2 and 5) while specifying an upper limit on the number.  A negative number like -20 is interpreted as "no more than 20 ticks."
+{{{
+>>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2), yticks=-20).SVG().save()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-8.png]
+  * We can also specify the exact locations of every tick by passing a Python list.
+{{{
+>>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2), yticks=[2,3,4,5]).SVG().save()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-9.png]
+  * And we can additionally control the text labels of the ticks by passing a Python dictionary.
+{{{
+>>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2), yticks={2:"two", 3:"three", 4:"four", 5:"five"}).SVG().save()
+}}}
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-10.png]
 
-
-
-
-
-
+Similarly, the shorter, unlabeled ticks can be controlled with xminiticks and yminiticks (though the dictionary method doesn't apply).
 
 
 
