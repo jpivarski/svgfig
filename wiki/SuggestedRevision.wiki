@@ -32,7 +32,7 @@ Now that you can see the plot, let's examine the commands used to make it:
 >>> s.save()
 }}}
 
-  * The first line of code import all of the classes and functions of svgfig into python.
+  * The first line of code imports all of the classes and functions of svgfig into python.
   * The second line creates a [ClassCurve Curve] object called `c`.  A Curve can represent any parametrically defined curve in the plane.  In this case, the Curve `c` is the parabola defined by the equations (_x_, _y_) = (_t_, _t_^2^), with _t_ ranging from -2 to 2.
   * The third line creates a [ClassPlot Plot] object called `p`.  A Plot can be any collection of Curves, Lines, and so forth, together with a pair of coordinates axes.  The first four arguments set the range for the Plot: in this case `x_min` is -2, `x_max` is 2, `y_min` is -2 and `y_max` is 6.  In addition to the axes, the Plot `p` contains the Curve  `c`.
   * The fourth line creates an [ClassSVG SVG] object from `p`, using the SVG() member function of the [ClassPlot Plot] class.  The resulting SVG object `s` essentially consists of SVG code stored in a tree format.  This includes an SVG command to draw the parabola, as well as commands for the axes, the axis labels, and the tick marks.
