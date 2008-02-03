@@ -185,6 +185,17 @@ For XML that can be saved into a file, use the *standalone_xml* method.
 || indent || _default_="    " || string used for indenting ||
 || newl || _default_="\n" || newline character ||
 
+SVG attribute values can be numbers, lists, and dicts in addition to flat strings.  Numbers will be quoted, as Scalable Vector Graphics requires, lists become common-delimited lists (useful for `font-family`), and dicts become semicolon-delimited CSS specifications (useful for `style`).
+{{{
+>>> print SVG("svg", x1=10, y1=10, width="1cm", height="1cm", \
+...            style={"stroke-linejoin": "round", "stroke-width": 1}, \
+...            font_family=["Arial", "Helvetica", "sans-serif"]).standalone_xml()
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg style="stroke-linejoin:round; stroke-width:1" font-family="Arial, Helvetica, sans-serif" height="1cm" width="1cm" y1="10" x1="10" />
+}}}
+
 == Operators ==
 
 The `in` operator applies to SVG attributes.
