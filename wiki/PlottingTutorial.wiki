@@ -85,12 +85,6 @@ Though you could construct it from the ground-up, the [ClassPlot Plot] and [Clas
 }}}
 [http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-10.png]
 
-Similarly, the shorter, unlabeled ticks can be controlled with xminiticks and yminiticks (though the dictionary method doesn't apply).
+Similarly, the shorter, unlabeled ticks can be controlled with xminiticks and yminiticks (though the dictionary method doesn't apply).  You can find more in the [TickSpecification tick specification reference].
 
-
-
-
-
-
-
-
+For a complete tutorial, see the [Reference documentation].
