@@ -72,8 +72,9 @@ Though you could construct it from the ground-up, the [ClassPlot Plot] and [Clas
   * We can give SVGFig a little more freedom to pick nice tick values (multiples of 2 and 5) while specifying an upper limit on the number.  A negative number like -20 is interpreted as "no more than 20 ticks."
 {{{
 >>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2), yticks=-20).SVG().save()
+>>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2), yticks=-7).SVG().save()
 }}}
-[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-8.png]
+[http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-8.png] [http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-8_5.png]
   * We can also specify the exact locations of every tick by passing a Python list.
 {{{
 >>> Plot(-2, 2, -2, 6, Curve(funcRtoR("x**2"), -2, 2), yticks=[2,3,4,5]).SVG().save()
