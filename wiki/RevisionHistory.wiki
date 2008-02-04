@@ -1,11 +1,18 @@
 #summary Revision history: what was changed/added in each release
 #labels Featured
 
+If you find issues that you think might be bugs, please inform me through the [http://code.google.com/p/svgfig/issues/list Issues tab].
+
 == Latest source ==
 
 [http://svgfig.googlecode.com/svn/trunk/ Source tree]
 
-  * latest release is up-to-date.
+== svgfig-1.1.3 ==
+
+[http://svgfig.googlecode.com/files/svgfig-1.1.3.tgz svgfig-1.1.3.tgz]
+
+  * more minor bugs that turned up as Jim Belk learned the system
+  * now SVG attributes can be lists and dictionaries: `svg["style"]["stroke-linewidth"] = 1` etc
 
 == svgfig-1.1.2 ==
 
@@ -13,7 +20,6 @@
 
   * minor bugs that I discovered and fixed as I wrote the first two examples in the [ExampleGallery Example Gallery]
   * these will probably keep coming as I make more examples...
-  * if you find issues that you think might be bugs, please inform me through the [http://code.google.com/p/svgfig/issues/list Issues tab]
 
 == svgfig-1.1.1 ==
 
