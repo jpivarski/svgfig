@@ -38,7 +38,7 @@
     * [ClassSVG class SVG]
     * [DefCanvas canvas() and canvas_outline()]
     * [Defload load() and load_stream()]
-    * [Deftemplate template()]
+    * [DefTemplate template()]
     * [DefMake_symbol make_symbol()]
     * [DefMake_marker make_marker()]
   # [#Other_Functions Other Functions]
@@ -66,7 +66,7 @@ Ticks are graphics primitive representing sequences of tickmarks.  These may be 
   * [ClassCurveAxis class CurveAxis] (child of Curve and Ticks): a Curve with Ticks
   * [ClassLineAxis class LineAxis] (child of Line and Ticks): a Line with Ticks
     * [ClassAxes class XAxis and class YAxis] (children of !LineAxis): a horizontal or vertical axis with ticks
-    * [classAxes class Axes]: Both an XAxis and a YAxis
+    * [ClassAxes class Axes]: Both an XAxis and a YAxis
   * [ClassGrid class Grid, class HGrid, and class VGrid] (children of Ticks): a sequence of horizontal and/or vertical gridlines
 
 === Miscellaneous Graphics Primitives ===
@@ -99,7 +99,7 @@ An _SVG object_ is a python representation of an SVG element (or group of elemen
 SVG elements can be created directly using the [ClassSVG SVG constructor], or from any graphics primitive by using the (graphics primitive object).SVG() member function.  The following functions also create SVG elements:
   * [DefCanvas canvas() and canvas_outline()]: functions to create a top-level SVG element; good for changing the aspect ratio
   * [Defload load() and load_stream()]: functions to create an SVG element from an SVG file or XML stream
-  * [Deftemplate template()]: function to create an SVG element from an SVG template file
+  * [DefTemplate template()]: function to create an SVG element from an SVG template file
   * [DefMake_symbol make_symbol()]: function to create a SVG symbol element from a template of standard shapes
   * [DefMake_marker make_marker()]: function to create a SVG marker element from a template of standard shapes
 
