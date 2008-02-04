@@ -6,6 +6,16 @@
 Creates a document object model of an SVG image.  This can be a
 fragment or a whole graphic (with a top-level <svg /> tag).
 
+  # [#Arguments Arguments]
+  # [#Data_members Data members]
+  # [#Tree_indexing Tree indexing]
+  # [http://code.google.com/p/svgfig/wiki/ClassSVG#List-like_features List-like features]
+  # [#Iteration Iteration]
+  # [#Text_representations Text representations]
+  # [#Operators Operators]
+  # [#Deep_copying Deep copying]
+  # [#Saving_and_viewing Saving and viewing]
+
 == Arguments ==
 
 *SVG(t, sub, sub, sub..., attribute=value)*
