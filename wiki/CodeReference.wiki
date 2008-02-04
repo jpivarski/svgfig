@@ -11,7 +11,7 @@
         * [ClassVLine class HLine and class VLine]
       * [ClassRect class Rect]
       * [ClassEllipse class Ellipse]
-    # [#Ticks%2C_Axes%2C_and_Gridlines Ticks, Axes, and Gridlines]
+    # [http://code.google.com/p/svgfig/wiki/CodeReference#Ticks%2C_Axes%2C_and_Gridlines Ticks, Axes, and Gridlines]
       * [ClassTicks class Ticks]
       * [ClassCurveAxis class CurveAxis]
       * [ClassLineAxis class LineAxis]
