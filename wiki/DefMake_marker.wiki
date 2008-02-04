@@ -10,12 +10,12 @@ Creates a new instance of an SVG marker to avoid cross-linking objects.  The use
 *make_marker(id, shape, attribute=value)*
 
 || id || _*required*_ || a new identifier (string/Unicode) ||
-|| shape || _default_="dot" || the shape name from *marker_templates* ||
+|| shape || _*required*_ || the shape name from *marker_templates* ||
 || attribute=value list || _keyword list_ || modify the SVG attributes of the new marker, e.g. stroke="blue" ||
 
 == Templates ==
 
-Symbol templates come from a dictionary in the svgfig namespace called *symbol_templates*.
+Symbol templates come from a dictionary in the svgfig namespace called *marker_templates*.
 
 || "arrow_start" || an arrow suitable for the start of a line or path ||
 || "arrow_end" || an arrow suitable for the end of a line or path ||
