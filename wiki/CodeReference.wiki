@@ -1,6 +1,49 @@
 #summary One-sentence summary of this page.
 
-= Reference Table of Contents =
+= Reference=
+
+== Table of Contents ==
+  # [#Graphics_Primitives]
+    # [#Curves]
+      * [ClassCurve class Curve]
+      * [DefFuncRtoR2 funcRtoR2()], [DefFuncRtoC funcRtoC()], and [DefFuncRtoR funcRtoR()]
+      * [ClassLine class Line]
+        * [ClassVLine class HLine and class VLine]
+      * [ClassRect class Rect]
+      * [ClassEllipse class Ellipse]
+    # [#Ticks.2C_Axes.2C_and_Gridlines]
+      * [ClassTicks class Ticks]
+      * [ClassCurveAxis class CurveAxis]
+      * [ClassLineAxis class LineAxis]
+        * [ClassAxes class XAxis, class YAxis, and class Axes]
+      * [ClassGrid class Grid, class HGrid, and class VGrid]
+    # [#Miscellaneous_Graphics_Primitives]
+      * [ClassPath class Path]
+      * [DefPathtoPath pathtoPath()]
+      * [ClassPoly class Poly]
+      * [ClassDots class Dots]: a collection of SVG symbols drawn at specified coordinates
+      * [ClassYErrorBars class YErrorBars and class XErrorBars]
+      * [ClassLine class LineGlobal]
+      * [ClassText class Text]
+      * [ClassTextGlobal class TextGlobal]
+    # [#Figures]
+      * [ClassFig class Fig]
+      * [ClassPlot class Plot]
+      * [ClassFrame class Frame]
+    # [#Transformations]
+      * [DefTotrans totrans()]
+      * [DefWindow window()]
+      * [DefRotate rotate()]
+  # [#SVG_Objects]
+    * [ClassSVG class SVG]
+    * [DefCanvas canvas() and canvas_outline()]
+    * [Defload load() and load_stream()]
+    * [Deftemplate template()]
+    * [DefMake_symbol make_symbol()]
+    * [DefMake_marker make_marker()]
+  # [#Other_Functions]
+    * [DefRgb rgb()]
+
 
 == Graphics Primitives ==
 A _graphics primitive_ is any one graphics object, such as a line, curve, or polygon.  You can apply coordinate transformations to graphics primitives, group them together into figures, and then convert them to SVG objects.
