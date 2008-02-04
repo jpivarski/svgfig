@@ -4,6 +4,7 @@
 
 == Table of Contents ==
   # [#Graphics_Primitives Graphics Primitives]
+    * [GeneralPrimative General features] of all graphics primitives
     # [#Curves Curves]
       * [ClassCurve class Curve]
       * [DefFuncRtoR2 funcRtoR2()], [DefFuncRtoC funcRtoC()], and [DefFuncRtoR funcRtoR()]
