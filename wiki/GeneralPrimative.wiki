@@ -2,6 +2,10 @@
 #labels Reference
 
 All graphics primatives have the following features:
+  # [#SVG_method]
+  # [#Path_method]
+  # [#Member_data]
+  # [#Defaults]
 
 == SVG method ==
 
