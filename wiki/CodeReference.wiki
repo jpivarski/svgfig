@@ -15,7 +15,7 @@ Curve has the following child classes:
   * [ClassLine class Line]: a straight line connecting two points, may become curved after a nonlinear coordinate transformation
     * [ClassVLine class HLine and class VLine] (children of Line): a horizontal or vertical line
   * [ClassRect class Rect]: a horizontal or vertical rectangle
-  * [classEllipse class Ellipse]: an arbitrary ellipse or circle
+  * [ClassEllipse class Ellipse]: an arbitrary ellipse or circle
 
 === Ticks, Axes, and Gridlines ===
 Ticks are graphics primitive representing sequences of tickmarks.  These may be drawn using any of the [TickSpecification standard tick specification methods].
