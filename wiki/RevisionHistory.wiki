@@ -1,12 +1,14 @@
 #summary Revision history: what was changed/added in each release
 
-[http://code.google.com/p/svgfig/downloads/list Downloads list]
-
-== Latest source ==
+= Latest source =
 
 [http://svgfig.googlecode.com/svn/trunk/ Source tree]
 
 If you find issues that you think might be bugs, please inform me through the [http://code.google.com/p/svgfig/issues/list Issues tab].
+
+= Fixed Releases =
+
+  * [http://code.google.com/p/svgfig/downloads/list Click here] for a list of all downloadable versions of SVGFig.
 
 == svgfig-1.1.3 ==
 
