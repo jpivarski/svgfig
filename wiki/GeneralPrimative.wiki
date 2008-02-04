@@ -1,11 +1,11 @@
-#summary General features of all graphics primatives
+#summary General features of all graphics primitives
 #labels Reference
 
 All graphics primatives have the following features:
-  # [#SVG_method]
-  # [#Path_method]
-  # [#Member_data]
-  # [#Defaults]
+  # [#SVG_method SVG() method]
+  # [#Path_method Path() method]
+  # [#Member_data Member data]
+  # [#Defaults Defaults]
 
 == SVG method ==
 
@@ -17,7 +17,7 @@ All grpahics primitives have a *SVG* method to convert to [ClassSVG SVG].
 
 == Path method ==
 
-_Some_ grpahics primitives also have a *Path* method to convert to [ClassPath Path].
+_Some_ graphics primitives also have a *Path* method to convert to [ClassPath Path].
 
 *Path(trans, local)*
 
