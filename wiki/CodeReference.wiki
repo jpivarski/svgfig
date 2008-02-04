@@ -3,8 +3,7 @@
 = Reference=
 
 == Table of Contents ==
-  # [#Graphics_Primitives Graphics Primitives]
-      * [GeneralPrimative General features] of all graphics primitives
+  # [#Graphics_Primitives Graphics Primitives] (* [GeneralPrimative general features])
     # [#Curves Curves]
       * [ClassCurve class Curve]
       * [DefFuncRtoR2 funcRtoR2()], [DefFuncRtoC funcRtoC()], and [DefFuncRtoR funcRtoR()]
@@ -12,7 +11,7 @@
         * [ClassVLine class HLine and class VLine]
       * [ClassRect class Rect]
       * [ClassEllipse class Ellipse]
-    # [http://code.google.com/p/svgfig/wiki/CodeReference#Ticks%2C_Axes%2C_and_Gridlines Ticks, Axes, and Gridlines]
+    # [http://code.google.com/p/svgfig/wiki/CodeReference#Ticks%2C_Axes%2C_and_Gridlines Ticks, Axes, and Gridlines] ([TickSpecification standard tick specification methods])
       * [ClassTicks class Ticks]
       * [ClassCurveAxis class CurveAxis]
       * [ClassLineAxis class LineAxis]
