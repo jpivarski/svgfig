@@ -2,56 +2,64 @@
 
 = Reference Table of Contents =
 
-== Fundamentals ==
+== Graphics Primitives ==
+A _graphics primitive_ is any one graphics object, such as a line, curve, or polygon.  You can apply coordinate transformations to graphics primitives, group them together into figures, and then convert them to SVG objects.
+  * [GeneralPrimative General features] of all graphics primitives
 
-  * [ClassSVG SVG]: class representing an SVG image
-    * [DefCanvas canvas and canvas_outline]: functions for explicitly laying out the SVG canvas; good for changing the aspect ratio
-    * [Defload load and load_stream]: functions for loading SVG files from files or XML streams
-    * [DefTemplate template]: loads an SVG template, replacing all instances of "<REPLACEME />" with an SVG object
+=== Curves ===
+A _curve_ is a graphics primitive representing a parametric curve.  Curves map correctly under coordinate transformations -- SVGFig uses an adaptive sampling algorithm to convert the end result to SVG.
+  * [ClassCurve class Curve]: a parametric curve defined by a function; svgfig uses an adaptive sampling algorithm to convert Curves to SVG path elements.
+You can use the functions [DefFuncRtoR2 funcRtoR2()], [DefFuncRtoC funcRtoC()], and [DefFuncRtoR funcRtoR()] to assist in the creation of parametric equations.
 
-  * SVG graphics helpers
-    * [DefRgb rgb]: expresses an rgb triple as a hex string
-    * [DefMake_symbol make_symbol]: makes a <symbol /> element from a template of standard shapes
-    * [DefMake_marker make_marker]: makes a <marker /> element from a template
+Curve has the following child classes:
+  * [ClassLine class Line]: a straight line connecting two points, may become curved after a nonlinear coordinate transformation
+    * [ClassVLine class HLine and class VLine] (children of Line): a horizontal or vertical line
+  * [ClassRect class Rect]: a horizontal or vertical rectangle
+  * [classEllipse class Ellipse]: an arbitrary ellipse or circle
 
-  * [ClassFig Fig]: holds a set of transformable primatives and globally-positioned SVG objects, composes transformations when nested
-  * [ClassPlot Plot]: a Fig with coordinate axes
-  * [ClassFrame Frame]: a Fig in a coordinate frame
+=== Ticks, Axes, and Gridlines ===
+Ticks are graphics primitive representing sequences of tickmarks.  These may be drawn using any of the [TickSpecification standard tick specification methods].
+  * [ClassTicks class Ticks]: a collection of tick marks drawn along a parametric curve (draws the ticks, but not the curve)
+  * [ClassCurveAxis class CurveAxis] (child of Curve and Ticks): a Curve with Ticks
+  * [ClassLineAxis class LineAxis] (child of Line and Ticks): a Line with Ticks
+    * [ClassAxes class XAxis and class YAxis] (children of !LineAxis): a horizontal or vertical axis with ticks
+    * [classAxes class Axes]: Both an XAxis and a YAxis
+  * [ClassGrid class Grid, class HGrid, and class VGrid] (children of Ticks): a sequence of horizontal and/or vertical gridlines
 
-  * for making transformation functions
-    * [DefTotrans totrans]: turns a string expression or complex function into an R^2^-to-R^2^ function
-    * [DefWindow window]: creates a transformation by mapping a rectangle of "inner" coordinates to a rectangle of "outer" coordinates
-    * [DefRotate rotate]: creates a simple rotation of the plane
+=== Miscellaneous Graphics Primitives ===
+  * [ClassPath class Path] any collection of straight or curved arcs, similar to an SVG path element
+    * [DefPathtoPath pathtoPath()] A function to convert an SVG path element into an object of class Path
+  * [ClassPoly class Poly]: a smooth or piecewise-linear curve defined by a sequence of points
+  * [classDots class Dots]: a collection of SVG symbols drawn at specified coordinates
+  * [ClassYErrorBars class YErrorBars and class XErrorBars]: a collection of error bars
+  * [ClassLine class LineGlobal]: a straight line connecting two points, remains straight under coordinate transformations.  One or both endpoints may be specified in global coordinates
+  * [ClassText class Text]: text placed at specified local coordinates
+  * [ClassTextGlobal class TextGlobal]: text placed at specified global coordinate
 
-== Fig Primatives ==
+=== Figures ===
+A _figure_ is any set of graphics primitive.  A figure is itself a primitive, making it possible to create nested collections.  Any transformation applied to a figure is applied separately to each of its members.
 
-  * [GeneralPrimative General features of all primatives]
+There are three classes for creating figures:
+  * [ClassFig class Fig]: any collection of graphics primitives
+  * [ClassPlot class Plot]: a figure with coordinate axes
+  * [ClassFrame class Frame]: a figure with a coordinate frame
 
-  * [ClassPath Path]: a transformable representation of an SVG path
-    * [DefPathtoPath pathtoPath]: converts SVG <path /> objects into transformable Paths
-  * [ClassCurve Curve]: draws a parametric function; implements the adaptive sampling algorithm
-    * [DefFuncRtoR2 funcRtoR2]: turns a string expression into a parametric function suitable for drawing with Curve
-    * [DefFuncRtoC funcRtoC]: turns a complex string expression into a parametric function
-    * [DefFuncRtoR funcRtoR]: turns a one-dimensional function into a parametric function
-  * [ClassPoly Poly]: draws a line through a sequence of points; may be piecewise linear, Bézier, a velocity curve, or smooth
-  * [ClassDots Dots]: draws SVG symbols at a set of points
-  * [ClassYErrorBars YErrorBars and XErrorBars]: draw error bars (usually used with Dots), including multiple bars (e.g. for correlated and uncorrelated errors)
+=== Transformations ===
+Each of the graphics primitives above is subject to _coordinate transformations_.  The following functions can be helpful in creating these transformations:
+    * [DefTotrans totrans()]: turns a string expression or complex function into an R^2^-to-R^2^ function
+    * [DefWindow window()]: creates a transformation by mapping a rectangle of "inner" coordinates to a rectangle of "outer" coordinates
+    * [DefRotate rotate()]: rotates the plane around a specified point
 
-  * [ClassLine Line]: draws a line between two points; if the coordinate transformation is non-linear, the line may be curved
-  * [ClassLineGlobal LineGlobal]: draws a straight line between two points, one or both of which are in global coordinates
-  * [ClassVLine VLine and HLine]: draws vertical and horizontal lines (provided as a convenience)
-  * [ClassRect Rect]: draws a rectangle joining four points
-  * [ClassEllipse Ellipse]: draws an ellipse with semimajor axis and a semiminor length (does not need to be aligned with the X-Y axis)
-  * [ClassGrid Grid, HGrid, and VGrid]: draws a set of horizontal and vertical lines
+== SVG Objects ==
+An _SVG object_ is a python representation of an SVG element (or group of elements).  Graphics primitives can be converted to SVG objects, which can then be assembled and written to SVG image files.
+  * [ClassSVG class SVG]: any SVG element (e.g. an SVG canvas, an SVG path, an SVG group element, an SVG defs element, etc.)
+SVG elements can be created directly using the [ClassSVG SVG constructor], or from any graphics primitive by using the (graphics primitive object).SVG() member function.  The following functions also create SVG elements:
+  * [DefCanvas canvas() and canvas_outline()]: functions to create a top-level SVG element; good for changing the aspect ratio
+  * [Defload load() and load_stream()]: functions to create an SVG element from an SVG file or XML stream
+  * [Deftemplate template()]: function to create an SVG element from an SVG template file
+  * [DefMake_symbol make_symbol()]: function to create a SVG symbol element from a template of standard shapes
+  * [DefMake_marker make_marker()]: function to create a SVG marker element from a template of standard shapes
 
-  * [ClassText Text]: places text at a local coordinate
-  * [ClassTextGlobal TextGlobal]: places text at a global coordinate
-
-== Coordinate Axes ==
-
-  * [TickSpecification Standard tick specification methods]
-
-  * [ClassAxes Axes]: draws an orthogonal coordinate axis in the local coordinate system
-  * [ClassTicks Ticks]: superclass of everything with tick marks; implements the tick-guessing algorithm
-  * [ClassCurveAxis CurveAxis]: draws ticks along a parametric function
-  * [ClassLineAxis LineAxis]: draws ticks along a line; useful for measuring the distance between points
+== Other functions ==
+The following helper functions may be useful when working with graphics primitives or SVGs:
+    * [DefRgb rgb()]: expresses an rgb triple as a hex string
