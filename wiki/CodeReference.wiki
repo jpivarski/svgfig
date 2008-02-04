@@ -30,7 +30,7 @@ Ticks are graphics primitive representing sequences of tickmarks.  These may be 
   * [ClassPath class Path] any collection of straight or curved arcs, similar to an SVG path element
     * [DefPathtoPath pathtoPath()] A function to convert an SVG path element into an object of class Path
   * [ClassPoly class Poly]: a smooth or piecewise-linear curve defined by a sequence of points
-  * [classDots class Dots]: a collection of SVG symbols drawn at specified coordinates
+  * [ClassDots class Dots]: a collection of SVG symbols drawn at specified coordinates
   * [ClassYErrorBars class YErrorBars and class XErrorBars]: a collection of error bars
   * [ClassLine class LineGlobal]: a straight line connecting two points, remains straight under coordinate transformations.  One or both endpoints may be specified in global coordinates
   * [ClassText class Text]: text placed at specified local coordinates
