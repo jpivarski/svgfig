@@ -1962,7 +1962,7 @@ def make_marker(id, shape, **attr):
   """Creates a new instance of an SVG marker to avoid cross-linking objects.
 
 id                     required         a new identifier (string/Unicode)
-shape                  default=\"dot\"  the shape name from marker_templates
+shape                  required         the shape name from marker_templates
 attribute=value list   keyword list     modify the SVG attributes of the new marker
 """
   output = copy.deepcopy(marker_templates[shape])
@@ -2014,6 +2014,7 @@ attribute=value pairs   keyword list    SVG attributes
         else:
           raise TypeError, "arrow_start must be False/None or an id string for the new marker"
 
+      if self.arrow_end != False and self.arrow_end != None:
         if isinstance(self.arrow_end, SVG):
           defs.append(self.arrow_end)
           line.attr["marker-end"] = "url(#%s)" % self.arrow_end["id"]
@@ -2101,6 +2102,7 @@ attribute=value pairs   keyword list    SVG attributes
         else:
           raise TypeError, "arrow_start must be False/None or an id string for the new marker"
 
+      if self.arrow_end != False and self.arrow_end != None:
         if isinstance(self.arrow_end, SVG):
           defs.append(self.arrow_end)
           line.attr["marker-end"] = "url(#%s)" % self.arrow_end["id"]
