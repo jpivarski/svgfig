@@ -396,10 +396,9 @@ newl        string used for newlines
 
   def interpret_fileName(self, fileName=None):
     if fileName == None:
-      if re.search("windows", platform.system(), re.I) and not os.path.isabs(default_fileName):
-        fileName = default_directory + os.sep + default_fileName
-      else:
-        fileName = default_fileName
+      fileName = default_fileName
+    if re.search("windows", platform.system(), re.I) and not os.path.isabs(fileName):
+      fileName = default_directory + os.sep + fileName
     return fileName
 
   def save(self, fileName=None, encoding="utf-8", compresslevel=None):
