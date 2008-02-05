@@ -3365,8 +3365,3 @@ If points in d have
       output.append(LineAxis(x, start, x, end, start, end, bars, False, False, **self.attr).SVG(trans))
 
     return output
-
-# This is a test edit of svgfig.py on Google Code.
-# This is only a test.
-#
-# If this had been an actual edit, the code would no longer be working.
