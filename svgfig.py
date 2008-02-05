@@ -546,10 +546,10 @@ def load(fileName):
 def load_stream(stream):
   """Loads an SVG image from a stream (can be a string or a file object)."""
 
-  from xml.sax import saxutils, make_parser
+  from xml.sax import handler, make_parser
   from xml.sax.handler import feature_namespaces, feature_external_ges, feature_external_pes
 
-  class ContentHandler(saxutils.DefaultHandler):
+  class ContentHandler(handler.ContentHandler):
     def __init__(self):
       self.stack = []
       self.output = None
