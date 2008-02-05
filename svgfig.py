@@ -3366,3 +3366,7 @@ If points in d have
 
     return output
 
+# This is a test edit of svgfig.py on Google Code.
+# This is only a test.
+#
+# If this had been an actual edit, the code would no longer be working.
