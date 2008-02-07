@@ -7,7 +7,8 @@ I've been wracking my brain for the last several days, trying to figure out how 
 Therefore, I thought I'd try a little experiment:  take some drawings that I've already done, and write out what I would consider the ideal pseudocode to specify the drawing.  I'll try to make the pseudocode as SVGFig-like as possible, but since this is primarily a creative exercise I'm not going to interrupt myself to look up the specs for existing functions.
 
 == First Image ==
-[http://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Three_Lines.svg/200px-Three_Lines.svg.png]
+[http://svgfig.googlecode.com/svn/wiki/IntersectingLines.png]
+
 This is a pretty simple one.  Here's how I would want to specify it:
 {{{
 P = Plot(-1, 4, -1, 4)   # Create the plot with axes.  I'm assuming that the shown axis
