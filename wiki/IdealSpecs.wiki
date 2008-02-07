@@ -1,4 +1,4 @@
-#How I would like SVGFig to behave.
+How I would like SVGFig to behave.
 
 = Introduction =
 
