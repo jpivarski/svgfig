@@ -1,0 +1,10 @@
+#How I would like SVGFig to behave.
+
+= Introduction =
+
+I've been wracking my brain for the last several days, trying to figure out how to move SVGFig from its current state to a state where I would like to use it as my main drawing program.  This has proven surprisingly difficult:  there are things that SVGFig doesn't currently do well, but it's hard to figure out exactly what functionality needs to be implemented to make SVGFig work better.
+
+Therefore, I thought I'd try a little experiment:  take some drawings that I've already done, and write out what I would consider the ideal pseudocode to specify the drawing.  I'll try to make the pseudocode as SVGFig-like as possible, but since this is primarily a creative exercise I'm not going to interrupt myself to look up the specs for existing functions.
+
+== First Image ==
+[http://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Three_Lines.svg/250px-Three_Lines.svg.png]
