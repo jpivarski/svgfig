@@ -19,7 +19,7 @@ P += Latex('x - y = -1', offset = '0,6').rotate(atan(1)).placeat(0.8, f1(0.8))
 f2 = func('9 - 3*x')
 P += Curve(f2, color = blue, thickness = 1.5)
 P += Latex('3x + y = 9', offset = '0,6').rotate(-atan(3)).placeat(0.7, f2(0.7))
-P += Dot(radius=10, x=2, y=3)   # radius specified in pixels
+P += Dot(radius=5, x=2, y=3)   # radius specified in pixels
 P += Latex('(2,3)', valign = center, halign = left, offset = '10,0').placeat(2,3)
 P.save()
 }}}
