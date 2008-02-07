@@ -34,5 +34,27 @@ P += Line(-1.5, -1.5, 2.5, 2.5, thickness = 0.5)
 P += Curve('x^2', color = red, thickness = 1.5)
 P += Latex('x^2', halign = right, offset = '-6,0').placeat(1.5, 2.25)
 P += Curve('sqrt(x)', color = blue, thickness = 1.5)
-P += Latex('\sqrt{x}', valign = top, background = white, offset = '0,-6').place(2,sqrt(2))
+P += Latex('\sqrt{x}', valign = top, background = white, offset = '0,-6').placeat(2,sqrt(2))
+P.save()
+}}}
+
+== Third Image: Simple Link ==
+[http://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Linking_Number_1.svg/200px-Linking_Number_1.svg.png]
+
+This one is more about drawing shapes than curves.  The links are made up of quarter and half circles, which come up so often that they are likely to have their own command:
+{{{
+P = Fig(0,3,0,2)   # this is a Fig with xmin, xmax, ymin, ymax
+P += halfcirc(1,2,1,0, color=red, arrow=[Vstyle,middle])
+     # The first four arguments are x1, y1, x2, y2
+     # semicircle is assumed to go counterclockwise
+P += halfcirc(3,2,3,0, dir=clockwise, color=blue, arrow=[Vstyle,middle])
+q1 = qcirc(1,1,2,0,color=blue)
+q2 = qcirc(1,0,2,1,color=red)
+mydot = Dot(radius=10, (x,y) = intersection(q1, q2), fill=white)
+P += q1 + mydot + q2
+q1 = qcirc(2,1,1,2,color=red)
+q2 = qcirc(2,2,1,1,color=blue)
+mydot = Dot(radius=10, (x,y) = intersection(q1, q2), fill=white)
+P += q1 + mydot + q2
+P.save()
 }}}
