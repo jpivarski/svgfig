@@ -24,7 +24,7 @@ if re.search("windows", platform.system(), re.I):
   try:
     import _winreg
     default_directory = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, \
-                       "Software\\Microsoft\\Windows\\Current Version\\Explorer\\Shell Folders"), "Desktop")[0]
+                       r"Software\Microsoft\Windows\Current Version\Explorer\Shell Folders"), "Desktop")[0]
 #   tmpdir = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, "Environment"), "TEMP")[0]
 #   if tmpdir[0:13] != "%USERPROFILE%":
 #     tmpdir = os.path.expanduser("~") + tmpdir[13:]
@@ -37,7 +37,7 @@ hacks = {}
 hacks["inkscape-text-vertical-shift"] = False
 
 def rgb(r, g, b, maximum=1.):
-  """Create an SVG color string \"#xxyyzz\" from r, g, and b.
+  """Create an SVG color string "#xxyyzz" from r, g, and b.
 
 r,g,b = 0 is black and r,g,b = maximum is white.
 """
@@ -68,35 +68,35 @@ t                       required             SVG type name
 sub                     optional list        nested SVG elements or text/Unicode
 attribute=value pairs   optional keywords    SVG attributes
 
-In attribute names, \"__\" becomes \":\" and \"_\" becomes \"-\".
+In attribute names, "__" becomes ":" and "_" becomes "-".
 
 SVG in XML
 
-<g id=\"mygroup\" fill=\"blue\">
-    <rect x=\"1\" y=\"1\" width=\"2\" height=\"2\" />
-    <rect x=\"3\" y=\"3\" width=\"2\" height=\"2\" />
+<g id="mygroup" fill="blue">
+    <rect x="1" y="1" width="2" height="2" />
+    <rect x="3" y="3" width="2" height="2" />
 </g>
 
 SVG in Python
 
->>> svg = SVG(\"g\", SVG(\"rect\", x=1, y=1, width=2, height=2), \ 
-...                SVG(\"rect\", x=3, y=3, width=2, height=2), \ 
-...           id=\"mygroup\", fill=\"blue\")
+>>> svg = SVG("g", SVG("rect", x=1, y=1, width=2, height=2), \ 
+...                SVG("rect", x=3, y=3, width=2, height=2), \ 
+...           id="mygroup", fill="blue")
 
 Sub-elements and attributes may be accessed through tree-indexing:
 
->>> svg = SVG(\"text\", SVG(\"tspan\", \"hello there\"), stroke=\"none\", fill=\"black\")
+>>> svg = SVG("text", SVG("tspan", "hello there"), stroke="none", fill="black")
 >>> svg[0]
 <tspan (1 sub) />
 >>> svg[0, 0]
 'hello there'
->>> svg[\"fill\"]
+>>> svg["fill"]
 'black'
 
 Iteration is depth-first:
 
->>> svg = SVG(\"g\", SVG(\"g\", SVG(\"line\", x1=0, y1=0, x2=1, y2=1)), \
-...                SVG(\"text\", SVG(\"tspan\", \"hello again\")))
+>>> svg = SVG("g", SVG("g", SVG("line", x1=0, y1=0, x2=1, y2=1)), \
+...                SVG("text", SVG("tspan", "hello again")))
 ... 
 >>> for ti, s in svg:
 ...     print ti, repr(s)
@@ -111,7 +111,7 @@ Iteration is depth-first:
 (1, 0) <tspan (1 sub) />
 (1, 0, 0) 'hello again'
 
-Use \"print\" to navigate:
+Use "print" to navigate:
 
 >>> print svg
 None                 <g (2 sub) />
@@ -363,7 +363,11 @@ newl        string used for newlines
 
     if self.t == "svg": top = self
     else: top = canvas(self)
-    return "<?xml version=\"1.0\" standalone=\"no\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n\n"+("".join(top.__standalone_xml(indent, newl)))
+    return """"\
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+""" + ("".join(top.__standalone_xml(indent, newl)))  # end of return statement
 
   def __standalone_xml(self, indent, newl):
     output = [u"<%s" % self.t]
@@ -406,8 +410,8 @@ newl        string used for newlines
 
 fileName        default=None            note that default_fileName will be overwritten if
                                         no fileName is specified. If the extension
-                                        is \".svgz\" or \".gz\", the output will be gzipped
-encoding        default=\"utf-8\"       file encoding (default is Unicode)
+                                        is ".svgz" or ".gz", the output will be gzipped
+encoding        default="utf-8"       file encoding (default is Unicode)
 compresslevel   default=None            if a number, the output will be gzipped with that
                                         compression level (1-9, 1 being fastest and 9 most
                                         thorough)
@@ -431,36 +435,36 @@ compresslevel   default=None            if a number, the output will be gzipped 
       f.close()
 
   def inkview(self, fileName=None, encoding="utf-8"):
-    """View in \"inkview\", assuming that program is available on your system.
+    """View in "inkview", assuming that program is available on your system.
 
 fileName        default=None            note that any file named default_fileName will be
                                         overwritten if no fileName is specified. If the extension
-                                        is \".svgz\" or \".gz\", the output will be gzipped
-encoding        default=\"utf-8\"       file encoding (default is Unicode)
+                                        is ".svgz" or ".gz", the output will be gzipped
+encoding        default="utf-8"       file encoding (default is Unicode)
 """
     fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkview", ("inkview", fileName))
 
   def inkscape(self, fileName=None, encoding="utf-8"):
-    """View in \"inkscape\", assuming that program is available on your system.
+    """View in "inkscape", assuming that program is available on your system.
 
 fileName        default=None            note that any file named default_fileName will be
                                         overwritten if no fileName is specified. If the extension
-                                        is \".svgz\" or \".gz\", the output will be gzipped
-encoding        default=\"utf-8\"       file encoding (default is Unicode)
+                                        is ".svgz" or ".gz", the output will be gzipped
+encoding        default="utf-8"       file encoding (default is Unicode)
 """
     fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkscape", ("inkscape", fileName))
 
   def firefox(self, fileName=None, encoding="utf-8"):
-    """View in \"firefox\", assuming that program is available on your system.
+    """View in "firefox", assuming that program is available on your system.
 
 fileName        default=None            note that any file named default_fileName will be
                                         overwritten if no fileName is specified. If the extension
-                                        is \".svgz\" or \".gz\", the output will be gzipped
-encoding        default=\"utf-8\"       file encoding (default is Unicode)
+                                        is ".svgz" or ".gz", the output will be gzipped
+encoding        default="utf-8"       file encoding (default is Unicode)
 """
     fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
@@ -485,14 +489,14 @@ attribute=value pairs   optional keywords   SVG attributes
 
 Default attribute values:
 
-width           \"400px\"
-height          \"400px\"
-viewBox         \"0 0 100 100\"
-xmlns           \"http://www.w3.org/2000/svg\"
-xmlns:xlink     \"http://www.w3.org/1999/xlink\"
-version         \"1.1\"
-style           \"stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle\"
-font-family     \"Helvetica,Arial,FreeSans?,Sans,sans,sans-serif\"
+width           "400px"
+height          "400px"
+viewBox         "0 0 100 100"
+xmlns           "http://www.w3.org/2000/svg"
+xmlns:xlink     "http://www.w3.org/1999/xlink"
+version         "1.1"
+style           "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle"
+font-family     "Helvetica,Arial,FreeSans?,Sans,sans,sans-serif"
 """
   attributes = dict(canvas_defaults)
   attributes.update(attr)
@@ -519,14 +523,14 @@ def template(fileName, svg, replaceme="REPLACEME"):
 
 fileName         required                name of the template SVG
 svg              required                SVG object for replacement
-replaceme        default=\"REPLACEME\"   fake SVG element to be replaced by the given object
+replaceme        default="REPLACEME"   fake SVG element to be replaced by the given object
 
->>> print load(\"template.svg\")
+>>> print load("template.svg")
 None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
 [0]                      <rect height=u'100' width=u'100' stroke=u'none' y=u'0' x=u'0' fill=u'yellow'
 [1]                      <REPLACEME />
 >>> 
->>> print template(\"template.svg\", SVG(\"circle\", cx=50, cy=50, r=30))
+>>> print template("template.svg", SVG("circle", cx=50, cy=50, r=30))
 None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
 [0]                      <rect height=u'100' width=u'100' stroke=u'none' y=u'0' x=u'0' fill=u'yellow'
 [1]                      <circle cy=50 cx=50 r=30 />
@@ -596,8 +600,8 @@ two arguments and returns two values).
 
 expr       required                  a string expression or a function
                                      of two real or one complex value
-vars       default=(\"x\", \"y\")    independent variable names;
-                                     a singleton (\"z\",) is interpreted
+vars       default=("x", "y")    independent variable names;
+                                     a singleton ("z",) is interpreted
                                      as complex
 globals    default=None              dict of global variables
 locals     default=None              dict of local variables
@@ -699,7 +703,7 @@ flipy                 default=True           if true, reverse the direction of y
 
 def rotate(angle, cx=0, cy=0):
   """Creates and returns a coordinate transformation which rotates
-around (cx,cy) by \"angle\" degrees."""
+around (cx,cy) by "angle" degrees."""
   angle *= math.pi/180.
   return lambda x, y: (cx + math.cos(angle)*(x - cx) - math.sin(angle)*(y - cy), cy + math.sin(angle)*(x - cx) + math.cos(angle)*(y - cy))
 
@@ -713,13 +717,13 @@ Fig(obj, obj, obj..., trans=function)
 obj     optional list    a list of drawing primatives
 trans   default=None     a coordinate transformation function
 
->>> fig = Fig(Line(0,0,1,1), Rect(0.2,0.2,0.8,0.8), trans=\"2*x, 2*y\")
+>>> fig = Fig(Line(0,0,1,1), Rect(0.2,0.2,0.8,0.8), trans="2*x, 2*y")
 >>> print fig.SVG().xml()
 <g>
     <path d='M0 0L2 2' />
     <path d='M0.4 0.4L1.6 0.4ZL1.6 1.6ZL0.4 1.6ZL0.4 0.4ZZ' />
 </g>
->>> print Fig(fig, trans=\"x/2., y/2.\").SVG().xml()
+>>> print Fig(fig, trans="x/2., y/2.").SVG().xml()
 <g>
     <path d='M0 0L1 1' />
     <path d='M0.2 0.2L0.8 0.2ZL0.8 0.8ZL0.2 0.8ZL0.2 0.2ZZ' />
@@ -745,7 +749,7 @@ trans   default=None     a coordinate transformation function
       raise TypeError, "Fig() got unexpected keyword arguments %s" % kwds.keys()
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object.
+    """Apply the transformation "trans" and return an SVG object.
 
 Coordinate transformations in nested Figs will be composed.
 """
@@ -850,7 +854,7 @@ axis_attr       {}            a dictionary of attributes for the axis lines
       raise TypeError, "Plot() got unexpected keyword arguments %s" % kwds.keys()
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     if trans == None: trans = self.trans
     if isinstance(trans, basestring): trans = totrans(trans)
 
@@ -1000,7 +1004,7 @@ axis_attr       {}            a dictionary of attributes for the axis lines
 ######################################################################
 
 def pathtoPath(svg):
-  """Converts SVG(\"path\", d=\"...\") into Path(d=[...])."""
+  """Converts SVG("path", d="...") into Path(d=[...])."""
   if not isinstance(svg, SVG) or svg.t != "path":
     raise TypeError, "Only SVG <path /> objects can be converted into Paths"
   attr = dict(svg.attr)
@@ -1015,7 +1019,7 @@ def pathtoPath(svg):
 
 class Path:
   """Path represents an SVG path, an arbitrary set of curves and
-straight segments. Unlike SVG(\"path\", d=\"...\"), Path stores
+straight segments. Unlike SVG("path", d="..."), Path stores
 coordinates as a list of numbers, rather than a string, so that it is
 transformable in a Fig.
 
@@ -1029,24 +1033,24 @@ from text.
 
 Internally, Path data is a list of tuples with these definitions:
 
-    * (\"Z/z\",): close the current path
-    * (\"H/h\", x) or (\"V/v\", y): a horizontal or vertical line
+    * ("Z/z",): close the current path
+    * ("H/h", x) or ("V/v", y): a horizontal or vertical line
       segment to x or y
-    * (\"M/m/L/l/T/t\", x, y, global): moveto, lineto, or smooth
+    * ("M/m/L/l/T/t", x, y, global): moveto, lineto, or smooth
       quadratic curveto point (x, y). If global=True, (x, y) should
       not be transformed.
-    * (\"S/sQ/q\", cx, cy, cglobal, x, y, global): polybezier or
+    * ("S/sQ/q", cx, cy, cglobal, x, y, global): polybezier or
       smooth quadratic curveto point (x, y) using (cx, cy) as a
       control point. If cglobal or global=True, (cx, cy) or (x, y)
       should not be transformed.
-    * (\"C/c\", c1x, c1y, c1global, c2x, c2y, c2global, x, y, global):
+    * ("C/c", c1x, c1y, c1global, c2x, c2y, c2global, x, y, global):
       cubic curveto point (x, y) using (c1x, c1y) and (c2x, c2y) as
       control points. If c1global, c2global, or global=True, (c1x, c1y),
       (c2x, c2y), or (x, y) should not be transformed.
-    * (\"A/a\", rx, ry, rglobal, x-axis-rotation, angle, large-arc-flag,
+    * ("A/a", rx, ry, rglobal, x-axis-rotation, angle, large-arc-flag,
       sweep-flag, x, y, global): arcto point (x, y) using the
       aforementioned parameters.
-    * (\",/.\", rx, ry, rglobal, angle, x, y, global): an ellipse at
+    * (",/.", rx, ry, rglobal, angle, x, y, global): an ellipse at
       point (x, y) with radii (rx, ry). If angle is 0, the whole
       ellipse is drawn; otherwise, a partial ellipse is drawn.
 """
@@ -1220,7 +1224,7 @@ Called by the constructor."""
     return output
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     x, y, X, Y = None, None, None, None
@@ -1445,10 +1449,10 @@ Called by the constructor."""
 ######################################################################
 
 def funcRtoC(expr, var="t", globals=None, locals=None):
-  """Converts a complex \"z(t)\" string to a function acceptable for Curve.
+  """Converts a complex "z(t)" string to a function acceptable for Curve.
 
-expr    required        string in the form \"z(t)\"
-var     default=\"t\"   name of the independent variable
+expr    required        string in the form "z(t)"
+var     default="t"   name of the independent variable
 globals default=None    dict of global variables used in the expression;
                         you may want to use Python's builtin globals()
 locals  default=None    dict of local variables
@@ -1462,10 +1466,10 @@ locals  default=None    dict of local variables
   return output2
 
 def funcRtoR2(expr, var="t", globals=None, locals=None):
-  """Converts a \"f(t), g(t)\" string to a function acceptable for Curve.
+  """Converts a "f(t), g(t)" string to a function acceptable for Curve.
 
-expr    required        string in the form \"f(t), g(t)\"
-var     default=\"t\"   name of the independent variable
+expr    required        string in the form "f(t), g(t)"
+var     default="t"   name of the independent variable
 globals default=None    dict of global variables used in the expression;
                         you may want to use Python's builtin globals()
 locals  default=None    dict of local variables
@@ -1477,10 +1481,10 @@ locals  default=None    dict of local variables
   return output
 
 def funcRtoR(expr, var="x", globals=None, locals=None):
-  """Converts a \"f(x)\" string to a function acceptable for Curve.
+  """Converts a "f(x)" string to a function acceptable for Curve.
 
-expr    required        string in the form \"f(x)\"
-var     default=\"x\"   name of the independent variable
+expr    required        string in the form "f(x)"
+var     default="x"   name of the independent variable
 globals default=None    dict of global variables used in the expression;
                         you may want to use Python's builtin globals()
 locals  default=None    dict of local variables
@@ -1497,7 +1501,7 @@ class Curve:
 Curve(f, low, high, loop, attribute=value)
 
 f                      required         a Python callable or string in
-                                        the form \"f(t), g(t)\"
+                                        the form "f(t), g(t)"
 low, high              required         left and right endpoints
 loop                   default=False    if True, connect the endpoints
 attribute=value pairs  keyword list     SVG attributes
@@ -1643,11 +1647,11 @@ sample points.  Called by sample()."""
         mid.y = mid.Y = None
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     return self.Path(trans).SVG()
 
   def Path(self, trans=None, local=False):
-    """Apply the transformation \"trans\" and return a Path object in
+    """Apply the transformation "trans" and return a Path object in
 global coordinates.  If local=True, return a Path in local coordinates
 (which must be transformed again)."""
 
@@ -1680,33 +1684,33 @@ Poly(d, mode, loop, attribute=value)
 
 d                       required        list of tuples representing points
                                         and possibly control points
-mode                    default=\"L\"   \"lines\", \"bezier\", \"velocity\",
-                                        \"foreback\", \"smooth\", or an abbreviation
+mode                    default="L"   "lines", "bezier", "velocity",
+                                        "foreback", "smooth", or an abbreviation
 loop                    default=False   if True, connect the first and last
                                         point, closing the loop
 attribute=value pairs   keyword list    SVG attributes
 
 The format of the tuples in d depends on the mode.
 
-\"lines\"/\"L\"         d=[(x,y), (x,y), ...]
+"lines"/"L"         d=[(x,y), (x,y), ...]
                                         piecewise-linear segments joining the (x,y) points
-\"bezier\"/\"B\"        d=[(x, y, c1x, c1y, c2x, c2y), ...]
+"bezier"/"B"        d=[(x, y, c1x, c1y, c2x, c2y), ...]
                                         Bezier curve with two control points (control points
                                         preceed (x,y), as in SVG paths). If (c1x,c1y) and
                                         (c2x,c2y) both equal (x,y), you get a linear
-                                        interpolation (\"lines\")
-\"velocity\"/\"V\"      d=[(x, y, vx, vy), ...]
+                                        interpolation ("lines")
+"velocity"/"V"      d=[(x, y, vx, vy), ...]
                                         curve that passes through (x,y) with velocity (vx,vy)
                                         (one unit of arclength per unit time); in other words,
                                         (vx,vy) is the tangent vector at (x,y). If (vx,vy) is
-                                        (0,0), you get a linear interpolation (\"lines\").
-\"foreback\"/\"F\"      d=[(x, y, bx, by, fx, fy), ...]
-                                        like \"velocity\" except that there is a left derivative
+                                        (0,0), you get a linear interpolation ("lines").
+"foreback"/"F"      d=[(x, y, bx, by, fx, fy), ...]
+                                        like "velocity" except that there is a left derivative
                                         (bx,by) and a right derivative (fx,fy). If (bx,by)
                                         equals (fx,fy) (with no minus sign), you get a
-                                        \"velocity\" curve
-\"smooth\"/\"S\"        d=[(x,y), (x,y), ...]
-                                        a \"velocity\" interpolation with (vx,vy)[i] equal to
+                                        "velocity" curve
+"smooth"/"S"        d=[(x,y), (x,y), ...]
+                                        a "velocity" interpolation with (vx,vy)[i] equal to
                                         ((x,y)[i+1] - (x,y)[i-1])/2: the minimal derivative
 """
   defaults = {}
@@ -1723,11 +1727,11 @@ The format of the tuples in d depends on the mode.
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     return self.Path(trans).SVG()
 
   def Path(self, trans=None, local=False):
-    """Apply the transformation \"trans\" and return a Path object in
+    """Apply the transformation "trans" and return a Path object in
 global coordinates.  If local=True, return a Path in local coordinates
 (which must be transformed again)."""
     if isinstance(trans, basestring): trans = totrans(trans)
@@ -1848,7 +1852,7 @@ attribute=value pairs  keyword list  SVG attributes
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     X, Y = self.x, self.y
@@ -1875,7 +1879,7 @@ attribute=value pairs  keyword list  SVG attributes
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     return SVG("text", self.d, x=self.x, y=self.y, **self.attr)
 
 ######################################################################
@@ -1890,7 +1894,7 @@ def make_symbol(id, shape="dot", **attr):
   """Creates a new instance of an SVG symbol to avoid cross-linking objects.
 
 id                    required         a new identifier (string/Unicode)
-shape                 default=\"dot\"  the shape name from symbol_templates
+shape                 default="dot"  the shape name from symbol_templates
 attribute=value list  keyword list     modify the SVG attributes of the new symbol
 """
   output = copy.deepcopy(symbol_templates[shape])
@@ -1932,7 +1936,7 @@ attribute=value pairs  keyword list           SVG attributes
       self.symbol = make_symbol(symbol)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     output = SVG("g", SVG("defs", self.symbol))
@@ -1996,7 +2000,7 @@ attribute=value pairs   keyword list    SVG attributes
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
 
     line = self.Path(trans).SVG()
 
@@ -2028,7 +2032,7 @@ attribute=value pairs   keyword list    SVG attributes
     return line
 
   def Path(self, trans=None, local=False):
-    """Apply the transformation \"trans\" and return a Path object in
+    """Apply the transformation "trans" and return a Path object in
 global coordinates.  If local=True, return a Path in local coordinates
 (which must be transformed again)."""
     self.f = lambda t: (self.x1 + t*(self.x2 - self.x1), self.y1 + t*(self.y2 - self.y1))
@@ -2078,7 +2082,7 @@ attribute=value pairs   keyword list    SVG attributes
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     X1, Y1, X2, Y2 = self.x1, self.y1, self.x2, self.y2
@@ -2136,7 +2140,7 @@ attribute=value pairs   keyword list    SVG attributes
     Line.__init__(self, x, y1, x, y2, **self.attr)
 
   def Path(self, trans=None, local=False):
-    """Apply the transformation \"trans\" and return a Path object in
+    """Apply the transformation "trans" and return a Path object in
 global coordinates.  If local=True, return a Path in local coordinates
 (which must be transformed again)."""
     self.x1 = self.x
@@ -2164,7 +2168,7 @@ attribute=value pairs   keyword list    SVG attributes
     Line.__init__(self, x1, y, x2, y, **self.attr)
 
   def Path(self, trans=None, local=False):
-    """Apply the transformation \"trans\" and return a Path object in
+    """Apply the transformation "trans" and return a Path object in
 global coordinates.  If local=True, return a Path in local coordinates
 (which must be transformed again)."""
     self.y1 = self.y
@@ -2194,11 +2198,11 @@ attribute=value pairs   keyword list    SVG attributes
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     return self.Path(trans).SVG()
 
   def Path(self, trans=None, local=False):
-    """Apply the transformation \"trans\" and return a Path object in
+    """Apply the transformation "trans" and return a Path object in
 global coordinates.  If local=True, return a Path in local coordinates
 (which must be transformed again)."""
     if trans == None:
@@ -2257,11 +2261,11 @@ semiminor axis.)
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     return self.Path(trans).SVG()
 
   def Path(self, trans=None, local=False):
-    """Apply the transformation \"trans\" and return a Path object in
+    """Apply the transformation "trans" and return a Path object in
 global coordinates.  If local=True, return a Path in local coordinates
 (which must be transformed again)."""
     angle = math.atan2(self.ay, self.ax) + math.pi/2.
@@ -2349,15 +2353,15 @@ Standard tick specification:
     * Positive number N: draw exactly N ticks, including the endpoints. To
       subdivide an axis into 10 equal-sized segments, ask for 11 ticks.
     * Negative number -N: draw at least N ticks. Ticks will be chosen with
-      \"natural\" values, multiples of 2 or 5.
+      "natural" values, multiples of 2 or 5.
     * List of values: draw a tick mark at each value.
     * Dict of value, label pairs: draw a tick mark at each value, labeling
-      it with the given string. This lets you say things like {3.14159: \"pi\"}.
+      it with the given string. This lets you say things like {3.14159: "pi"}.
     * False or None: no ticks.
 
 Standard minitick specification:
 
-    * True: draw miniticks with \"natural\" values, more closely spaced than
+    * True: draw miniticks with "natural" values, more closely spaced than
       the ticks.
     * Positive number N: draw exactly N miniticks, including the endpoints.
       To subdivide an axis into 100 equal-sized segments, ask for 101 miniticks.
@@ -2368,7 +2372,7 @@ Standard minitick specification:
 Standard tick label specification:
 
     * True: use the unumber function (described below)
-    * Format string: standard format strings, e.g. \"%5.2f\" for 12.34
+    * Format string: standard format strings, e.g. "%5.2f" for 12.34
     * Python callable: function that converts numbers to strings
     * False or None: no labels 
 """
@@ -2428,7 +2432,7 @@ Normally only used internally.
     return (X, Y), (xhatx, xhaty), (yhatx, yhaty), angle
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     self.last_ticks, self.last_miniticks = self.interpret()
@@ -2791,7 +2795,7 @@ CurveAxis(f, low, high, ticks, miniticks, labels, logbase, arrow_start, arrow_en
 text_attr, attribute=value)
 
 f                      required         a Python callable or string in
-                                        the form \"f(t), g(t)\", just like Curve
+                                        the form "f(t), g(t)", just like Curve
 low, high              required         left and right endpoints
 ticks                  default=-10      request ticks according to the standard
                                         tick specification (see help(Ticks))
@@ -2826,7 +2830,7 @@ attribute=value pairs  keyword list     SVG attributes
     Ticks.__init__(self, f, low, high, ticks, miniticks, labels, logbase, arrow_start, arrow_end, tattr, **attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     func = Curve.SVG(self, trans)
     ticks = Ticks.SVG(self, trans) # returns a <g />
 
@@ -2906,7 +2910,7 @@ attribute=value pairs   keyword list    SVG attributes
     return ticks2, miniticks
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     line = Line.SVG(self, trans) # must be evaluated first, to set self.f, self.low, self.high
 
     f01 = self.f
@@ -2977,7 +2981,7 @@ where the axes cross. Normal users are not likely to need it.
     LineAxis.__init__(self, xmin, aty, xmax, aty, xmin, xmax, ticks, miniticks, labels, logbase, arrow_start, arrow_end, exclude, tattr, **attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     self.y1 = self.aty
     self.y2 = self.aty
     return LineAxis.SVG(self, trans)
@@ -3029,7 +3033,7 @@ where the axes cross. Normal users are not likely to need it.
     LineAxis.__init__(self, atx, ymin, atx, ymax, ymin, ymax, ticks, miniticks, labels, logbase, arrow_start, arrow_end, exclude, tattr, **attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     self.x1 = self.atx
     self.x2 = self.atx
     return LineAxis.SVG(self, trans)
@@ -3087,7 +3091,7 @@ attribute=value pairs    keyword list   SVG attributes for all lines
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     atx, aty = self.atx, self.aty
     if atx < self.xmin: atx = self.xmin
     if atx > self.xmax: atx = self.xmax
@@ -3151,7 +3155,7 @@ attribute=value pairs   keyword list    SVG attributes for the major tick lines
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     self.last_ticks, self.last_miniticks = Ticks.interpret(self)
 
     ticksd = []
@@ -3201,7 +3205,7 @@ attribute=value pairs   keyword list    SVG attributes for the major tick lines
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     self.last_ticks, self.last_miniticks = Ticks.interpret(self)
 
     ticksd = []
@@ -3251,7 +3255,7 @@ attribute=value pairs   keyword list    SVG attributes for the major tick lines
     self.attr.update(attr)
 
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     self.low, self.high = self.xmin, self.xmax
     self.last_xticks, self.last_xminiticks = Ticks.interpret(self)
     self.low, self.high = self.ymin, self.ymax
@@ -3304,7 +3308,7 @@ If points in d have
     self.attr.update(attr)
     
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans) # only once
 
     output = SVG("g")
@@ -3350,7 +3354,7 @@ If points in d have
     self.attr.update(attr)
     
   def SVG(self, trans=None):
-    """Apply the transformation \"trans\" and return an SVG object."""
+    """Apply the transformation "trans" and return an SVG object."""
     if isinstance(trans, basestring): trans = totrans(trans) # only once
 
     output = SVG("g")
