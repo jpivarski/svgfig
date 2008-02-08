@@ -17,24 +17,24 @@
 # Full licence is in the file COPYING and at http://www.gnu.org/copyleft/gpl.html
 
 import re, codecs, os, platform, copy, itertools, math, cmath, random, sys, copy
-epsilon = 1e-5
+_epsilon = 1e-5
 
 
 if re.search("windows", platform.system(), re.I):
   try:
     import _winreg
-    default_directory = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, \
+    _default_directory = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, \
                        r"Software\Microsoft\Windows\Current Version\Explorer\Shell Folders"), "Desktop")[0]
 #   tmpdir = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, "Environment"), "TEMP")[0]
 #   if tmpdir[0:13] != "%USERPROFILE%":
 #     tmpdir = os.path.expanduser("~") + tmpdir[13:]
   except:
-    default_directory = os.path.expanduser("~") + os.sep + "Desktop"
+    _default_directory = os.path.expanduser("~") + os.sep + "Desktop"
 
-default_fileName = "tmp.svg"
+_default_fileName = "tmp.svg"
 
-hacks = {}
-hacks["inkscape-text-vertical-shift"] = False
+_hacks = {}
+_hacks["inkscape-text-vertical-shift"] = False
 
 def rgb(r, g, b, maximum=1.):
   """Create an SVG color string "#xxyyzz" from r, g, and b.
@@ -400,15 +400,15 @@ class SVG:
 
   def interpret_fileName(self, fileName=None):
     if fileName == None:
-      fileName = default_fileName
+      fileName = _default_fileName
     if re.search("windows", platform.system(), re.I) and not os.path.isabs(fileName):
-      fileName = default_directory + os.sep + fileName
+      fileName = _default_directory + os.sep + fileName
     return fileName
 
   def save(self, fileName=None, encoding="utf-8", compresslevel=None):
-    """Save to a file for viewing.  Note that svg.save() overwrites the file named default_fileName.
+    """Save to a file for viewing.  Note that svg.save() overwrites the file named _default_fileName.
 
-    fileName        default=None            note that default_fileName will be overwritten if
+    fileName        default=None            note that _default_fileName will be overwritten if
                                             no fileName is specified. If the extension
                                             is ".svgz" or ".gz", the output will be gzipped
     encoding        default="utf-8"       file encoding (default is Unicode)
@@ -437,7 +437,7 @@ class SVG:
   def inkview(self, fileName=None, encoding="utf-8"):
     """View in "inkview", assuming that program is available on your system.
 
-    fileName        default=None            note that any file named default_fileName will be
+    fileName        default=None            note that any file named _default_fileName will be
                                             overwritten if no fileName is specified. If the extension
                                             is ".svgz" or ".gz", the output will be gzipped
     encoding        default="utf-8"       file encoding (default is Unicode)
@@ -449,7 +449,7 @@ class SVG:
   def inkscape(self, fileName=None, encoding="utf-8"):
     """View in "inkscape", assuming that program is available on your system.
 
-    fileName        default=None            note that any file named default_fileName will be
+    fileName        default=None            note that any file named _default_fileName will be
                                             overwritten if no fileName is specified. If the extension
                                             is ".svgz" or ".gz", the output will be gzipped
     encoding        default="utf-8"       file encoding (default is Unicode)
@@ -461,7 +461,7 @@ class SVG:
   def firefox(self, fileName=None, encoding="utf-8"):
     """View in "firefox", assuming that program is available on your system.
 
-    fileName        default=None            note that any file named default_fileName will be
+    fileName        default=None            note that any file named _default_fileName will be
                                             overwritten if no fileName is specified. If the extension
                                             is ".svgz" or ".gz", the output will be gzipped
     encoding        default="utf-8"       file encoding (default is Unicode)
@@ -472,7 +472,7 @@ class SVG:
 
 ######################################################################
 
-canvas_defaults = {"width": "400px", "height": "400px", "viewBox": "0 0 100 100", \
+_canvas_defaults = {"width": "400px", "height": "400px", "viewBox": "0 0 100 100", \
                    "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "version":"1.1", \
                    "style": {"stroke":"black", "fill":"none", "stroke-width":"0.5pt", "stroke-linejoin":"round", "text-anchor":"middle"}, \
                    "font-family": ["Helvetica", "Arial", "FreeSans", "Sans", "sans", "sans-serif"], \
@@ -498,7 +498,7 @@ def canvas(*sub, **attr):
   style           "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle"
   font-family     "Helvetica,Arial,FreeSans?,Sans,sans,sans-serif"
   """
-  attributes = dict(canvas_defaults)
+  attributes = dict(_canvas_defaults)
   attributes.update(attr)
 
   if sub == None or sub == ():
@@ -1884,7 +1884,7 @@ class TextGlobal:
 
 ######################################################################
 
-symbol_templates = {"dot": SVG("symbol", SVG("circle", cx=0, cy=0, r=1, stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"), \
+_symbol_templates = {"dot": SVG("symbol", SVG("circle", cx=0, cy=0, r=1, stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"), \
                     "box": SVG("symbol", SVG("rect", x1=-1, y1=-1, x2=1, y2=1, stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"), \
                     "uptri": SVG("symbol", SVG("path", d="M -1 0.866 L 1 0.866 L 0 -0.866 Z", stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"), \
                     "downtri": SVG("symbol", SVG("path", d="M -1 -0.866 L 1 -0.866 L 0 0.866 Z", stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"), \
@@ -1894,15 +1894,15 @@ def make_symbol(id, shape="dot", **attr):
   """Creates a new instance of an SVG symbol to avoid cross-linking objects.
 
   id                    required         a new identifier (string/Unicode)
-  shape                 default="dot"  the shape name from symbol_templates
+  shape                 default="dot"  the shape name from _symbol_templates
   attribute=value list  keyword list     modify the SVG attributes of the new symbol
   """
-  output = copy.deepcopy(symbol_templates[shape])
+  output = copy.deepcopy(_symbol_templates[shape])
   for i in output.sub: i.attr.update(attr_preprocess(attr))
   output["id"] = id
   return output
 
-circular_dot = make_symbol("circular_dot")
+_circular_dot = make_symbol("circular_dot")
 
 class Dots:
   """Dots draws SVG symbols at a set of points.
@@ -1910,7 +1910,7 @@ class Dots:
   d                      required               list of (x,y) points
   symbol                 default=None           SVG symbol or a new identifier to
                                                 label an auto-generated symbol;
-                                                if None, use pre-defined circular_dot
+                                                if None, use pre-defined _circular_dot
   width, height          default=1, 1           width and height of the symbols
                                                 in SVG coordinates
   attribute=value pairs  keyword list           SVG attributes
@@ -1929,7 +1929,7 @@ class Dots:
     self.attr.update(attr)
 
     if symbol == None:
-      self.symbol = circular_dot
+      self.symbol = _circular_dot
     elif isinstance(symbol, SVG):
       self.symbol = symbol
     else:
@@ -1957,7 +1957,7 @@ class Dots:
 
 ######################################################################
 
-marker_templates = {"arrow_start": SVG("marker", SVG("path", d="M 9 3.6 L 10.5 0 L 0 3.6 L 10.5 7.2 L 9 3.6 Z"), viewBox="0 0 10.5 7.2", refX="9", refY="3.6", markerWidth="10.5", markerHeight="7.2", markerUnits="strokeWidth", orient="auto", stroke="none", fill="black"), \
+_marker_templates = {"arrow_start": SVG("marker", SVG("path", d="M 9 3.6 L 10.5 0 L 0 3.6 L 10.5 7.2 L 9 3.6 Z"), viewBox="0 0 10.5 7.2", refX="9", refY="3.6", markerWidth="10.5", markerHeight="7.2", markerUnits="strokeWidth", orient="auto", stroke="none", fill="black"), \
                     "arrow_end": SVG("marker", SVG("path", d="M 1.5 3.6 L 0 0 L 10.5 3.6 L 0 7.2 L 1.5 3.6 Z"), viewBox="0 0 10.5 7.2", refX="1.5", refY="3.6", markerWidth="10.5", markerHeight="7.2", markerUnits="strokeWidth", orient="auto", stroke="none", fill="black"), \
                     }
 
@@ -1965,10 +1965,10 @@ def make_marker(id, shape, **attr):
   """Creates a new instance of an SVG marker to avoid cross-linking objects.
 
   id                     required         a new identifier (string/Unicode)
-  shape                  required         the shape name from marker_templates
+  shape                  required         the shape name from _marker_templates
   attribute=value list   keyword list     modify the SVG attributes of the new marker
   """
-  output = copy.deepcopy(marker_templates[shape])
+  output = copy.deepcopy(_marker_templates[shape])
   for i in output.sub: i.attr.update(attr_preprocess(attr))
   output["id"] = id
   return output
@@ -2417,7 +2417,7 @@ class Ticks:
     else:
       f = lambda t: trans(*self.f(t))
 
-    eps = epsilon * abs(self.high - self.low)
+    eps = _epsilon * abs(self.high - self.low)
 
     X, Y = f(t)
     Xprime, Yprime = f(t + eps)
@@ -2461,7 +2461,7 @@ class Ticks:
 
       output.append(defs)
 
-    eps = epsilon * (self.high - self.low)
+    eps = _epsilon * (self.high - self.low)
 
     for t, label in self.last_ticks.items():
       (X, Y), (xhatx, xhaty), (yhatx, yhaty), angle = self.orient_tickmark(t, trans)
@@ -2473,7 +2473,7 @@ class Ticks:
       angle = (angle - math.pi/2.)*180./math.pi + self.text_angle
 
       ########### a HACK! ############ (to be removed when Inkscape handles baselines)
-      if hacks["inkscape-text-vertical-shift"]:
+      if _hacks["inkscape-text-vertical-shift"]:
         if self.text_start > 0:
           X += math.cos(angle*math.pi/180. + math.pi/2.) * 2.
           Y += math.sin(angle*math.pi/180. + math.pi/2.) * 2.
@@ -2564,7 +2564,7 @@ class Ticks:
       # Case 3: ticks is some kind of list
       if not isinstance(ticks, dict):
         output = {}
-        eps = epsilon * (self.high - self.low)
+        eps = _epsilon * (self.high - self.low)
         for x in ticks:
           if format == unumber and abs(x) < eps:
             output[x] = u"0"
@@ -2605,7 +2605,7 @@ class Ticks:
     if self.low >= self.high: raise ValueError, "low must be less than high"
     if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
 
-    eps = epsilon * (self.high - self.low)
+    eps = _epsilon * (self.high - self.low)
 
     if N >= 0:
       output = {}
@@ -2651,14 +2651,14 @@ class Ticks:
         else:
           low_in_ticks, high_in_ticks = False, False
           for t in last_trial.keys():
-            if 1.*abs(t - self.low)/last_granularity < epsilon: low_in_ticks = True
-            if 1.*abs(t - self.high)/last_granularity < epsilon: high_in_ticks = True
+            if 1.*abs(t - self.low)/last_granularity < _epsilon: low_in_ticks = True
+            if 1.*abs(t - self.high)/last_granularity < _epsilon: high_in_ticks = True
 
           lowN = 1.*self.low / last_granularity
           highN = 1.*self.high / last_granularity
-          if abs(lowN - round(lowN)) < epsilon and not low_in_ticks:
+          if abs(lowN - round(lowN)) < _epsilon and not low_in_ticks:
             last_trial[self.low] = format(self.low)
-          if abs(highN - round(highN)) < epsilon and not high_in_ticks:
+          if abs(highN - round(highN)) < _epsilon and not high_in_ticks:
             last_trial[self.high] = format(self.high)
           return last_trial
 
@@ -2694,7 +2694,7 @@ class Ticks:
     original_ticks = original_ticks.keys()
     original_ticks.sort()
 
-    if self.low > original_ticks[0] + epsilon or self.high < original_ticks[-1] - epsilon:
+    if self.low > original_ticks[0] + _epsilon or self.high < original_ticks[-1] - _epsilon:
       raise ValueError, "original_ticks {%g...%g} extend beyond [%g, %g]" % (original_ticks[0], original_ticks[-1], self.low, self.high)
 
     granularities = []
@@ -2709,7 +2709,7 @@ class Ticks:
       if x >= self.low:
         already_in_ticks = False
         for t in original_ticks:
-          if abs(x-t) < epsilon * (self.high - self.low): already_in_ticks = True
+          if abs(x-t) < _epsilon * (self.high - self.low): already_in_ticks = True
         if not already_in_ticks: output.append(x)
       x += spacing
     return output
@@ -2722,7 +2722,7 @@ class Ticks:
     if self.low >= self.high: raise ValueError, "low must be less than high"
     if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
 
-    eps = epsilon * (self.high - self.low)
+    eps = _epsilon * (self.high - self.low)
 
     if N >= 0:
       output = {}
