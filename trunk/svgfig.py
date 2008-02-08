@@ -39,8 +39,8 @@ hacks["inkscape-text-vertical-shift"] = False
 def rgb(r, g, b, maximum=1.):
   """Create an SVG color string "#xxyyzz" from r, g, and b.
 
-r,g,b = 0 is black and r,g,b = maximum is white.
-"""
+  r,g,b = 0 is black and r,g,b = maximum is white.
+  """
   return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)), max(0, min(g*255./maximum, 255)), max(0, min(b*255./maximum, 255)))
 
 def attr_preprocess(attr):
@@ -62,64 +62,64 @@ def attr_preprocess(attr):
 class SVG:
   """A tree representation of an SVG image or image fragment.
 
-SVG(t, sub, sub, sub..., attribute=value)
+  SVG(t, sub, sub, sub..., attribute=value)
 
-t                       required             SVG type name
-sub                     optional list        nested SVG elements or text/Unicode
-attribute=value pairs   optional keywords    SVG attributes
+  t                       required             SVG type name
+  sub                     optional list        nested SVG elements or text/Unicode
+  attribute=value pairs   optional keywords    SVG attributes
 
-In attribute names, "__" becomes ":" and "_" becomes "-".
+  In attribute names, "__" becomes ":" and "_" becomes "-".
 
-SVG in XML
+  SVG in XML
 
-<g id="mygroup" fill="blue">
-    <rect x="1" y="1" width="2" height="2" />
-    <rect x="3" y="3" width="2" height="2" />
-</g>
+  <g id="mygroup" fill="blue">
+      <rect x="1" y="1" width="2" height="2" />
+      <rect x="3" y="3" width="2" height="2" />
+  </g>
 
-SVG in Python
+  SVG in Python
 
->>> svg = SVG("g", SVG("rect", x=1, y=1, width=2, height=2), \ 
-...                SVG("rect", x=3, y=3, width=2, height=2), \ 
-...           id="mygroup", fill="blue")
+  >>> svg = SVG("g", SVG("rect", x=1, y=1, width=2, height=2), \ 
+  ...                SVG("rect", x=3, y=3, width=2, height=2), \ 
+  ...           id="mygroup", fill="blue")
 
-Sub-elements and attributes may be accessed through tree-indexing:
+  Sub-elements and attributes may be accessed through tree-indexing:
 
->>> svg = SVG("text", SVG("tspan", "hello there"), stroke="none", fill="black")
->>> svg[0]
-<tspan (1 sub) />
->>> svg[0, 0]
-'hello there'
->>> svg["fill"]
-'black'
+  >>> svg = SVG("text", SVG("tspan", "hello there"), stroke="none", fill="black")
+  >>> svg[0]
+  <tspan (1 sub) />
+  >>> svg[0, 0]
+  'hello there'
+  >>> svg["fill"]
+  'black'
 
-Iteration is depth-first:
+  Iteration is depth-first:
 
->>> svg = SVG("g", SVG("g", SVG("line", x1=0, y1=0, x2=1, y2=1)), \
-...                SVG("text", SVG("tspan", "hello again")))
-... 
->>> for ti, s in svg:
-...     print ti, repr(s)
-... 
-(0,) <g (1 sub) />
-(0, 0) <line x2=1 y1=0 x1=0 y2=1 />
-(0, 0, 'x2') 1
-(0, 0, 'y1') 0
-(0, 0, 'x1') 0
-(0, 0, 'y2') 1
-(1,) <text (1 sub) />
-(1, 0) <tspan (1 sub) />
-(1, 0, 0) 'hello again'
+  >>> svg = SVG("g", SVG("g", SVG("line", x1=0, y1=0, x2=1, y2=1)), \
+  ...                SVG("text", SVG("tspan", "hello again")))
+  ... 
+  >>> for ti, s in svg:
+  ...     print ti, repr(s)
+  ... 
+  (0,) <g (1 sub) />
+  (0, 0) <line x2=1 y1=0 x1=0 y2=1 />
+  (0, 0, 'x2') 1
+  (0, 0, 'y1') 0
+  (0, 0, 'x1') 0
+  (0, 0, 'y2') 1
+  (1,) <text (1 sub) />
+  (1, 0) <tspan (1 sub) />
+  (1, 0, 0) 'hello again'
 
-Use "print" to navigate:
+  Use "print" to navigate:
 
->>> print svg
-None                 <g (2 sub) />
-[0]                      <g (1 sub) />
-[0, 0]                       <line x2=1 y1=0 x1=0 y2=1 />
-[1]                      <text (1 sub) />
-[1, 0]                       <tspan (1 sub) />
-"""
+  >>> print svg
+  None                 <g (2 sub) />
+  [0]                      <g (1 sub) />
+  [0, 0]                       <line x2=1 y1=0 x1=0 y2=1 />
+  [1]                      <text (1 sub) />
+  [1, 0]                       <tspan (1 sub) />
+  """
   def __init__(self, *t_sub, **attr):
     if len(t_sub) == 0: raise TypeError, "SVG element must have a t (SVG type)"
 
@@ -134,7 +134,7 @@ None                 <g (2 sub) />
 
   def __getitem__(self, ti):
     """Index is a list that descends tree, returning a sub-element if
-it ends with a number and an attribute if it ends with a string."""
+    it ends with a number and an attribute if it ends with a string."""
     obj = self
     if isinstance(ti, (list, tuple)):
       for i in ti[:-1]: obj = obj[i]
@@ -145,7 +145,7 @@ it ends with a number and an attribute if it ends with a string."""
 
   def __setitem__(self, ti, value):
     """Index is a list that descends tree, returning a sub-element if
-it ends with a number and an attribute if it ends with a string."""
+    it ends with a number and an attribute if it ends with a string."""
     obj = self
     if isinstance(ti, (list, tuple)):
       for i in ti[:-1]: obj = obj[i]
@@ -156,7 +156,7 @@ it ends with a number and an attribute if it ends with a string."""
 
   def __delitem__(self, ti):
     """Index is a list that descends tree, returning a sub-element if
-it ends with a number and an attribute if it ends with a string."""
+    it ends with a number and an attribute if it ends with a string."""
     obj = self
     if isinstance(ti, (list, tuple)):
       for i in ti[:-1]: obj = obj[i]
@@ -180,12 +180,12 @@ it ends with a number and an attribute if it ends with a string."""
 
   def append(self, x):
     """Appends x to the list of sub-elements (drawn last, overlaps
-other primatives)."""
+    other primatives)."""
     self.sub.append(x)
 
   def prepend(self, x):
     """Prepends x to the list of sub-elements (drawn first may be
-overlapped by other primatives)."""
+    overlapped by other primatives)."""
     self.sub[0:0] = [x]
 
   def extend(self, x):
@@ -233,14 +233,14 @@ overlapped by other primatives)."""
 
   def depth_first(self, depth_limit=None):
     """Returns a depth-first generator over the SVG.  If depth_limit
-is a number, stop recursion at that depth."""
+    is a number, stop recursion at that depth."""
     return self.SVGDepthIterator(self, (), depth_limit)
 
   def breadth_first(self, depth_limit=None):
     """Not implemented yet.  Any ideas on how to do it?
 
-Returns a breadth-first generator over the SVG.  If depth_limit
-is a number, stop recursion at that depth."""
+    Returns a breadth-first generator over the SVG.  If depth_limit
+    is a number, stop recursion at that depth."""
     raise NotImplementedError, "Got an algorithm for breadth-first searching a tree without effectively copying the tree?"
 
   def __iter__(self): return self.depth_first()
@@ -248,10 +248,10 @@ is a number, stop recursion at that depth."""
   def items(self, sub=True, attr=True, text=True):
     """Get a recursively-generated list of tree-index, sub-element/attribute pairs.
 
-If sub == False, do not show sub-elements.
-If attr == False, do not show attributes.
-If text == False, do not show text/Unicode sub-elements.
-"""
+    If sub == False, do not show sub-elements.
+    If attr == False, do not show attributes.
+    If text == False, do not show text/Unicode sub-elements.
+    """
     output = []
     for ti, s in self:
       show = False
@@ -266,19 +266,19 @@ If text == False, do not show text/Unicode sub-elements.
   def keys(self, sub=True, attr=True, text=True):
     """Get a recursively-generated list of tree-indexes.
 
-If sub == False, do not show sub-elements.
-If attr == False, do not show attributes.
-If text == False, do not show text/Unicode sub-elements.
-"""
+    If sub == False, do not show sub-elements.
+    If attr == False, do not show attributes.
+    If text == False, do not show text/Unicode sub-elements.
+    """
     return [ti for ti, s in self.items(sub, attr, text)]
 
   def values(self, sub=True, attr=True, text=True):
     """Get a recursively-generated list of sub-elements and attributes.
 
-If sub == False, do not show sub-elements.
-If attr == False, do not show attributes.
-If text == False, do not show text/Unicode sub-elements.
-"""
+    If sub == False, do not show sub-elements.
+    If attr == False, do not show attributes.
+    If text == False, do not show text/Unicode sub-elements.
+    """
     return [s for ti, s in self.items(sub, attr, text)]
 
   def __repr__(self): return self.xml(depth_limit=0)
@@ -290,13 +290,13 @@ If text == False, do not show text/Unicode sub-elements.
   def tree(self, depth_limit=None, sub=True, attr=True, text=True, tree_width=20, obj_width=80):
     """Print (actually, return a string of) the tree in a form useful for browsing.
 
-If depth_limit == a number, stop recursion at that depth.
-If sub == False, do not show sub-elements.
-If attr == False, do not show attributes.
-If text == False, do not show text/Unicode sub-elements.
-tree_width is the number of characters reserved for printing tree indexes.
-obj_width is the number of characters reserved for printing sub-elements/attributes.
-"""
+    If depth_limit == a number, stop recursion at that depth.
+    If sub == False, do not show sub-elements.
+    If attr == False, do not show attributes.
+    If text == False, do not show text/Unicode sub-elements.
+    tree_width is the number of characters reserved for printing tree indexes.
+    obj_width is the number of characters reserved for printing sub-elements/attributes.
+    """
 
     output = []
 
@@ -319,13 +319,13 @@ obj_width is the number of characters reserved for printing sub-elements/attribu
   def xml(self, indent="    ", newl="\n", depth_limit=None, depth=0):
     """Get an XML representation of the SVG.
 
-indent      string used for indenting
-newl        string used for newlines
-If depth_limit == a number, stop recursion at that depth.
-depth       starting depth (not useful for users)
+    indent      string used for indenting
+    newl        string used for newlines
+    If depth_limit == a number, stop recursion at that depth.
+    depth       starting depth (not useful for users)
 
-print svg.xml()
-"""
+    print svg.xml()
+    """
 
     attrstr = []
     for n, v in self.attr.items():
@@ -357,13 +357,13 @@ print svg.xml()
   def standalone_xml(self, indent="    ", newl="\n"):
     """Get an XML representation of the SVG that can be saved/rendered.
 
-indent      string used for indenting
-newl        string used for newlines
-"""
+    indent      string used for indenting
+    newl        string used for newlines
+    """
 
     if self.t == "svg": top = self
     else: top = canvas(self)
-    return """"\
+    return """\
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
@@ -408,14 +408,14 @@ newl        string used for newlines
   def save(self, fileName=None, encoding="utf-8", compresslevel=None):
     """Save to a file for viewing.  Note that svg.save() overwrites the file named default_fileName.
 
-fileName        default=None            note that default_fileName will be overwritten if
-                                        no fileName is specified. If the extension
-                                        is ".svgz" or ".gz", the output will be gzipped
-encoding        default="utf-8"       file encoding (default is Unicode)
-compresslevel   default=None            if a number, the output will be gzipped with that
-                                        compression level (1-9, 1 being fastest and 9 most
-                                        thorough)
-"""
+    fileName        default=None            note that default_fileName will be overwritten if
+                                            no fileName is specified. If the extension
+                                            is ".svgz" or ".gz", the output will be gzipped
+    encoding        default="utf-8"       file encoding (default is Unicode)
+    compresslevel   default=None            if a number, the output will be gzipped with that
+                                            compression level (1-9, 1 being fastest and 9 most
+                                            thorough)
+    """
     fileName = self.interpret_fileName(fileName)
 
     if compresslevel != None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
@@ -437,11 +437,11 @@ compresslevel   default=None            if a number, the output will be gzipped 
   def inkview(self, fileName=None, encoding="utf-8"):
     """View in "inkview", assuming that program is available on your system.
 
-fileName        default=None            note that any file named default_fileName will be
-                                        overwritten if no fileName is specified. If the extension
-                                        is ".svgz" or ".gz", the output will be gzipped
-encoding        default="utf-8"       file encoding (default is Unicode)
-"""
+    fileName        default=None            note that any file named default_fileName will be
+                                            overwritten if no fileName is specified. If the extension
+                                            is ".svgz" or ".gz", the output will be gzipped
+    encoding        default="utf-8"       file encoding (default is Unicode)
+    """
     fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkview", ("inkview", fileName))
@@ -449,11 +449,11 @@ encoding        default="utf-8"       file encoding (default is Unicode)
   def inkscape(self, fileName=None, encoding="utf-8"):
     """View in "inkscape", assuming that program is available on your system.
 
-fileName        default=None            note that any file named default_fileName will be
-                                        overwritten if no fileName is specified. If the extension
-                                        is ".svgz" or ".gz", the output will be gzipped
-encoding        default="utf-8"       file encoding (default is Unicode)
-"""
+    fileName        default=None            note that any file named default_fileName will be
+                                            overwritten if no fileName is specified. If the extension
+                                            is ".svgz" or ".gz", the output will be gzipped
+    encoding        default="utf-8"       file encoding (default is Unicode)
+    """
     fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkscape", ("inkscape", fileName))
@@ -461,11 +461,11 @@ encoding        default="utf-8"       file encoding (default is Unicode)
   def firefox(self, fileName=None, encoding="utf-8"):
     """View in "firefox", assuming that program is available on your system.
 
-fileName        default=None            note that any file named default_fileName will be
-                                        overwritten if no fileName is specified. If the extension
-                                        is ".svgz" or ".gz", the output will be gzipped
-encoding        default="utf-8"       file encoding (default is Unicode)
-"""
+    fileName        default=None            note that any file named default_fileName will be
+                                            overwritten if no fileName is specified. If the extension
+                                            is ".svgz" or ".gz", the output will be gzipped
+    encoding        default="utf-8"       file encoding (default is Unicode)
+    """
     fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "firefox", ("firefox", fileName))
@@ -480,24 +480,24 @@ canvas_defaults = {"width": "400px", "height": "400px", "viewBox": "0 0 100 100"
 
 def canvas(*sub, **attr):
   """Creates a top-level SVG object, allowing the user to control the
-image size and aspect ratio.
+  image size and aspect ratio.
 
-canvas(sub, sub, sub..., attribute=value)
+  canvas(sub, sub, sub..., attribute=value)
 
-sub                     optional list       nested SVG elements or text/Unicode
-attribute=value pairs   optional keywords   SVG attributes
+  sub                     optional list       nested SVG elements or text/Unicode
+  attribute=value pairs   optional keywords   SVG attributes
 
-Default attribute values:
+  Default attribute values:
 
-width           "400px"
-height          "400px"
-viewBox         "0 0 100 100"
-xmlns           "http://www.w3.org/2000/svg"
-xmlns:xlink     "http://www.w3.org/1999/xlink"
-version         "1.1"
-style           "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle"
-font-family     "Helvetica,Arial,FreeSans?,Sans,sans,sans-serif"
-"""
+  width           "400px"
+  height          "400px"
+  viewBox         "0 0 100 100"
+  xmlns           "http://www.w3.org/2000/svg"
+  xmlns:xlink     "http://www.w3.org/1999/xlink"
+  version         "1.1"
+  style           "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle"
+  font-family     "Helvetica,Arial,FreeSans?,Sans,sans,sans-serif"
+  """
   attributes = dict(canvas_defaults)
   attributes.update(attr)
 
@@ -508,7 +508,7 @@ font-family     "Helvetica,Arial,FreeSans?,Sans,sans,sans-serif"
 
 def canvas_outline(*sub, **attr):
   """Same as canvas(), but draws an outline around the drawable area,
-so that you know how close your image is to the edges."""
+  so that you know how close your image is to the edges."""
   svg = canvas(*sub, **attr)
   match = re.match("[, \t]*([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]*", svg["viewBox"])
   if match == None: raise ValueError, "canvas viewBox is incorrectly formatted"
@@ -519,22 +519,22 @@ so that you know how close your image is to the edges."""
 
 def template(fileName, svg, replaceme="REPLACEME"):
   """Loads an SVG image from a file, replacing instances of
-<REPLACEME /> with a given svg object.
+  <REPLACEME /> with a given svg object.
 
-fileName         required                name of the template SVG
-svg              required                SVG object for replacement
-replaceme        default="REPLACEME"   fake SVG element to be replaced by the given object
+  fileName         required                name of the template SVG
+  svg              required                SVG object for replacement
+  replaceme        default="REPLACEME"   fake SVG element to be replaced by the given object
 
->>> print load("template.svg")
-None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
-[0]                      <rect height=u'100' width=u'100' stroke=u'none' y=u'0' x=u'0' fill=u'yellow'
-[1]                      <REPLACEME />
->>> 
->>> print template("template.svg", SVG("circle", cx=50, cy=50, r=30))
-None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
-[0]                      <rect height=u'100' width=u'100' stroke=u'none' y=u'0' x=u'0' fill=u'yellow'
-[1]                      <circle cy=50 cx=50 r=30 />
-"""
+  >>> print load("template.svg")
+  None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
+  [0]                      <rect height=u'100' width=u'100' stroke=u'none' y=u'0' x=u'0' fill=u'yellow'
+  [1]                      <REPLACEME />
+  >>> 
+  >>> print template("template.svg", SVG("circle", cx=50, cy=50, r=30))
+  None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
+  [0]                      <rect height=u'100' width=u'100' stroke=u'none' y=u'0' x=u'0' fill=u'yellow'
+  [1]                      <circle cy=50 cx=50 r=30 />
+  """
   output = load(fileName)
   for ti, s in output:
     if isinstance(s, SVG) and s.t == replaceme:
@@ -596,16 +596,16 @@ def load_stream(stream):
 
 def totrans(expr, vars=("x", "y"), globals=None, locals=None):
   """Converts to a coordinate transformation (a function that accepts
-two arguments and returns two values).
+  two arguments and returns two values).
 
-expr       required                  a string expression or a function
-                                     of two real or one complex value
-vars       default=("x", "y")    independent variable names;
-                                     a singleton ("z",) is interpreted
-                                     as complex
-globals    default=None              dict of global variables
-locals     default=None              dict of local variables
-"""
+  expr       required                  a string expression or a function
+                                       of two real or one complex value
+  vars       default=("x", "y")    independent variable names;
+                                       a singleton ("z",) is interpreted
+                                       as complex
+  globals    default=None              dict of global variables
+  locals     default=None              dict of local variables
+  """
 
   if callable(expr):
     if expr.func_code.co_argcount == 2:
@@ -641,20 +641,20 @@ locals     default=None              dict of local variables
 
 def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=None, ylogbase=None, minusInfinity=-1000, flipx=False, flipy=True):
   """Creates and returns a coordinate transformation (a function that
-accepts two arguments and returns two values) that transforms from
-    (xmin, ymin), (xmax, ymax)
-to
-    (x, y), (x + width, y + height).
+  accepts two arguments and returns two values) that transforms from
+      (xmin, ymin), (xmax, ymax)
+  to
+      (x, y), (x + width, y + height).
 
-xlogbase, ylogbase    default=None, None     if a number, transform
-                                             logarithmically with given base
-minusInfinity         default=-1000          what to return if
-                                             log(0 or negative) is attempted
-flipx                 default=False          if true, reverse the direction of x
-flipy                 default=True           if true, reverse the direction of y
+  xlogbase, ylogbase    default=None, None     if a number, transform
+                                               logarithmically with given base
+  minusInfinity         default=-1000          what to return if
+                                               log(0 or negative) is attempted
+  flipx                 default=False          if true, reverse the direction of x
+  flipy                 default=True           if true, reverse the direction of y
 
-(When composing windows, be sure to set flipy=False.)
-"""
+  (When composing windows, be sure to set flipy=False.)
+  """
 
   if flipx:
     ox1 = x + width
@@ -703,32 +703,32 @@ flipy                 default=True           if true, reverse the direction of y
 
 def rotate(angle, cx=0, cy=0):
   """Creates and returns a coordinate transformation which rotates
-around (cx,cy) by "angle" degrees."""
+  around (cx,cy) by "angle" degrees."""
   angle *= math.pi/180.
   return lambda x, y: (cx + math.cos(angle)*(x - cx) - math.sin(angle)*(y - cy), cy + math.sin(angle)*(x - cx) + math.cos(angle)*(y - cy))
 
 class Fig:
   """Stores graphics primitive objects and applies a single coordinate
-transformation to them. To compose coordinate systems, nest Fig
-objects.
+  transformation to them. To compose coordinate systems, nest Fig
+  objects.
 
-Fig(obj, obj, obj..., trans=function)
+  Fig(obj, obj, obj..., trans=function)
 
-obj     optional list    a list of drawing primatives
-trans   default=None     a coordinate transformation function
+  obj     optional list    a list of drawing primatives
+  trans   default=None     a coordinate transformation function
 
->>> fig = Fig(Line(0,0,1,1), Rect(0.2,0.2,0.8,0.8), trans="2*x, 2*y")
->>> print fig.SVG().xml()
-<g>
-    <path d='M0 0L2 2' />
-    <path d='M0.4 0.4L1.6 0.4ZL1.6 1.6ZL0.4 1.6ZL0.4 0.4ZZ' />
-</g>
->>> print Fig(fig, trans="x/2., y/2.").SVG().xml()
-<g>
-    <path d='M0 0L1 1' />
-    <path d='M0.2 0.2L0.8 0.2ZL0.8 0.8ZL0.2 0.8ZL0.2 0.2ZZ' />
-</g>
-"""
+  >>> fig = Fig(Line(0,0,1,1), Rect(0.2,0.2,0.8,0.8), trans="2*x, 2*y")
+  >>> print fig.SVG().xml()
+  <g>
+      <path d='M0 0L2 2' />
+      <path d='M0.4 0.4L1.6 0.4ZL1.6 1.6ZL0.4 1.6ZL0.4 0.4ZZ' />
+  </g>
+  >>> print Fig(fig, trans="x/2., y/2.").SVG().xml()
+  <g>
+      <path d='M0 0L1 1' />
+      <path d='M0.2 0.2L0.8 0.2ZL0.8 0.8ZL0.2 0.8ZL0.2 0.2ZZ' />
+  </g>
+  """
 
   def __repr__(self):
     if self.trans == None:
@@ -751,8 +751,8 @@ trans   default=None     a coordinate transformation function
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object.
 
-Coordinate transformations in nested Figs will be composed.
-"""
+    Coordinate transformations in nested Figs will be composed.
+    """
 
     if trans == None: trans = self.trans
     if isinstance(trans, basestring): trans = totrans(trans)
@@ -782,36 +782,36 @@ Coordinate transformations in nested Figs will be composed.
 class Plot:
   """Acts like Fig, but draws a coordinate axis. You also need to supply plot ranges.
 
-Plot(xmin, xmax, ymin, ymax, obj, obj, obj..., keyword options...)
+  Plot(xmin, xmax, ymin, ymax, obj, obj, obj..., keyword options...)
 
-xmin, xmax      required        minimum and maximum x values (in the objs' coordinates)
-ymin, ymax      required        minimum and maximum y values (in the objs' coordinates)
-obj             optional list   drawing primatives
-keyword options keyword list    options defined below
+  xmin, xmax      required        minimum and maximum x values (in the objs' coordinates)
+  ymin, ymax      required        minimum and maximum y values (in the objs' coordinates)
+  obj             optional list   drawing primatives
+  keyword options keyword list    options defined below
 
-The following are keyword options, with their default values:
+  The following are keyword options, with their default values:
 
-trans           None          transformation function
-x, y            5, 5          upper-left corner of the Plot in SVG coordinates
-width, height   90, 90        width and height of the Plot in SVG coordinates
-flipx, flipy    False, True   flip the sign of the coordinate axis
-minusInfinity   -1000         if an axis is logarithmic and an object is plotted at 0 or
-                              a negative value, -1000 will be used as a stand-in for NaN
-atx, aty        0, 0          the place where the coordinate axes cross
-xticks          -10           request ticks according to the standard tick specification
-                              (see help(Ticks))
-xminiticks      True          request miniticks according to the standard minitick
-                              specification
-xlabels         True          request tick labels according to the standard tick label
-                              specification
-xlogbase        None          if a number, the axis and transformation are logarithmic
-                              with ticks at the given base (10 being the most common)
-(same for y)
-arrows          None          if a new identifier, create arrow markers and draw them
-                              at the ends of the coordinate axes
-text_attr       {}            a dictionary of attributes for label text
-axis_attr       {}            a dictionary of attributes for the axis lines
-"""
+  trans           None          transformation function
+  x, y            5, 5          upper-left corner of the Plot in SVG coordinates
+  width, height   90, 90        width and height of the Plot in SVG coordinates
+  flipx, flipy    False, True   flip the sign of the coordinate axis
+  minusInfinity   -1000         if an axis is logarithmic and an object is plotted at 0 or
+                                a negative value, -1000 will be used as a stand-in for NaN
+  atx, aty        0, 0          the place where the coordinate axes cross
+  xticks          -10           request ticks according to the standard tick specification
+                                (see help(Ticks))
+  xminiticks      True          request miniticks according to the standard minitick
+                                specification
+  xlabels         True          request tick labels according to the standard tick label
+                                specification
+  xlogbase        None          if a number, the axis and transformation are logarithmic
+                                with ticks at the given base (10 being the most common)
+  (same for y)
+  arrows          None          if a new identifier, create arrow markers and draw them
+                                at the ends of the coordinate axes
+  text_attr       {}            a dictionary of attributes for label text
+  axis_attr       {}            a dictionary of attributes for the axis lines
+  """
 
   def __repr__(self):
     if self.trans == None:
@@ -886,33 +886,33 @@ class Frame:
   def __init__(self, xmin, xmax, ymin, ymax, *d, **kwds):
     """Acts like Fig, but draws a coordinate frame around the data. You also need to supply plot ranges.
 
-Frame(xmin, xmax, ymin, ymax, obj, obj, obj..., keyword options...)
+    Frame(xmin, xmax, ymin, ymax, obj, obj, obj..., keyword options...)
 
-xmin, xmax      required        minimum and maximum x values (in the objs' coordinates)
-ymin, ymax      required        minimum and maximum y values (in the objs' coordinates)
-obj             optional list   drawing primatives
-keyword options keyword list    options defined below
+    xmin, xmax      required        minimum and maximum x values (in the objs' coordinates)
+    ymin, ymax      required        minimum and maximum y values (in the objs' coordinates)
+    obj             optional list   drawing primatives
+    keyword options keyword list    options defined below
 
-The following are keyword options, with their default values:
+    The following are keyword options, with their default values:
 
-x, y            20, 5         upper-left corner of the Frame in SVG coordinates
-width, height   75, 80        width and height of the Frame in SVG coordinates
-flipx, flipy    False, True   flip the sign of the coordinate axis
-minusInfinity   -1000         if an axis is logarithmic and an object is plotted at 0 or
-                              a negative value, -1000 will be used as a stand-in for NaN
-xtitle          None          if a string, label the x axis
-xticks          -10           request ticks according to the standard tick specification
-                              (see help(Ticks))
-xminiticks      True          request miniticks according to the standard minitick
-                              specification
-xlabels         True          request tick labels according to the standard tick label
-                              specification
-xlogbase        None          if a number, the axis and transformation are logarithmic
-                              with ticks at the given base (10 being the most common)
-(same for y)
-text_attr       {}            a dictionary of attributes for label text
-axis_attr       {}            a dictionary of attributes for the axis lines
-"""
+    x, y            20, 5         upper-left corner of the Frame in SVG coordinates
+    width, height   75, 80        width and height of the Frame in SVG coordinates
+    flipx, flipy    False, True   flip the sign of the coordinate axis
+    minusInfinity   -1000         if an axis is logarithmic and an object is plotted at 0 or
+                                  a negative value, -1000 will be used as a stand-in for NaN
+    xtitle          None          if a string, label the x axis
+    xticks          -10           request ticks according to the standard tick specification
+                                  (see help(Ticks))
+    xminiticks      True          request miniticks according to the standard minitick
+                                  specification
+    xlabels         True          request tick labels according to the standard tick label
+                                  specification
+    xlogbase        None          if a number, the axis and transformation are logarithmic
+                                  with ticks at the given base (10 being the most common)
+    (same for y)
+    text_attr       {}            a dictionary of attributes for label text
+    axis_attr       {}            a dictionary of attributes for the axis lines
+    """
 
     self.xmin, self.xmax, self.ymin, self.ymax = xmin, xmax, ymin, ymax
     self.d = list(d)
@@ -1019,41 +1019,41 @@ def pathtoPath(svg):
 
 class Path:
   """Path represents an SVG path, an arbitrary set of curves and
-straight segments. Unlike SVG("path", d="..."), Path stores
-coordinates as a list of numbers, rather than a string, so that it is
-transformable in a Fig.
+  straight segments. Unlike SVG("path", d="..."), Path stores
+  coordinates as a list of numbers, rather than a string, so that it is
+  transformable in a Fig.
 
-Path(d, attribute=value)
+  Path(d, attribute=value)
 
-d                       required        path data
-attribute=value pairs   keyword list    SVG attributes
+  d                       required        path data
+  attribute=value pairs   keyword list    SVG attributes
 
-See http://www.w3.org/TR/SVG/paths.html for specification of paths
-from text.
+  See http://www.w3.org/TR/SVG/paths.html for specification of paths
+  from text.
 
-Internally, Path data is a list of tuples with these definitions:
+  Internally, Path data is a list of tuples with these definitions:
 
-    * ("Z/z",): close the current path
-    * ("H/h", x) or ("V/v", y): a horizontal or vertical line
-      segment to x or y
-    * ("M/m/L/l/T/t", x, y, global): moveto, lineto, or smooth
-      quadratic curveto point (x, y). If global=True, (x, y) should
-      not be transformed.
-    * ("S/sQ/q", cx, cy, cglobal, x, y, global): polybezier or
-      smooth quadratic curveto point (x, y) using (cx, cy) as a
-      control point. If cglobal or global=True, (cx, cy) or (x, y)
-      should not be transformed.
-    * ("C/c", c1x, c1y, c1global, c2x, c2y, c2global, x, y, global):
-      cubic curveto point (x, y) using (c1x, c1y) and (c2x, c2y) as
-      control points. If c1global, c2global, or global=True, (c1x, c1y),
-      (c2x, c2y), or (x, y) should not be transformed.
-    * ("A/a", rx, ry, rglobal, x-axis-rotation, angle, large-arc-flag,
-      sweep-flag, x, y, global): arcto point (x, y) using the
-      aforementioned parameters.
-    * (",/.", rx, ry, rglobal, angle, x, y, global): an ellipse at
-      point (x, y) with radii (rx, ry). If angle is 0, the whole
-      ellipse is drawn; otherwise, a partial ellipse is drawn.
-"""
+      * ("Z/z",): close the current path
+      * ("H/h", x) or ("V/v", y): a horizontal or vertical line
+        segment to x or y
+      * ("M/m/L/l/T/t", x, y, global): moveto, lineto, or smooth
+        quadratic curveto point (x, y). If global=True, (x, y) should
+        not be transformed.
+      * ("S/sQ/q", cx, cy, cglobal, x, y, global): polybezier or
+        smooth quadratic curveto point (x, y) using (cx, cy) as a
+        control point. If cglobal or global=True, (cx, cy) or (x, y)
+        should not be transformed.
+      * ("C/c", c1x, c1y, c1global, c2x, c2y, c2global, x, y, global):
+        cubic curveto point (x, y) using (c1x, c1y) and (c2x, c2y) as
+        control points. If c1global, c2global, or global=True, (c1x, c1y),
+        (c2x, c2y), or (x, y) should not be transformed.
+      * ("A/a", rx, ry, rglobal, x-axis-rotation, angle, large-arc-flag,
+        sweep-flag, x, y, global): arcto point (x, y) using the
+        aforementioned parameters.
+      * (",/.", rx, ry, rglobal, angle, x, y, global): an ellipse at
+        point (x, y) with radii (rx, ry). If angle is 0, the whole
+        ellipse is drawn; otherwise, a partial ellipse is drawn.
+  """
   defaults = {}
 
   def __repr__(self):
@@ -1116,7 +1116,7 @@ Internally, Path data is a list of tuples with these definitions:
 
   def parse(self, pathdata):
     """Parses text-commands, converting them into a list of tuples.
-Called by the constructor."""
+    Called by the constructor."""
     output = []
     index = 0
     while True:
@@ -1451,12 +1451,12 @@ Called by the constructor."""
 def funcRtoC(expr, var="t", globals=None, locals=None):
   """Converts a complex "z(t)" string to a function acceptable for Curve.
 
-expr    required        string in the form "z(t)"
-var     default="t"   name of the independent variable
-globals default=None    dict of global variables used in the expression;
-                        you may want to use Python's builtin globals()
-locals  default=None    dict of local variables
-"""
+  expr    required        string in the form "z(t)"
+  var     default="t"   name of the independent variable
+  globals default=None    dict of global variables used in the expression;
+                          you may want to use Python's builtin globals()
+  locals  default=None    dict of local variables
+  """
   g = cmath.__dict__
   if globals != None: g.update(globals)
   output = eval("lambda %s: (%s)" % (var, expr), g, locals)
@@ -1468,12 +1468,12 @@ locals  default=None    dict of local variables
 def funcRtoR2(expr, var="t", globals=None, locals=None):
   """Converts a "f(t), g(t)" string to a function acceptable for Curve.
 
-expr    required        string in the form "f(t), g(t)"
-var     default="t"   name of the independent variable
-globals default=None    dict of global variables used in the expression;
-                        you may want to use Python's builtin globals()
-locals  default=None    dict of local variables
-"""
+  expr    required        string in the form "f(t), g(t)"
+  var     default="t"   name of the independent variable
+  globals default=None    dict of global variables used in the expression;
+                          you may want to use Python's builtin globals()
+  locals  default=None    dict of local variables
+  """
   g = math.__dict__
   if globals != None: g.update(globals)
   output = eval("lambda %s: (%s)" % (var, expr), g, locals)
@@ -1483,12 +1483,12 @@ locals  default=None    dict of local variables
 def funcRtoR(expr, var="x", globals=None, locals=None):
   """Converts a "f(x)" string to a function acceptable for Curve.
 
-expr    required        string in the form "f(x)"
-var     default="x"   name of the independent variable
-globals default=None    dict of global variables used in the expression;
-                        you may want to use Python's builtin globals()
-locals  default=None    dict of local variables
-"""
+  expr    required        string in the form "f(x)"
+  var     default="x"   name of the independent variable
+  globals default=None    dict of global variables used in the expression;
+                          you may want to use Python's builtin globals()
+  locals  default=None    dict of local variables
+  """
   g = math.__dict__
   if globals != None: g.update(globals)
   output = eval("lambda %s: (%s, %s)" % (var, var, expr), g, locals)
@@ -1498,14 +1498,14 @@ locals  default=None    dict of local variables
 class Curve:
   """Draws a parametric function as a path.
 
-Curve(f, low, high, loop, attribute=value)
+  Curve(f, low, high, loop, attribute=value)
 
-f                      required         a Python callable or string in
-                                        the form "f(t), g(t)"
-low, high              required         left and right endpoints
-loop                   default=False    if True, connect the endpoints
-attribute=value pairs  keyword list     SVG attributes
-"""
+  f                      required         a Python callable or string in
+                                          the form "f(t), g(t)"
+  low, high              required         left and right endpoints
+  loop                   default=False    if True, connect the endpoints
+  attribute=value pairs  keyword list     SVG attributes
+  """
   defaults = {}
   random_sampling = True
   recursion_limit = 15
@@ -1574,8 +1574,8 @@ attribute=value pairs  keyword list     SVG attributes
 
   def sample(self, trans=None):
     """Adaptive-sampling algorithm that chooses the best sample points
-for a parametric curve between two endpoints and detects
-discontinuities.  Called by SVG()."""
+    for a parametric curve between two endpoints and detects
+    discontinuities.  Called by SVG()."""
     oldrecursionlimit = sys.getrecursionlimit()
     sys.setrecursionlimit(self.recursion_limit + 100)
     try:
@@ -1617,7 +1617,7 @@ discontinuities.  Called by SVG()."""
 
   def subsample(self, left, right, depth, trans=None):
     """Part of the adaptive-sampling algorithm that chooses the best
-sample points.  Called by sample()."""
+    sample points.  Called by sample()."""
 
     if self.random_sampling:
       mid = self.Sample(left.t + random.uniform(0.3, 0.7) * (right.t - left.t))
@@ -1652,8 +1652,8 @@ sample points.  Called by sample()."""
 
   def Path(self, trans=None, local=False):
     """Apply the transformation "trans" and return a Path object in
-global coordinates.  If local=True, return a Path in local coordinates
-(which must be transformed again)."""
+    global coordinates.  If local=True, return a Path in local coordinates
+    (which must be transformed again)."""
 
     if isinstance(trans, basestring): trans = totrans(trans)
     if isinstance(self.f, basestring): self.f = funcRtoR2(self.f)
@@ -1678,41 +1678,41 @@ global coordinates.  If local=True, return a Path in local coordinates
 
 class Poly:
   """Draws a curve specified by a sequence of points. The curve may be
-piecewise linear, like a polygon, or a Bezier curve.
+  piecewise linear, like a polygon, or a Bezier curve.
 
-Poly(d, mode, loop, attribute=value)
+  Poly(d, mode, loop, attribute=value)
 
-d                       required        list of tuples representing points
-                                        and possibly control points
-mode                    default="L"   "lines", "bezier", "velocity",
-                                        "foreback", "smooth", or an abbreviation
-loop                    default=False   if True, connect the first and last
-                                        point, closing the loop
-attribute=value pairs   keyword list    SVG attributes
+  d                       required        list of tuples representing points
+                                          and possibly control points
+  mode                    default="L"   "lines", "bezier", "velocity",
+                                          "foreback", "smooth", or an abbreviation
+  loop                    default=False   if True, connect the first and last
+                                          point, closing the loop
+  attribute=value pairs   keyword list    SVG attributes
 
-The format of the tuples in d depends on the mode.
+  The format of the tuples in d depends on the mode.
 
-"lines"/"L"         d=[(x,y), (x,y), ...]
-                                        piecewise-linear segments joining the (x,y) points
-"bezier"/"B"        d=[(x, y, c1x, c1y, c2x, c2y), ...]
-                                        Bezier curve with two control points (control points
-                                        preceed (x,y), as in SVG paths). If (c1x,c1y) and
-                                        (c2x,c2y) both equal (x,y), you get a linear
-                                        interpolation ("lines")
-"velocity"/"V"      d=[(x, y, vx, vy), ...]
-                                        curve that passes through (x,y) with velocity (vx,vy)
-                                        (one unit of arclength per unit time); in other words,
-                                        (vx,vy) is the tangent vector at (x,y). If (vx,vy) is
-                                        (0,0), you get a linear interpolation ("lines").
-"foreback"/"F"      d=[(x, y, bx, by, fx, fy), ...]
-                                        like "velocity" except that there is a left derivative
-                                        (bx,by) and a right derivative (fx,fy). If (bx,by)
-                                        equals (fx,fy) (with no minus sign), you get a
-                                        "velocity" curve
-"smooth"/"S"        d=[(x,y), (x,y), ...]
-                                        a "velocity" interpolation with (vx,vy)[i] equal to
-                                        ((x,y)[i+1] - (x,y)[i-1])/2: the minimal derivative
-"""
+  "lines"/"L"         d=[(x,y), (x,y), ...]
+                                          piecewise-linear segments joining the (x,y) points
+  "bezier"/"B"        d=[(x, y, c1x, c1y, c2x, c2y), ...]
+                                          Bezier curve with two control points (control points
+                                          preceed (x,y), as in SVG paths). If (c1x,c1y) and
+                                          (c2x,c2y) both equal (x,y), you get a linear
+                                          interpolation ("lines")
+  "velocity"/"V"      d=[(x, y, vx, vy), ...]
+                                          curve that passes through (x,y) with velocity (vx,vy)
+                                          (one unit of arclength per unit time); in other words,
+                                          (vx,vy) is the tangent vector at (x,y). If (vx,vy) is
+                                          (0,0), you get a linear interpolation ("lines").
+  "foreback"/"F"      d=[(x, y, bx, by, fx, fy), ...]
+                                          like "velocity" except that there is a left derivative
+                                          (bx,by) and a right derivative (fx,fy). If (bx,by)
+                                          equals (fx,fy) (with no minus sign), you get a
+                                          "velocity" curve
+  "smooth"/"S"        d=[(x,y), (x,y), ...]
+                                          a "velocity" interpolation with (vx,vy)[i] equal to
+                                          ((x,y)[i+1] - (x,y)[i-1])/2: the minimal derivative
+  """
   defaults = {}
 
   def __repr__(self):
@@ -1732,8 +1732,8 @@ The format of the tuples in d depends on the mode.
 
   def Path(self, trans=None, local=False):
     """Apply the transformation "trans" and return a Path object in
-global coordinates.  If local=True, return a Path in local coordinates
-(which must be transformed again)."""
+    global coordinates.  If local=True, return a Path in local coordinates
+    (which must be transformed again)."""
     if isinstance(trans, basestring): trans = totrans(trans)
 
     if self.mode[0] == "L" or self.mode[0] == "l": mode = "L"
@@ -1834,10 +1834,10 @@ global coordinates.  If local=True, return a Path in local coordinates
 class Text:
   """Draws at text string at a specified point in local coordinates.
 
-x, y                   required      location of the point in local coordinates
-d                      required      text/Unicode string
-attribute=value pairs  keyword list  SVG attributes 
-"""
+  x, y                   required      location of the point in local coordinates
+  d                      required      text/Unicode string
+  attribute=value pairs  keyword list  SVG attributes 
+  """
 
   defaults = {"stroke":"none", "fill":"black", "font-size":5}
 
@@ -1862,10 +1862,10 @@ attribute=value pairs  keyword list  SVG attributes
 class TextGlobal:
   """Draws at text string at a specified point in global coordinates.
 
-x, y                   required      location of the point in global coordinates
-d                      required      text/Unicode string
-attribute=value pairs  keyword list  SVG attributes 
-"""
+  x, y                   required      location of the point in global coordinates
+  d                      required      text/Unicode string
+  attribute=value pairs  keyword list  SVG attributes 
+  """
   defaults = {"stroke":"none", "fill":"black", "font-size":5}
 
   def __repr__(self):
@@ -1893,10 +1893,10 @@ symbol_templates = {"dot": SVG("symbol", SVG("circle", cx=0, cy=0, r=1, stroke="
 def make_symbol(id, shape="dot", **attr):
   """Creates a new instance of an SVG symbol to avoid cross-linking objects.
 
-id                    required         a new identifier (string/Unicode)
-shape                 default="dot"  the shape name from symbol_templates
-attribute=value list  keyword list     modify the SVG attributes of the new symbol
-"""
+  id                    required         a new identifier (string/Unicode)
+  shape                 default="dot"  the shape name from symbol_templates
+  attribute=value list  keyword list     modify the SVG attributes of the new symbol
+  """
   output = copy.deepcopy(symbol_templates[shape])
   for i in output.sub: i.attr.update(attr_preprocess(attr))
   output["id"] = id
@@ -1907,14 +1907,14 @@ circular_dot = make_symbol("circular_dot")
 class Dots:
   """Dots draws SVG symbols at a set of points.
 
-d                      required               list of (x,y) points
-symbol                 default=None           SVG symbol or a new identifier to
-                                              label an auto-generated symbol;
-                                              if None, use pre-defined circular_dot
-width, height          default=1, 1           width and height of the symbols
-                                              in SVG coordinates
-attribute=value pairs  keyword list           SVG attributes
-"""
+  d                      required               list of (x,y) points
+  symbol                 default=None           SVG symbol or a new identifier to
+                                                label an auto-generated symbol;
+                                                if None, use pre-defined circular_dot
+  width, height          default=1, 1           width and height of the symbols
+                                                in SVG coordinates
+  attribute=value pairs  keyword list           SVG attributes
+  """
   defaults = {}
 
   def __repr__(self):
@@ -1964,10 +1964,10 @@ marker_templates = {"arrow_start": SVG("marker", SVG("path", d="M 9 3.6 L 10.5 0
 def make_marker(id, shape, **attr):
   """Creates a new instance of an SVG marker to avoid cross-linking objects.
 
-id                     required         a new identifier (string/Unicode)
-shape                  required         the shape name from marker_templates
-attribute=value list   keyword list     modify the SVG attributes of the new marker
-"""
+  id                     required         a new identifier (string/Unicode)
+  shape                  required         the shape name from marker_templates
+  attribute=value list   keyword list     modify the SVG attributes of the new marker
+  """
   output = copy.deepcopy(marker_templates[shape])
   for i in output.sub: i.attr.update(attr_preprocess(attr))
   output["id"] = id
@@ -1976,17 +1976,17 @@ attribute=value list   keyword list     modify the SVG attributes of the new mar
 class Line(Curve):
   """Draws a line between two points.
 
-Line(x1, y1, x2, y2, arrow_start, arrow_end, attribute=value)
+  Line(x1, y1, x2, y2, arrow_start, arrow_end, attribute=value)
 
-x1, y1                  required        the starting point
-x2, y2                  required        the ending point
-arrow_start             default=None    if an identifier string/Unicode,
-                                        draw a new arrow object at the
-                                        beginning of the line; if a marker,
-                                        draw that marker instead
-arrow_end               default=None    same for the end of the line
-attribute=value pairs   keyword list    SVG attributes
-"""
+  x1, y1                  required        the starting point
+  x2, y2                  required        the ending point
+  arrow_start             default=None    if an identifier string/Unicode,
+                                          draw a new arrow object at the
+                                          beginning of the line; if a marker,
+                                          draw that marker instead
+  arrow_end               default=None    same for the end of the line
+  attribute=value pairs   keyword list    SVG attributes
+  """
   defaults = {}
 
   def __repr__(self):
@@ -2033,8 +2033,8 @@ attribute=value pairs   keyword list    SVG attributes
 
   def Path(self, trans=None, local=False):
     """Apply the transformation "trans" and return a Path object in
-global coordinates.  If local=True, return a Path in local coordinates
-(which must be transformed again)."""
+    global coordinates.  If local=True, return a Path in local coordinates
+    (which must be transformed again)."""
     self.f = lambda t: (self.x1 + t*(self.x2 - self.x1), self.y1 + t*(self.y2 - self.y1))
     self.low = 0.
     self.high = 1.
@@ -2047,23 +2047,23 @@ global coordinates.  If local=True, return a Path in local coordinates
 
 class LineGlobal:
   """Draws a line between two points, one or both of which is in
-global coordinates.
+  global coordinates.
 
-Line(x1, y1, x2, y2, lcoal1, local2, arrow_start, arrow_end, attribute=value)
+  Line(x1, y1, x2, y2, lcoal1, local2, arrow_start, arrow_end, attribute=value)
 
-x1, y1                  required        the starting point
-x2, y2                  required        the ending point
-local1                  default=False   if True, interpret first point as a
-                                        local coordinate (apply transform)
-local2                  default=False   if True, interpret second point as a
-                                        local coordinate (apply transform)
-arrow_start             default=None    if an identifier string/Unicode,
-                                        draw a new arrow object at the
-                                        beginning of the line; if a marker,
-                                        draw that marker instead
-arrow_end               default=None    same for the end of the line
-attribute=value pairs   keyword list    SVG attributes
-"""
+  x1, y1                  required        the starting point
+  x2, y2                  required        the ending point
+  local1                  default=False   if True, interpret first point as a
+                                          local coordinate (apply transform)
+  local2                  default=False   if True, interpret second point as a
+                                          local coordinate (apply transform)
+  arrow_start             default=None    if an identifier string/Unicode,
+                                          draw a new arrow object at the
+                                          beginning of the line; if a marker,
+                                          draw that marker instead
+  arrow_end               default=None    same for the end of the line
+  attribute=value pairs   keyword list    SVG attributes
+  """
   defaults = {}
 
   def __repr__(self):
@@ -2122,12 +2122,12 @@ attribute=value pairs   keyword list    SVG attributes
 class VLine(Line):
   """Draws a vertical line.
 
-VLine(y1, y2, x, attribute=value)
+  VLine(y1, y2, x, attribute=value)
 
-y1, y2                  required        y range
-x                       required        x position
-attribute=value pairs   keyword list    SVG attributes
-"""
+  y1, y2                  required        y range
+  x                       required        x position
+  attribute=value pairs   keyword list    SVG attributes
+  """
   defaults = {}
 
   def __repr__(self):
@@ -2141,8 +2141,8 @@ attribute=value pairs   keyword list    SVG attributes
 
   def Path(self, trans=None, local=False):
     """Apply the transformation "trans" and return a Path object in
-global coordinates.  If local=True, return a Path in local coordinates
-(which must be transformed again)."""
+    global coordinates.  If local=True, return a Path in local coordinates
+    (which must be transformed again)."""
     self.x1 = self.x
     self.x2 = self.x
     return Line.Path(self, trans, local)
@@ -2150,12 +2150,12 @@ global coordinates.  If local=True, return a Path in local coordinates
 class HLine(Line):
   """Draws a horizontal line.
 
-HLine(x1, x2, y, attribute=value)
+  HLine(x1, x2, y, attribute=value)
 
-x1, x2                  required        x range
-y                       required        y position
-attribute=value pairs   keyword list    SVG attributes
-"""
+  x1, x2                  required        x range
+  y                       required        y position
+  attribute=value pairs   keyword list    SVG attributes
+  """
   defaults = {}
 
   def __repr__(self):
@@ -2169,8 +2169,8 @@ attribute=value pairs   keyword list    SVG attributes
 
   def Path(self, trans=None, local=False):
     """Apply the transformation "trans" and return a Path object in
-global coordinates.  If local=True, return a Path in local coordinates
-(which must be transformed again)."""
+    global coordinates.  If local=True, return a Path in local coordinates
+    (which must be transformed again)."""
     self.y1 = self.y
     self.y2 = self.y
     return Line.Path(self, trans, local)
@@ -2180,12 +2180,12 @@ global coordinates.  If local=True, return a Path in local coordinates
 class Rect(Curve):
   """Draws a rectangle.
 
-Rect(x1, y1, x2, y2, attribute=value)
+  Rect(x1, y1, x2, y2, attribute=value)
 
-x1, y1                  required        the starting point
-x2, y2                  required        the ending point
-attribute=value pairs   keyword list    SVG attributes
-"""
+  x1, y1                  required        the starting point
+  x2, y2                  required        the ending point
+  attribute=value pairs   keyword list    SVG attributes
+  """
   defaults = {}
 
   def __repr__(self):
@@ -2203,8 +2203,8 @@ attribute=value pairs   keyword list    SVG attributes
 
   def Path(self, trans=None, local=False):
     """Apply the transformation "trans" and return a Path object in
-global coordinates.  If local=True, return a Path in local coordinates
-(which must be transformed again)."""
+    global coordinates.  If local=True, return a Path in local coordinates
+    (which must be transformed again)."""
     if trans == None:
       return Path([("M", self.x1, self.y1, not local), ("L", self.x2, self.y1, not local), ("L", self.x2, self.y2, not local), ("L", self.x1, self.y2, not local), ("Z",)], **self.attr)
 
@@ -2234,21 +2234,21 @@ global coordinates.  If local=True, return a Path in local coordinates
 
 class Ellipse(Curve):
   """Draws an ellipse from a semimajor vector (ax,ay) and a semiminor
-length (b).
+  length (b).
 
-Ellipse(x, y, ax, ay, b, attribute=value)
+  Ellipse(x, y, ax, ay, b, attribute=value)
 
-x, y                    required        the center of the ellipse/circle
-ax, ay                  required        a vector indicating the length
-                                        and direction of the semimajor axis
-b                       required        the length of the semiminor axis.
-                                        If equal to sqrt(ax2 + ay2), the
-                                        ellipse is a circle
-attribute=value pairs   keyword list    SVG attributes
+  x, y                    required        the center of the ellipse/circle
+  ax, ay                  required        a vector indicating the length
+                                          and direction of the semimajor axis
+  b                       required        the length of the semiminor axis.
+                                          If equal to sqrt(ax2 + ay2), the
+                                          ellipse is a circle
+  attribute=value pairs   keyword list    SVG attributes
 
-(If sqrt(ax**2 + ay**2) is less than b, then (ax,ay) is actually the
-semiminor axis.)
-"""
+  (If sqrt(ax**2 + ay**2) is less than b, then (ax,ay) is actually the
+  semiminor axis.)
+  """
   defaults = {}
 
   def __repr__(self):
@@ -2266,8 +2266,8 @@ semiminor axis.)
 
   def Path(self, trans=None, local=False):
     """Apply the transformation "trans" and return a Path object in
-global coordinates.  If local=True, return a Path in local coordinates
-(which must be transformed again)."""
+    global coordinates.  If local=True, return a Path in local coordinates
+    (which must be transformed again)."""
     angle = math.atan2(self.ay, self.ax) + math.pi/2.
     bx = self.b * math.cos(angle)
     by = self.b * math.sin(angle)
@@ -2282,8 +2282,8 @@ global coordinates.  If local=True, return a Path in local coordinates
 
 def unumber(x):
   """Converts numbers to a Unicode string, taking advantage of special
-Unicode characters to make nice minus signs and scientific notation.
-"""
+  Unicode characters to make nice minus signs and scientific notation.
+  """
   output = u"%g" % x
 
   if output[0] == u"-":
@@ -2319,63 +2319,63 @@ Unicode characters to make nice minus signs and scientific notation.
 
 class Ticks:
   """Superclass for all graphics primatives that draw ticks,
-miniticks, and tick labels.  This class only draws the ticks.
+  miniticks, and tick labels.  This class only draws the ticks.
 
-Ticks(f, low, high, ticks, miniticks, labels, logbase, arrow_start,
-      arrow_end, text_attr, attribute=value)
+  Ticks(f, low, high, ticks, miniticks, labels, logbase, arrow_start,
+        arrow_end, text_attr, attribute=value)
 
-f                       required        parametric function along which ticks
-                                        will be drawn; has the same format as
-                                        the function used in Curve
-low, high               required        range of the independent variable
-ticks                   default=-10     request ticks according to the standard
-                                        tick specification (see below)
-miniticks               default=True    request miniticks according to the
-                                        standard minitick specification (below)
-labels                  True            request tick labels according to the
-                                        standard tick label specification (below)
-logbase                 default=None    if a number, the axis is logarithmic with
-                                        ticks at the given base (usually 10)
-arrow_start             default=None    if a new string identifier, draw an arrow
-                                        at the low-end of the axis, referenced by
-                                        that identifier; if an SVG marker object,
-                                        use that marker
-arrow_end               default=None    if a new string identifier, draw an arrow
-                                        at the high-end of the axis, referenced by
-                                        that identifier; if an SVG marker object,
-                                        use that marker
-text_attr               default={}      SVG attributes for the text labels
-attribute=value pairs   keyword list    SVG attributes for the tick marks 
+  f                       required        parametric function along which ticks
+                                          will be drawn; has the same format as
+                                          the function used in Curve
+  low, high               required        range of the independent variable
+  ticks                   default=-10     request ticks according to the standard
+                                          tick specification (see below)
+  miniticks               default=True    request miniticks according to the
+                                          standard minitick specification (below)
+  labels                  True            request tick labels according to the
+                                          standard tick label specification (below)
+  logbase                 default=None    if a number, the axis is logarithmic with
+                                          ticks at the given base (usually 10)
+  arrow_start             default=None    if a new string identifier, draw an arrow
+                                          at the low-end of the axis, referenced by
+                                          that identifier; if an SVG marker object,
+                                          use that marker
+  arrow_end               default=None    if a new string identifier, draw an arrow
+                                          at the high-end of the axis, referenced by
+                                          that identifier; if an SVG marker object,
+                                          use that marker
+  text_attr               default={}      SVG attributes for the text labels
+  attribute=value pairs   keyword list    SVG attributes for the tick marks 
 
-Standard tick specification:
+  Standard tick specification:
 
-    * True: same as -10 (below).
-    * Positive number N: draw exactly N ticks, including the endpoints. To
-      subdivide an axis into 10 equal-sized segments, ask for 11 ticks.
-    * Negative number -N: draw at least N ticks. Ticks will be chosen with
-      "natural" values, multiples of 2 or 5.
-    * List of values: draw a tick mark at each value.
-    * Dict of value, label pairs: draw a tick mark at each value, labeling
-      it with the given string. This lets you say things like {3.14159: "pi"}.
-    * False or None: no ticks.
+      * True: same as -10 (below).
+      * Positive number N: draw exactly N ticks, including the endpoints. To
+        subdivide an axis into 10 equal-sized segments, ask for 11 ticks.
+      * Negative number -N: draw at least N ticks. Ticks will be chosen with
+        "natural" values, multiples of 2 or 5.
+      * List of values: draw a tick mark at each value.
+      * Dict of value, label pairs: draw a tick mark at each value, labeling
+        it with the given string. This lets you say things like {3.14159: "pi"}.
+      * False or None: no ticks.
 
-Standard minitick specification:
+  Standard minitick specification:
 
-    * True: draw miniticks with "natural" values, more closely spaced than
-      the ticks.
-    * Positive number N: draw exactly N miniticks, including the endpoints.
-      To subdivide an axis into 100 equal-sized segments, ask for 101 miniticks.
-    * Negative number -N: draw at least N miniticks.
-    * List of values: draw a minitick mark at each value.
-    * False or None: no miniticks. 
+      * True: draw miniticks with "natural" values, more closely spaced than
+        the ticks.
+      * Positive number N: draw exactly N miniticks, including the endpoints.
+        To subdivide an axis into 100 equal-sized segments, ask for 101 miniticks.
+      * Negative number -N: draw at least N miniticks.
+      * List of values: draw a minitick mark at each value.
+      * False or None: no miniticks. 
 
-Standard tick label specification:
+  Standard tick label specification:
 
-    * True: use the unumber function (described below)
-    * Format string: standard format strings, e.g. "%5.2f" for 12.34
-    * Python callable: function that converts numbers to strings
-    * False or None: no labels 
-"""
+      * True: use the unumber function (described below)
+      * Format string: standard format strings, e.g. "%5.2f" for 12.34
+      * Python callable: function that converts numbers to strings
+      * False or None: no labels 
+  """
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
   tick_start = -1.5
@@ -2407,10 +2407,10 @@ Standard tick label specification:
 
   def orient_tickmark(self, t, trans=None):
     """Return the position, normalized local x vector, normalized
-local y vector, and angle of a tick at position t.
+    local y vector, and angle of a tick at position t.
 
-Normally only used internally.
-"""
+    Normally only used internally.
+    """
     if isinstance(trans, basestring): trans = totrans(trans)
     if trans == None:
       f = self.f
@@ -2505,10 +2505,10 @@ Normally only used internally.
 
   def interpret(self):
     """Evaluate and return optimal ticks and miniticks according to
-the standard minitick specification.
+    the standard minitick specification.
 
-Normally only used internally.
-"""
+    Normally only used internally.
+    """
 
     if self.labels == None or self.labels == False:
       format = lambda x: ""
@@ -2600,8 +2600,8 @@ Normally only used internally.
   def compute_ticks(self, N, format):
     """Return less than -N or exactly N optimal linear ticks.
 
-Normally only used internally.
-"""
+    Normally only used internally.
+    """
     if self.low >= self.high: raise ValueError, "low must be less than high"
     if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
 
@@ -2676,8 +2676,8 @@ Normally only used internally.
   def regular_miniticks(self, N):
     """Return exactly N linear ticks.
 
-Normally only used internally.
-"""
+    Normally only used internally.
+    """
     output = []
     x = self.low
     for i in xrange(N):
@@ -2688,8 +2688,8 @@ Normally only used internally.
   def compute_miniticks(self, original_ticks):
     """Return optimal linear miniticks, given a set of ticks.
 
-Normally only used internally.
-"""
+    Normally only used internally.
+    """
     if len(original_ticks) < 2: original_ticks = ticks(self.low, self.high)
     original_ticks = original_ticks.keys()
     original_ticks.sort()
@@ -2717,8 +2717,8 @@ Normally only used internally.
   def compute_logticks(self, base, N, format):
     """Return less than -N or exactly N optimal logarithmic ticks.
 
-Normally only used internally.
-"""
+    Normally only used internally.
+    """
     if self.low >= self.high: raise ValueError, "low must be less than high"
     if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
 
@@ -2768,8 +2768,8 @@ Normally only used internally.
   def compute_logminiticks(self, base):
     """Return optimal logarithmic miniticks, given a set of ticks.
 
-Normally only used internally.
-"""
+    Normally only used internally.
+    """
     if self.low >= self.high: raise ValueError, "low must be less than high"
 
     lowN = math.floor(math.log(self.low, base))
@@ -2791,32 +2791,32 @@ Normally only used internally.
 class CurveAxis(Curve, Ticks):
   """Draw an axis with tick marks along a parametric curve.
 
-CurveAxis(f, low, high, ticks, miniticks, labels, logbase, arrow_start, arrow_end,
-text_attr, attribute=value)
+  CurveAxis(f, low, high, ticks, miniticks, labels, logbase, arrow_start, arrow_end,
+  text_attr, attribute=value)
 
-f                      required         a Python callable or string in
-                                        the form "f(t), g(t)", just like Curve
-low, high              required         left and right endpoints
-ticks                  default=-10      request ticks according to the standard
-                                        tick specification (see help(Ticks))
-miniticks              default=True     request miniticks according to the
-                                        standard minitick specification
-labels                 True             request tick labels according to the
-                                        standard tick label specification
-logbase                default=None     if a number, the x axis is logarithmic
-                                        with ticks at the given base (10 being
-                                        the most common)
-arrow_start            default=None     if a new string identifier, draw an
-                                        arrow at the low-end of the axis,
-                                        referenced by that identifier; if an
-                                        SVG marker object, use that marker
-arrow_end              default=None     if a new string identifier, draw an
-                                        arrow at the high-end of the axis,
-                                        referenced by that identifier; if an
-                                        SVG marker object, use that marker
-text_attr              default={}       SVG attributes for the text labels
-attribute=value pairs  keyword list     SVG attributes
-"""
+  f                      required         a Python callable or string in
+                                          the form "f(t), g(t)", just like Curve
+  low, high              required         left and right endpoints
+  ticks                  default=-10      request ticks according to the standard
+                                          tick specification (see help(Ticks))
+  miniticks              default=True     request miniticks according to the
+                                          standard minitick specification
+  labels                 True             request tick labels according to the
+                                          standard tick label specification
+  logbase                default=None     if a number, the x axis is logarithmic
+                                          with ticks at the given base (10 being
+                                          the most common)
+  arrow_start            default=None     if a new string identifier, draw an
+                                          arrow at the low-end of the axis,
+                                          referenced by that identifier; if an
+                                          SVG marker object, use that marker
+  arrow_end              default=None     if a new string identifier, draw an
+                                          arrow at the high-end of the axis,
+                                          referenced by that identifier; if an
+                                          SVG marker object, use that marker
+  text_attr              default={}       SVG attributes for the text labels
+  attribute=value pairs  keyword list     SVG attributes
+  """
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
 
@@ -2852,31 +2852,31 @@ attribute=value pairs  keyword list     SVG attributes
 class LineAxis(Line, Ticks):
   """Draws an axis with tick marks along a line.
 
-LineAxis(x1, y1, x2, y2, start, end, ticks, miniticks, labels, logbase,
-arrow_start, arrow_end, text_attr, attribute=value)
+  LineAxis(x1, y1, x2, y2, start, end, ticks, miniticks, labels, logbase,
+  arrow_start, arrow_end, text_attr, attribute=value)
 
-x1, y1                  required        starting point
-x2, y2                  required        ending point
-start, end              default=0, 1    values to start and end labeling
-ticks                   default=-10     request ticks according to the standard
-                                        tick specification (see help(Ticks))
-miniticks               default=True    request miniticks according to the
-                                        standard minitick specification
-labels                  True            request tick labels according to the
-                                        standard tick label specification
-logbase                 default=None    if a number, the x axis is logarithmic
-                                        with ticks at the given base (usually 10)
-arrow_start             default=None    if a new string identifier, draw an arrow
-                                        at the low-end of the axis, referenced by
-                                        that identifier; if an SVG marker object,
-                                        use that marker
-arrow_end               default=None    if a new string identifier, draw an arrow
-                                        at the high-end of the axis, referenced by
-                                        that identifier; if an SVG marker object,
-                                        use that marker
-text_attr               default={}      SVG attributes for the text labels
-attribute=value pairs   keyword list    SVG attributes
-"""
+  x1, y1                  required        starting point
+  x2, y2                  required        ending point
+  start, end              default=0, 1    values to start and end labeling
+  ticks                   default=-10     request ticks according to the standard
+                                          tick specification (see help(Ticks))
+  miniticks               default=True    request miniticks according to the
+                                          standard minitick specification
+  labels                  True            request tick labels according to the
+                                          standard tick label specification
+  logbase                 default=None    if a number, the x axis is logarithmic
+                                          with ticks at the given base (usually 10)
+  arrow_start             default=None    if a new string identifier, draw an arrow
+                                          at the low-end of the axis, referenced by
+                                          that identifier; if an SVG marker object,
+                                          use that marker
+  arrow_end               default=None    if a new string identifier, draw an arrow
+                                          at the high-end of the axis, referenced by
+                                          that identifier; if an SVG marker object,
+                                          use that marker
+  text_attr               default={}      SVG attributes for the text labels
+  attribute=value pairs   keyword list    SVG attributes
+  """
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
 
@@ -2937,35 +2937,35 @@ attribute=value pairs   keyword list    SVG attributes
 class XAxis(LineAxis):
   """Draws an x axis with tick marks.
 
-XAxis(xmin, xmax, aty, ticks, miniticks, labels, logbase, arrow_start, arrow_end,
-exclude, text_attr, attribute=value)
+  XAxis(xmin, xmax, aty, ticks, miniticks, labels, logbase, arrow_start, arrow_end,
+  exclude, text_attr, attribute=value)
 
-xmin, xmax              required        the x range
-aty                     default=0       y position to draw the axis
-ticks                   default=-10     request ticks according to the standard
-                                        tick specification (see help(Ticks))
-miniticks               default=True    request miniticks according to the
-                                        standard minitick specification
-labels                  True            request tick labels according to the
-                                        standard tick label specification
-logbase                 default=None    if a number, the x axis is logarithmic
-                                        with ticks at the given base (usually 10)
-arrow_start             default=None    if a new string identifier, draw an arrow
-                                        at the low-end of the axis, referenced by
-                                        that identifier; if an SVG marker object,
-                                        use that marker
-arrow_end               default=None    if a new string identifier, draw an arrow
-                                        at the high-end of the axis, referenced by
-                                        that identifier; if an SVG marker object,
-                                        use that marker
-exclude                 default=None    if a (low, high) pair, don't draw text
-                                        labels within this range
-text_attr               default={}      SVG attributes for the text labels
-attribute=value pairs   keyword list    SVG attributes for all lines
+  xmin, xmax              required        the x range
+  aty                     default=0       y position to draw the axis
+  ticks                   default=-10     request ticks according to the standard
+                                          tick specification (see help(Ticks))
+  miniticks               default=True    request miniticks according to the
+                                          standard minitick specification
+  labels                  True            request tick labels according to the
+                                          standard tick label specification
+  logbase                 default=None    if a number, the x axis is logarithmic
+                                          with ticks at the given base (usually 10)
+  arrow_start             default=None    if a new string identifier, draw an arrow
+                                          at the low-end of the axis, referenced by
+                                          that identifier; if an SVG marker object,
+                                          use that marker
+  arrow_end               default=None    if a new string identifier, draw an arrow
+                                          at the high-end of the axis, referenced by
+                                          that identifier; if an SVG marker object,
+                                          use that marker
+  exclude                 default=None    if a (low, high) pair, don't draw text
+                                          labels within this range
+  text_attr               default={}      SVG attributes for the text labels
+  attribute=value pairs   keyword list    SVG attributes for all lines
 
-The exclude option is provided for Axes to keep text from overlapping
-where the axes cross. Normal users are not likely to need it.
-"""
+  The exclude option is provided for Axes to keep text from overlapping
+  where the axes cross. Normal users are not likely to need it.
+  """
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5, "dominant-baseline":"text-before-edge"}
   text_start = -1.
@@ -2989,35 +2989,35 @@ where the axes cross. Normal users are not likely to need it.
 class YAxis(LineAxis):
   """Draws a y axis with tick marks.
 
-YAxis(ymin, ymax, atx, ticks, miniticks, labels, logbase, arrow_start, arrow_end,
-exclude, text_attr, attribute=value)
+  YAxis(ymin, ymax, atx, ticks, miniticks, labels, logbase, arrow_start, arrow_end,
+  exclude, text_attr, attribute=value)
 
-ymin, ymax              required        the y range
-atx                     default=0       x position to draw the axis
-ticks                   default=-10     request ticks according to the standard
-                                        tick specification (see help(Ticks))
-miniticks               default=True    request miniticks according to the
-                                        standard minitick specification
-labels                  True            request tick labels according to the
-                                        standard tick label specification
-logbase                 default=None    if a number, the y axis is logarithmic
-                                        with ticks at the given base (usually 10)
-arrow_start             default=None    if a new string identifier, draw an arrow
-                                        at the low-end of the axis, referenced by
-                                        that identifier; if an SVG marker object,
-                                        use that marker
-arrow_end               default=None    if a new string identifier, draw an arrow
-                                        at the high-end of the axis, referenced by
-                                        that identifier; if an SVG marker object,
-                                        use that marker
-exclude                 default=None    if a (low, high) pair, don't draw text
-                                        labels within this range
-text_attr               default={}      SVG attributes for the text labels
-attribute=value pairs   keyword list    SVG attributes for all lines
+  ymin, ymax              required        the y range
+  atx                     default=0       x position to draw the axis
+  ticks                   default=-10     request ticks according to the standard
+                                          tick specification (see help(Ticks))
+  miniticks               default=True    request miniticks according to the
+                                          standard minitick specification
+  labels                  True            request tick labels according to the
+                                          standard tick label specification
+  logbase                 default=None    if a number, the y axis is logarithmic
+                                          with ticks at the given base (usually 10)
+  arrow_start             default=None    if a new string identifier, draw an arrow
+                                          at the low-end of the axis, referenced by
+                                          that identifier; if an SVG marker object,
+                                          use that marker
+  arrow_end               default=None    if a new string identifier, draw an arrow
+                                          at the high-end of the axis, referenced by
+                                          that identifier; if an SVG marker object,
+                                          use that marker
+  exclude                 default=None    if a (low, high) pair, don't draw text
+                                          labels within this range
+  text_attr               default={}      SVG attributes for the text labels
+  attribute=value pairs   keyword list    SVG attributes for all lines
 
-The exclude option is provided for Axes to keep text from overlapping
-where the axes cross. Normal users are not likely to need it.
-"""
+  The exclude option is provided for Axes to keep text from overlapping
+  where the axes cross. Normal users are not likely to need it.
+  """
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5, "text-anchor":"end", "dominant-baseline":"middle"}
   text_start = 2.5
@@ -3041,35 +3041,35 @@ where the axes cross. Normal users are not likely to need it.
 class Axes:
   """Draw a pair of intersecting x-y axes.
 
-Axes(xmin, xmax, ymin, ymax, atx, aty, xticks, xminiticks, xlabels, xlogbase,
-yticks, yminiticks, ylabels, ylogbase, arrows, text_attr, attribute=value)
+  Axes(xmin, xmax, ymin, ymax, atx, aty, xticks, xminiticks, xlabels, xlogbase,
+  yticks, yminiticks, ylabels, ylogbase, arrows, text_attr, attribute=value)
 
-xmin, xmax               required       the x range
-ymin, ymax               required       the y range
-atx, aty                 default=0, 0   point where the axes try to cross;
-                                        if outside the range, the axes will
-                                        cross at the closest corner
-xticks                   default=-10    request ticks according to the standard
-                                        tick specification (see help(Ticks))
-xminiticks               default=True   request miniticks according to the
-                                        standard minitick specification
-xlabels                  True           request tick labels according to the
-                                        standard tick label specification
-xlogbase                 default=None   if a number, the x axis is logarithmic
-                                        with ticks at the given base (usually 10)
-yticks                   default=-10    request ticks according to the standard
-                                        tick specification
-yminiticks               default=True   request miniticks according to the
-                                        standard minitick specification
-ylabels                  True           request tick labels according to the
-                                        standard tick label specification
-ylogbase                 default=None   if a number, the y axis is logarithmic
-                                        with ticks at the given base (usually 10)
-arrows                   default=None   if a new string identifier, draw arrows
-                                        referenced by that identifier
-text_attr                default={}     SVG attributes for the text labels
-attribute=value pairs    keyword list   SVG attributes for all lines
-"""
+  xmin, xmax               required       the x range
+  ymin, ymax               required       the y range
+  atx, aty                 default=0, 0   point where the axes try to cross;
+                                          if outside the range, the axes will
+                                          cross at the closest corner
+  xticks                   default=-10    request ticks according to the standard
+                                          tick specification (see help(Ticks))
+  xminiticks               default=True   request miniticks according to the
+                                          standard minitick specification
+  xlabels                  True           request tick labels according to the
+                                          standard tick label specification
+  xlogbase                 default=None   if a number, the x axis is logarithmic
+                                          with ticks at the given base (usually 10)
+  yticks                   default=-10    request ticks according to the standard
+                                          tick specification
+  yminiticks               default=True   request miniticks according to the
+                                          standard minitick specification
+  ylabels                  True           request tick labels according to the
+                                          standard tick label specification
+  ylogbase                 default=None   if a number, the y axis is logarithmic
+                                          with ticks at the given base (usually 10)
+  arrows                   default=None   if a new string identifier, draw arrows
+                                          referenced by that identifier
+  text_attr                default={}     SVG attributes for the text labels
+  attribute=value pairs    keyword list   SVG attributes for all lines
+  """
   defaults = {"stroke-width":"0.25pt"}
   text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
 
@@ -3120,23 +3120,23 @@ attribute=value pairs    keyword list   SVG attributes for all lines
 
 class HGrid(Ticks):
   """Draws the horizontal lines of a grid over a specified region
-using the standard tick specification (see help(Ticks)) to place the
-grid lines.
+  using the standard tick specification (see help(Ticks)) to place the
+  grid lines.
 
-HGrid(xmin, xmax, low, high, ticks, miniticks, logbase, mini_attr, attribute=value)
+  HGrid(xmin, xmax, low, high, ticks, miniticks, logbase, mini_attr, attribute=value)
 
-xmin, xmax              required        the x range
-low, high               required        the y range
-ticks                   default=-10     request ticks according to the standard
-                                        tick specification (see help(Ticks))
-miniticks               default=False   request miniticks according to the
-                                        standard minitick specification
-logbase                 default=None    if a number, the axis is logarithmic
-                                        with ticks at the given base (usually 10)
-mini_attr               default={}      SVG attributes for the minitick-lines
-                                        (if miniticks != False)
-attribute=value pairs   keyword list    SVG attributes for the major tick lines
-"""
+  xmin, xmax              required        the x range
+  low, high               required        the y range
+  ticks                   default=-10     request ticks according to the standard
+                                          tick specification (see help(Ticks))
+  miniticks               default=False   request miniticks according to the
+                                          standard minitick specification
+  logbase                 default=None    if a number, the axis is logarithmic
+                                          with ticks at the given base (usually 10)
+  mini_attr               default={}      SVG attributes for the minitick-lines
+                                          (if miniticks != False)
+  attribute=value pairs   keyword list    SVG attributes for the major tick lines
+  """
   defaults = {"stroke-width":"0.25pt", "stroke":"gray"}
   mini_defaults = {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"}
 
@@ -3170,23 +3170,23 @@ attribute=value pairs   keyword list    SVG attributes for the major tick lines
     
 class VGrid(Ticks):
   """Draws the vertical lines of a grid over a specified region
-using the standard tick specification (see help(Ticks)) to place the
-grid lines.
+  using the standard tick specification (see help(Ticks)) to place the
+  grid lines.
 
-HGrid(ymin, ymax, low, high, ticks, miniticks, logbase, mini_attr, attribute=value)
+  HGrid(ymin, ymax, low, high, ticks, miniticks, logbase, mini_attr, attribute=value)
 
-ymin, ymax              required        the y range
-low, high               required        the x range
-ticks                   default=-10     request ticks according to the standard
-                                        tick specification (see help(Ticks))
-miniticks               default=False   request miniticks according to the
-                                        standard minitick specification
-logbase                 default=None    if a number, the axis is logarithmic
-                                        with ticks at the given base (usually 10)
-mini_attr               default={}      SVG attributes for the minitick-lines
-                                        (if miniticks != False)
-attribute=value pairs   keyword list    SVG attributes for the major tick lines
-"""
+  ymin, ymax              required        the y range
+  low, high               required        the x range
+  ticks                   default=-10     request ticks according to the standard
+                                          tick specification (see help(Ticks))
+  miniticks               default=False   request miniticks according to the
+                                          standard minitick specification
+  logbase                 default=None    if a number, the axis is logarithmic
+                                          with ticks at the given base (usually 10)
+  mini_attr               default={}      SVG attributes for the minitick-lines
+                                          (if miniticks != False)
+  attribute=value pairs   keyword list    SVG attributes for the major tick lines
+  """
   defaults = {"stroke-width":"0.25pt", "stroke":"gray"}
   mini_defaults = {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"}
 
@@ -3220,22 +3220,22 @@ attribute=value pairs   keyword list    SVG attributes for the major tick lines
 
 class Grid(Ticks):
   """Draws a grid over a specified region using the standard tick
-specification (see help(Ticks)) to place the grid lines.
+  specification (see help(Ticks)) to place the grid lines.
 
-Grid(xmin, xmax, ymin, ymax, ticks, miniticks, logbase, mini_attr, attribute=value)
+  Grid(xmin, xmax, ymin, ymax, ticks, miniticks, logbase, mini_attr, attribute=value)
 
-xmin, xmax              required        the x range
-ymin, ymax              required        the y range
-ticks                   default=-10     request ticks according to the standard
-                                        tick specification (see help(Ticks))
-miniticks               default=False   request miniticks according to the
-                                        standard minitick specification
-logbase                 default=None    if a number, the axis is logarithmic
-                                        with ticks at the given base (usually 10)
-mini_attr               default={}      SVG attributes for the minitick-lines
-                                        (if miniticks != False)
-attribute=value pairs   keyword list    SVG attributes for the major tick lines
-"""
+  xmin, xmax              required        the x range
+  ymin, ymax              required        the y range
+  ticks                   default=-10     request ticks according to the standard
+                                          tick specification (see help(Ticks))
+  miniticks               default=False   request miniticks according to the
+                                          standard minitick specification
+  logbase                 default=None    if a number, the axis is logarithmic
+                                          with ticks at the given base (usually 10)
+  mini_attr               default={}      SVG attributes for the minitick-lines
+                                          (if miniticks != False)
+  attribute=value pairs   keyword list    SVG attributes for the major tick lines
+  """
   defaults = {"stroke-width":"0.25pt", "stroke":"gray"}
   mini_defaults = {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"}
 
@@ -3279,23 +3279,23 @@ attribute=value pairs   keyword list    SVG attributes for the major tick lines
 
 class XErrorBars:
   """Draws x error bars at a set of points. This is usually used
-before (under) a set of Dots at the same points.
+  before (under) a set of Dots at the same points.
 
-XErrorBars(d, attribute=value)
+  XErrorBars(d, attribute=value)
 
-d                       required        list of (x,y,xerr...) points
-attribute=value pairs   keyword list    SVG attributes
+  d                       required        list of (x,y,xerr...) points
+  attribute=value pairs   keyword list    SVG attributes
 
-If points in d have
+  If points in d have
 
-    * 3 elements, the third is the symmetric error bar
-    * 4 elements, the third and fourth are the asymmetric lower and
-      upper error bar. The third element should be negative,
-      e.g. (5, 5, -1, 2) is a bar from 4 to 7.
-    * more than 4, a tick mark is placed at each value. This lets
-      you nest errors from different sources, correlated and
-      uncorrelated, statistical and systematic, etc.
-"""
+      * 3 elements, the third is the symmetric error bar
+      * 4 elements, the third and fourth are the asymmetric lower and
+        upper error bar. The third element should be negative,
+        e.g. (5, 5, -1, 2) is a bar from 4 to 7.
+      * more than 4, a tick mark is placed at each value. This lets
+        you nest errors from different sources, correlated and
+        uncorrelated, statistical and systematic, etc.
+  """
   defaults = {"stroke-width":"0.25pt"}
 
   def __repr__(self):
@@ -3325,23 +3325,23 @@ If points in d have
 
 class YErrorBars:
   """Draws y error bars at a set of points. This is usually used
-before (under) a set of Dots at the same points.
+  before (under) a set of Dots at the same points.
 
-YErrorBars(d, attribute=value)
+  YErrorBars(d, attribute=value)
 
-d                       required        list of (x,y,yerr...) points
-attribute=value pairs   keyword list    SVG attributes
+  d                       required        list of (x,y,yerr...) points
+  attribute=value pairs   keyword list    SVG attributes
 
-If points in d have
+  If points in d have
 
-    * 3 elements, the third is the symmetric error bar
-    * 4 elements, the third and fourth are the asymmetric lower and
-      upper error bar. The third element should be negative,
-      e.g. (5, 5, -1, 2) is a bar from 4 to 7.
-    * more than 4, a tick mark is placed at each value. This lets
-      you nest errors from different sources, correlated and
-      uncorrelated, statistical and systematic, etc.
-"""
+      * 3 elements, the third is the symmetric error bar
+      * 4 elements, the third and fourth are the asymmetric lower and
+        upper error bar. The third element should be negative,
+        e.g. (5, 5, -1, 2) is a bar from 4 to 7.
+      * more than 4, a tick mark is placed at each value. This lets
+        you nest errors from different sources, correlated and
+        uncorrelated, statistical and systematic, etc.
+  """
   defaults = {"stroke-width":"0.25pt"}
 
   def __repr__(self):
