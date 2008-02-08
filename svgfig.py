@@ -404,11 +404,11 @@ newl        string used for newlines
   def save(self, fileName=None, encoding="utf-8", compresslevel=None):
     """Save to a file for viewing.  Note that svg.save() overwrites the file named default_fileName.
 
-fileName 	default=None            note that default_fileName will be overwritten if
+fileName        default=None            note that default_fileName will be overwritten if
                                         no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
-encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
-compresslevel 	default=None 	        if a number, the output will be gzipped with that
+encoding        default=\"utf-8\"       file encoding (default is Unicode)
+compresslevel   default=None            if a number, the output will be gzipped with that
                                         compression level (1-9, 1 being fastest and 9 most
                                         thorough)
 """
@@ -433,10 +433,10 @@ compresslevel 	default=None 	        if a number, the output will be gzipped wit
   def inkview(self, fileName=None, encoding="utf-8"):
     """View in \"inkview\", assuming that program is available on your system.
 
-fileName 	default=None            note that any file named default_fileName will be
+fileName        default=None            note that any file named default_fileName will be
                                         overwritten if no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
-encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
+encoding        default=\"utf-8\"       file encoding (default is Unicode)
 """
     fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
@@ -445,10 +445,10 @@ encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
   def inkscape(self, fileName=None, encoding="utf-8"):
     """View in \"inkscape\", assuming that program is available on your system.
 
-fileName 	default=None            note that any file named default_fileName will be
+fileName        default=None            note that any file named default_fileName will be
                                         overwritten if no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
-encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
+encoding        default=\"utf-8\"       file encoding (default is Unicode)
 """
     fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
@@ -457,10 +457,10 @@ encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
   def firefox(self, fileName=None, encoding="utf-8"):
     """View in \"firefox\", assuming that program is available on your system.
 
-fileName 	default=None            note that any file named default_fileName will be
+fileName        default=None            note that any file named default_fileName will be
                                         overwritten if no fileName is specified. If the extension
                                         is \".svgz\" or \".gz\", the output will be gzipped
-encoding 	default=\"utf-8\" 	file encoding (default is Unicode)
+encoding        default=\"utf-8\"       file encoding (default is Unicode)
 """
     fileName = self.interpret_fileName(fileName)
     self.save(fileName, encoding)
