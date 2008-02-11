@@ -4,11 +4,23 @@
 
 [http://svgfig.googlecode.com/svn/trunk/ Source tree]
 
+We have decided to simplify the structure of SVGFig in a way that is not backward compatible.  When this is ready, it will be called version 2.0.0.  Meanwhile, I will maintain the 1.x series with bug-fixes as they are discovered.  The source tree contains 2.x code in progress, and is not guaranteed to work.
+
+Until we release 2.x, the wiki documentation will refer to 1.x behavior, which is different than the planned behavior for 2.x.
+
 If you find issues that you think might be bugs, please inform me through the [http://code.google.com/p/svgfig/issues/list Issues tab].
 
 = Fixed Releases =
 
 [http://code.google.com/p/svgfig/downloads/list Click here] for a searchable list of all downloads.
+
+== svgfig-1.1.4 ==
+
+[http://svgfig.googlecode.com/files/svgfig-1.1.4.tgz svgfig-1.1.4.tgz] [http://svgfig.googlecode.com/files/svgfig-1.1.4.zip svgfig-1.1.4.zip]
+
+  * Fixed [Defload load] so that it works on Windows
+  * Prepended globals with underscores so they are not loaded by `import *`
+  * General code clean-up
 
 == svgfig-1.1.3 ==
 
