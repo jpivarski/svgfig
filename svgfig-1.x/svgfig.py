@@ -1994,7 +1994,7 @@ class Line(Curve):
 
   def __init__(self, x1, y1, x2, y2, arrow_start=None, arrow_end=None, **attr):
     self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
-    self.arrow_start, self.arrow_end = arrow_start, arrow_end
+    self.arrow_start, self.arrow_end = arrow_start, arrow_end       
 
     self.attr = dict(self.defaults)
     self.attr.update(attr)
