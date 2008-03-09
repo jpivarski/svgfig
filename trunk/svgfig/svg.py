@@ -2,8 +2,6 @@
 
 import re, codecs, os, platform, copy, itertools, tempfile
 
-_epsilon = 1e-5
-
 defaults = { \
   "svg": {"width": 400, "height": 400, "viewBox": (0, 0, 100, 100), \
           "style": {"stroke":"black", "fill":"none", "stroke-width":"0.5pt", "stroke-linejoin":"round", "text-anchor":"middle"}, \
