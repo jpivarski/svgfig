@@ -693,7 +693,7 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=Non
   if ylogbase == None:
     yfunc = lambda y: oy1 + 1.*(y - iy1)/(iy2 - iy1) * (oy2 - oy1)
   else:
-    yfunc = lambda y: maybelog(y, ylogbase)
+    yfunc = lambda y: maybelog(y, iy1, iy2, oy1, oy2, ylogbase)
     ylogstr = " ylog=%g" % ylogbase
 
   output = lambda x, y: (xfunc(x), yfunc(y))
@@ -2424,7 +2424,8 @@ class Ticks:
     xhatx, xhaty = (Xprime - X)/eps, (Yprime - Y)/eps
 
     norm = math.sqrt(xhatx**2 + xhaty**2)
-    xhatx, xhaty = xhatx/norm, xhaty/norm
+    if norm != 0: xhatx, xhaty = xhatx/norm, xhaty/norm
+    else: xhatx, xhaty = 1., 0.
 
     angle = math.atan2(xhaty, xhatx) + math.pi/2.
     yhatx, yhaty = math.cos(angle), math.sin(angle)
@@ -2756,7 +2757,7 @@ class Ticks:
         break
 
     if len(output) <= 2:
-      output2 = compute_ticks(N=-int(math.ceil(N/2.)), format=format)
+      output2 = self.compute_ticks(N=-int(math.ceil(N/2.)), format=format)
       lowest = min(output2)
 
       for k in output:
