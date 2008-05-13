@@ -14,6 +14,12 @@ If you find issues that you think might be bugs, please inform me through the [h
 
 [http://code.google.com/p/svgfig/downloads/list Click here] for a searchable list of all downloads.
 
+== svgfig-1.1.6 ==
+
+[http://svgfig.googlecode.com/files/svgfig-1.1.5.tgz svgfig-1.1.6.tgz] [http://svgfig.googlecode.com/files/svgfig-1.1.5.zip svgfig-1.1.6.zip]
+
+  * Fixed two typos and a division-by-zero.
+
 == svgfig-1.1.5 ==
 
 [http://svgfig.googlecode.com/files/svgfig-1.1.5.tgz svgfig-1.1.5.tgz] [http://svgfig.googlecode.com/files/svgfig-1.1.5.zip svgfig-1.1.5.zip]
