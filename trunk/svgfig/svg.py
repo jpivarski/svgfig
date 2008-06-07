@@ -1,40 +1,9 @@
 # compatible with Python 2.3 and higher
 
 import re, codecs, os, platform, copy, itertools, tempfile
-
-defaults = { \
-  "svg": {"width": 400, "height": 400, "viewBox": (0, 0, 100, 100), \
-          "style": {"stroke":"black", "fill":"none", "stroke-width":"0.5pt", "stroke-linejoin":"round", "text-anchor":"middle"}, \
-          "font-family": ["Helvetica", "Arial", "FreeSans", "Sans", "sans", "sans-serif"], \
-          "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "version":"1.1", \
-          }, \
-  "text": {"stroke": "none", "fill": "black"}, \
-  }
-
-# _svg_inline and _svg_signature.keys() are mutually exclusive
-
-_svg_inline = ["g", "text", "tspan", "symbol", "marker"]
-
-_svg_signature = { \
-  "svg": ["width", "height", "viewBox"], \
-  "path": ["d", "stroke", "fill"], \
-  "line": ["x1", "y1", "x2", "y2", "stroke"], \
-  "rect": ["x", "y", "width", "height", "stroke", "fill"], \
-  "circle": ["cx", "cy", "r", "stroke", "fill"], \
-  }
-
-_xml_header = """\
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-"""
-
-if re.search("windows", platform.system(), re.I):
-  try:
-    import _winreg
-    _default_directory = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, \
-                       r"Software\Microsoft\Windows\Current Version\Explorer\Shell Folders"), "Desktop")[0]
-  except:
-    _default_directory = os.path.expanduser("~") + os.sep + "Desktop"
+import defaults, trans
+from trans import transform, Pin
+from pathdata import poly, bezier, velocity, foreback, smooth
 
 ##############################################################################
 
@@ -59,20 +28,20 @@ class SVG:
 
   def __init__(self, tag, *signature_attrib, **more_attrib):
     self.__dict__["tag"] = tag
-    self.__dict__["attrib"] = defaults.get(tag, {})
+    self.__dict__["attrib"] = dict(defaults.defaults.get(tag, {}))
     self.__dict__["children"] = []
 
-    signature = _svg_signature.get(tag)
-    if signature != None:
+    signature = defaults.signature.get(tag)
+    if tag in defaults.inline:
+      self.children.extend(signature_attrib)
+
+    elif signature is not None:
 
       if len(signature_attrib) > len(signature):
         raise TypeError, "Tag '%s' expects no more than %d non-keyword attributes (saw %d)" % (tag, len(signature), len(signature_attrib))
 
       for name, value in zip(signature, signature_attrib):
         self.attrib[name] = value
-
-    elif tag in _svg_inline:
-      self.children.extend(signature_attrib)
 
     elif len(signature_attrib) > 0:
       raise TypeError, "Tag '%s' expects 0 non-keyword attributes (saw %d)" % (tag, len(signature_attrib))
@@ -85,10 +54,36 @@ class SVG:
 
     self.attrib.update(more_attrib)
 
+    require = defaults.require.get(tag)
+    if require is not None:
+      for name in require:
+        if name not in self.attrib:
+          raise TypeError, "Tag '%s' requires a '%s' attribute" % (tag, name)
+
   def __call__(self, *children):
     """Extends the list of children and returns self (for inline construction of trees)."""
     self.children.extend(children)
     return self
+
+  def transform(self, expr):
+    transform_function = defaults.__dict__.get("transform_%s" % self.tag)
+    if transform_function is not None:
+      transform_function(trans.cannonical(expr), self)
+
+  ### signature attributes are accessible as member data
+  def __getattr__(self, name):
+    signature = defaults.signature.get(self.tag)
+    if signature is not None and name in signature:
+      return self.attrib[name]
+    else:
+      raise AttributeError, "Tag '%s' doesn't have a signature attribute '%s' (access other attributes with brackets)" % (self.tag, name)
+
+  def __setattr__(self, name, value):
+    signature = defaults.signature.get(self.tag)
+    if signature is not None and name in signature:
+      self.attrib[name] = value
+    else:
+      raise AttributeError, "Tag '%s' doesn't have a signature attribute '%s' (access other attributes with brackets)" % (self.tag, name)
 
   ### act like a list
   def append(self, other):
@@ -181,11 +176,20 @@ class SVG:
     remaining = copy.copy(self.attrib)  # shallow copy
 
     value = remaining.pop("id", None)
-    if value != None:
+    if value is not None:
       output.append("id='%s'" % value)
 
-    if self.tag in _svg_signature:
-      for name in _svg_signature[self.tag]:
+    # special handling of a text child: print it out and truncate if it's too long
+    if self.tag in ("text", "tspan") and len(self.children) == 1 and isinstance(self.children[0], basestring):
+      value = re.sub("\n", "\\\\n", self.children[0])
+      if len(value) > 13:
+        repr_value = "'%s...'" % value[0:10]
+      else:
+        repr_value = "'%s'" % value
+      output.append(repr_value)
+
+    if self.tag in defaults.signature:
+      for name in defaults.signature[self.tag]:
         try:
           value = remaining.pop(name)
 
@@ -224,7 +228,12 @@ class SVG:
 
     lenchildren = len(self.children)
     if lenchildren == 1:
-      output.append("(1 child)")
+      # special handling of a text child: already printed
+      if self.tag in ("text", "tspan") and isinstance(self.children[0], basestring):
+        pass
+      else:
+        output.append("(1 child)")
+
     elif lenchildren > 1:
       output.append("(%d children)" % lenchildren)
 
@@ -243,6 +252,7 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
+    if isinstance(obj, Pin): obj = obj.svg
 
     if isinstance(treeindex, (int, long, slice)):
       return obj.children[treeindex]
@@ -258,6 +268,7 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
+    if isinstance(obj, Pin): obj = obj.svg
 
     if isinstance(treeindex, (int, long, slice)):
       obj.children[treeindex] = value
@@ -273,6 +284,7 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
+    if isinstance(obj, Pin): obj = obj.svg
 
     if isinstance(treeindex, (int, long, slice)):
       del obj.children[treeindex]
@@ -309,8 +321,9 @@ class SVG:
         if self.treeindex != ():
           return self.treeindex, self.svg
 
+      if isinstance(self.svg, Pin): self.svg = self.svg.svg
       if not isinstance(self.svg, SVG): raise StopIteration
-      if self.depth_limit != None and len(self.treeindex) >= self.depth_limit: raise StopIteration
+      if self.depth_limit is not None and len(self.treeindex) >= self.depth_limit: raise StopIteration
 
       if "iterators" not in self.__dict__:
         self.iterators = []
@@ -330,8 +343,8 @@ class SVG:
     attributes as well as elements."""
     return self._SVGDepthIterator(self, (), depth_limit, attrib)
 
-  def view(self, depth_limit=None, attrib=False, width=20, string=False):
-    output = [("%s %s" % (("%%-%ds" % width) % repr(None), repr(self)))]
+  def tree(self, depth_limit=None, attrib=False, index_width=20, asstring=False):
+    output = [("%s %s" % (("%%-%ds" % index_width) % repr(None), repr(self)))]
 
     for treeindex, element in self.walk(depth_limit, attrib):
       if isinstance(element, basestring):
@@ -342,9 +355,9 @@ class SVG:
       else:
         repr_element = repr(element)
 
-      output.append(("%s %s%s" % (("%%-%ds" % width) % repr(list(treeindex)), ". . " * len(treeindex), repr_element)))
+      output.append(("%s %s%s" % (("%%-%ds" % index_width) % repr(list(treeindex)), ". . " * len(treeindex), repr_element)))
 
-    if string: return "\n".join(output)
+    if asstring: return "\n".join(output)
     else: print "\n".join(output)
 
   def xml(self, indent="    ", newl="\n"):
@@ -355,23 +368,49 @@ class SVG:
     """
 
     # how to convert different attribute types into XML
-    def attribstr(value):
+    def attribstr(name, value):
       if isinstance(value, basestring):
         return value
 
       elif isinstance(value, (int, long, float)):
         return repr(value)  # more precise
 
+      elif isinstance(value, (list, tuple)) and self.tag == "path" and name == "d":
+        def numbertostr(x):
+          if isinstance(x, (int, long, float)): return repr(x)  # more precise
+          else: return x
+
+        line = []
+        lastcommand = None
+        for datum in value:
+          if not isinstance(datum, (list, tuple)):
+            raise TypeError, "Pathdata elements must be lists/tuples"
+
+          command = datum[0]
+          args = map(numbertostr, datum[1:])
+
+          if lastcommand == command:
+            line.append(" ")
+            line.append(" ".join(args))
+            lastcommand = command
+          else:
+            line.append(command)
+            line.append(" ".join(args))
+
+          lastcommand = command
+
+        return "".join(line)
+
       elif isinstance(value, (list, tuple)):
         line = []
         for v in value:
-          line.append(attribstr(v))
+          line.append(attribstr(name, v))
         return ", ".join(line)
 
       elif isinstance(value, dict):
         line = []
         for n, v in value.items():
-          line.append("%s:%s" % (n, attribstr(v)))
+          line.append("%s:%s" % (n, attribstr(n, v)))
         return "; ".join(line)
 
       else:
@@ -379,6 +418,8 @@ class SVG:
 
     # recursive function for writing XML
     def subxml(sub, depth=0):
+      if isinstance(sub, Pin): sub = sub.svg
+
       if isinstance(sub, basestring):
         return [sub]
 
@@ -393,15 +434,15 @@ class SVG:
           line.append("id=%s " % remaining.pop("id"))
         except KeyError: pass
 
-        signature = _svg_signature.get(sub.tag)
-        if signature != None:
+        signature = defaults.signature.get(sub.tag)
+        if signature is not None:
           for name in signature:
             try:
-              line.append("%s=\"%s\" " % (name, attribstr(remaining.pop(name))))
+              line.append("%s=\"%s\" " % (name, attribstr(name, remaining.pop(name))))
             except KeyError: pass
 
         for name, value in remaining.items():
-          line.append("%s=\"%s\" " % (name, attribstr(value)))
+          line.append("%s=\"%s\" " % (name, attribstr(name, value)))
 
         if len(sub.children) == 0:
           line.append("/>")
@@ -429,12 +470,12 @@ class SVG:
     # the actual xml() function is rather short
     if self.tag != "svg": svg = SVG("svg")(self)
     else: svg = self
-    output = [_xml_header] + subxml(svg) + [""]
+    output = [defaults.xml_header] + subxml(svg) + [""]
     return newl.join(output)
 
   def _expand_fileName(self, fileName):
     if re.search("windows", platform.system(), re.I) and not os.path.isabs(fileName):
-      fileName = _default_directory + os.sep + fileName
+      fileName = defaults.directory + os.sep + fileName
     return fileName
 
   def save(self, fileName, encoding="utf-8", compresslevel=None):
@@ -448,9 +489,9 @@ class SVG:
     """
     fileName = self._expand_fileName(fileName)
 
-    if compresslevel != None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
+    if compresslevel is not None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
       import gzip
-      if compresslevel == None:
+      if compresslevel is None:
         f = gzip.GzipFile(fileName, "w")
       else:
         f = gzip.GzipFile(fileName, "w", compresslevel)
@@ -467,7 +508,7 @@ class SVG:
     return fileName
 
   def _write_tempfile(self, fileName=None, encoding="utf-8"):
-    if fileName == None:
+    if fileName is None:
       fd, fileName = tempfile.mkstemp(".svg", "svgfig-")
       os.write(fd, self.xml())
       os.close(fd)
@@ -574,12 +615,12 @@ def template(fileName, svg, replaceme="REPLACEME"):
   svg              required                SVG object for replacement
   replaceme        default="REPLACEME"     fake SVG element to be replaced by the given object
 
-  >>> load("template.svg").view()
+  >>> load("template.svg").tree()
   None                 <svg width=u'400' height=u'400' viewBox=u'0, 0, 100, 100' (2 children) (5 other attributes)>
   [0]                  . . <rect x=u'0' y=u'0' width=u'100' height=u'100' stroke=u'none' fill=u'yellow'>
   [1]                  . . <REPLACEME>
 
-  >>> template("template.svg", SVG("circle", 50, 50, 30)).view()
+  >>> template("template.svg", SVG("circle", 50, 50, 30)).tree()
   None                 <svg width=u'400' height=u'400' viewBox=u'0, 0, 100, 100' (2 children) (5 other attributes)>
   [0]                  . . <rect x=u'0' y=u'0' width=u'100' height=u'100' stroke=u'none' fill=u'yellow'>
   [1]                  . . <circle cx=50 cy=50 r=30>
@@ -628,7 +669,7 @@ def load_stream(stream):
         last.text += ch
 
       else:
-        if not isinstance(ch, basestring) or self.all_whitespace.match(ch) == None:
+        if not isinstance(ch, basestring) or self.all_whitespace.match(ch) is None:
           if len(self.stack) > 0:
             last = self.stack[-1]
             if len(last.children) > 0 and isinstance(last.children[-1], basestring):
