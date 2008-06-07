@@ -1,1 +1,1 @@
-__all__ = ["svg", "trans", "fig"]
+__all__ = ["svg", "fig", "defaults", "trans", "pathdata"]
