@@ -19,7 +19,60 @@ struct common_block {
   int recursion_limit;
   double linearity_limit;
   double discontinuity_limit;
+  unsigned int fMt[624];
+  int fCount624;
 };
+
+/* An implementation of the Mersenne Twistor random algorithm */
+/* Copyright (C) 1997 Makoto Matsumoto and Takuji Nishimura. */
+/* Copied from ROOT's TRandom3 */
+static void _curve_setseed(int seed, struct common_block *block) {
+  block->fCount624 = 624;
+  if (seed > 0) {
+    block->fMt[0] = seed;
+  }
+  int i;
+  for (i = 1;  i < 624;  i++) {
+    block->fMt[i] = (1812433253 * (block->fMt[i-1] ^ (block->fMt[i-1] >> 30)) + i);
+  }
+}
+
+static double _curve_random(struct common_block *block) {
+   unsigned int y;
+   int kM = 397;
+   int kN = 624;
+   unsigned int kTemperingMaskB = 0x9d2c5680;
+   unsigned int kTemperingMaskC = 0xefc60000;
+   unsigned int kUpperMask = 0x80000000;
+   unsigned int kLowerMask = 0x7fffffff;
+   unsigned int kMatrixA = 0x9908b0df;
+
+   if (block->fCount624 >= kN) {
+      int i;
+      for (i = 0;  i < kN-kM;  i++) {
+         y = (block->fMt[i] & kUpperMask) | (block->fMt[i+1] & kLowerMask);
+         block->fMt[i] = block->fMt[i+kM] ^ (y >> 1) ^ ((y & 0x1) ? kMatrixA : 0x0);
+      }
+
+      for (;  i < kN-1;  i++) {
+         y = (block->fMt[i] & kUpperMask) | (block->fMt[i+1] & kLowerMask);
+         block->fMt[i] = block->fMt[i+kM-kN] ^ (y >> 1) ^ ((y & 0x1) ? kMatrixA : 0x0);
+      }
+
+      y = (block->fMt[kN-1] & kUpperMask) | (block->fMt[0] & kLowerMask);
+      block->fMt[kN-1] = block->fMt[kM-1] ^ (y >> 1) ^ ((y & 0x1) ? kMatrixA : 0x0);
+      block->fCount624 = 0;
+   }
+
+   y = block->fMt[block->fCount624++];
+   y ^= (y >> 11);
+   y ^= ((y << 7 ) & kTemperingMaskB);
+   y ^= ((y << 15) & kTemperingMaskC);
+   y ^= (y >> 18);
+
+   if (y != 0) return ((double) y * 2.3283064365386963e-10); // * pow(2, -32)
+   return _curve_random(block);
+}
 
 static int _curve_eval(PyObject *parametric, PyObject *listoftrans, double t, double *fx, double *fy) {
   PyObject *args = Py_BuildValue("(d)", t);
@@ -99,8 +152,7 @@ int _curve_subsample(struct sample *left, struct sample *right, int depth, struc
   block->counter++;
 
   if (block->random_sampling == Py_True) {
-    /* how???? */
-    mid->t = left->t + 0.5*(right->t - left->t);
+    mid->t = left->t + (0.3 + 0.4*_curve_random(block))*(right->t - left->t);
   }
   else {
     mid->t = left->t + 0.5*(right->t - left->t);
@@ -142,18 +194,19 @@ int _curve_subsample(struct sample *left, struct sample *right, int depth, struc
 }
 
 static PyObject *_curve_curve(PyObject *self, PyObject *args, PyObject *kwds) {
-  const char *errstring = "arguments are: parametric function to plot, list of transformations to apply to each point, low endpoint, high endpoint.  \nkeyword arguments are: random_sampling (True), recursion_limit (15), linearity_limit (0.05), discontinuity_limit (5.)";
+  const char *errstring = "arguments are: parametric function to plot, list of transformations to apply to each point, low endpoint, high endpoint.  \nkeyword arguments are: random_sampling (True), random_seed (12345), recursion_limit (15), linearity_limit (0.05), discontinuity_limit (5.)";
 
   PyObject *parametric;
   PyObject *listoftrans;
   double low, high;
   PyObject *random_sampling = Py_True;
+  int random_seed = 12345;
   int recursion_limit = 15;
   double linearity_limit = 0.05;
   double discontinuity_limit = 5.;
 
-  static char *kwlist[] = {"parametric", "listoftrans", "low", "high", "random_sampling", "recursion_limit", "linearity_limit", "discontinuity_limit", NULL};
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOdd|Oidd", kwlist, &parametric, &listoftrans, &low, &high, &random_sampling, &recursion_limit, &linearity_limit, &discontinuity_limit)) {
+  static char *kwlist[] = {"parametric", "listoftrans", "low", "high", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOdd|Oiidd", kwlist, &parametric, &listoftrans, &low, &high, &random_sampling, &random_seed, &recursion_limit, &linearity_limit, &discontinuity_limit)) {
     PyErr_SetString(PyExc_TypeError, errstring);
     return NULL;
   }
@@ -225,6 +278,7 @@ static PyObject *_curve_curve(PyObject *self, PyObject *args, PyObject *kwds) {
   block.recursion_limit = recursion_limit;
   block.linearity_limit = linearity_limit;
   block.discontinuity_limit = discontinuity_limit;
+  _curve_setseed(random_seed, &block);
 
   /* recursively find most of the points */
   if (!_curve_subsample(samplelow, samplehigh, 0, &block)) {
