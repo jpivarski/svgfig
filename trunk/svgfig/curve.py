@@ -34,7 +34,7 @@ class Curve:
       self.text_attrib.update(kwds["text_attrib"])
       del kwds["text_attrib"]
 
-    # need to set "stroke" attribute before adding arrows and ticks
+    # need to set "stroke" attribute before adding ticks and arrows
     self.attrib = copy.deepcopy(self.__class__.attrib)
     if "stroke" in kwds:
       self.attrib["stroke"] = kwds["stroke"]
@@ -47,7 +47,7 @@ class Curve:
       if isinstance(ticks, dict):
         for t, mark in ticks.items(): self.tick(t, mark)
       else:
-        for t in ticks: self.tick(t, unicode_number(t))
+        for t in ticks: self.tick(t, unicode_number(t, scale=(self.high - self.low)))
           
     if "farrow" in kwds:
       self.farrow(kwds["farrow"])
@@ -283,12 +283,15 @@ def cannonical_parametric(expr):
 
 ##############################################################################
 
-def format_number(x, format="%g"): return format % x
+def format_number(x, format="%g", scale=1.):
+  eps = trans.epsilon * abs(scale)
+  if abs(x) < eps: return "0"
+  return format % x
 
-def unicode_number(x):
+def unicode_number(x, scale=1.):
   """Converts numbers to a Unicode string, taking advantage of special
 Unicode characters to make nice minus signs and scientific notation."""
-  output = format_number(x, u"%g")
+  output = format_number(x, u"%g", scale)
 
   if output[0] == u"-":
     output = u"\u2013" + output[1:]
