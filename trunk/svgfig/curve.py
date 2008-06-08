@@ -127,7 +127,7 @@ class Curve:
     return not (self == other)
   
   def __deepcopy__(self, memo={}):
-    kwds = dict(self.attrib)
+    kwds = copy.deepcopy(self.attrib)
     for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit":
       kwds[var] = eval("self.%s" % var)
     result = self.__class__(self.f, self.low, self.high, **kwds)
