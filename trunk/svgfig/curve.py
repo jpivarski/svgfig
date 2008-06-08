@@ -42,7 +42,7 @@ def cannonical_parametric(expr):
 
 class Curve:
   attrib = {"stroke": "black", "fill": "none"}
-  smooth = True
+  smooth = False
   random_sampling = True
   random_seed = 12345
   recursion_limit = 15
