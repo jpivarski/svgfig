@@ -1,11 +1,33 @@
 import math, cmath, copy
 
-##############################################################################
-
 def transform(expr, obj):
   obj = copy.deepcopy(obj)
   obj.transform(expr)
   return obj
+
+##############################################################################
+
+class Lock:
+  def __init__(self, svg): self.svg = svg
+
+  def __repr__(self): return "<Lock %s>" % self.svg
+
+  def transform(self, expr): pass
+
+  def __getitem__(self, treeindex): return self.svg[treeindex]
+  def __setitem__(self, treeindex, value): self.svg[treeindex] = value
+  def __delitem__(self, treeindex): del self.svg[treeindex]
+
+  def __eq__(self, other):
+    """x == y iff x represents the same Lock as y."""
+    if id(self) == id(other): return True
+    return isinstance(other, Lock) and self.svg == other.svg
+
+  def __ne__(self, other):
+    """x != y iff x does not represent the same Lock as y."""
+    return not (self == other)
+
+##############################################################################
 
 class Pin:
   epsilon = 1e-3
@@ -22,7 +44,7 @@ class Pin:
     return "<Pin %s%s at (%g %g)>" % (rotate, self.svg, self.x, self.y)
 
   def transform(self, expr):
-    func = cannonical(expr)
+    func = cannonical_transformation(expr)
 
     oldx, oldy = self.x, self.y
     self.x, self.y = func(self.x, self.y)
@@ -42,18 +64,20 @@ class Pin:
   def __getitem__(self, treeindex): return self.svg[treeindex]
   def __setitem__(self, treeindex, value): self.svg[treeindex] = value
   def __delitem__(self, treeindex): del self.svg[treeindex]
+
   def __eq__(self, other):
     """x == y iff x represents the same Pin as y."""
     if id(self) == id(other): return True
     return isinstance(other, Pin) and self.x == other.x and self.y == other.y and self.svg == other.svg and self.rotate == other.rotate
+
   def __ne__(self, other):
     """x != y iff x does not represent the same Pin as y."""
     return not (self == other)
 
 ##############################################################################
 
-def cannonical(expr):
-  """Put into cannonical form (function of two variables -> 2-tuple)"""
+def cannonical_transformation(expr):
+  """Put transformation function into cannonical form (function of two variables -> 2-tuple)"""
 
   if expr is None:
     return lambda x, y: (x, y)

@@ -1,9 +1,7 @@
 # compatible with Python 2.3 and higher
 
 import re, codecs, os, platform, copy, itertools, tempfile
-import defaults, trans
-from trans import transform, Pin
-from pathdata import poly, bezier, velocity, foreback, smooth
+import defaults, trans, curve
 
 ##############################################################################
 
@@ -68,7 +66,7 @@ class SVG:
   def transform(self, expr):
     transform_function = defaults.__dict__.get("transform_%s" % self.tag)
     if transform_function is not None:
-      transform_function(trans.cannonical(expr), self)
+      transform_function(trans.cannonical_transformation(expr), self)
 
   ### signature attributes are accessible as member data
   def __getattr__(self, name):
@@ -115,7 +113,7 @@ class SVG:
   def __len__(self): return len(self.children)
 
   def __add__(self, other):
-    output = self.deepcopy()
+    output = copy.deepcopy(self)
     output += other
     return output
 
@@ -124,7 +122,7 @@ class SVG:
     return self
 
   def __mul__(self, other):
-    output = self.deepcopy()
+    output = copy.deepcopy(self)
     output *= other
     return output
 
@@ -155,8 +153,6 @@ class SVG:
     return other in self.attrib or other in self.children
 
   def fromkeys(self, *args, **kwds): return self.attrib.fromkeys(*args, **kwds)
-  def copy(self, *args, **kwds): return copy.copy(self, *args, **kwds)
-  def deepcopy(self, *args, **kwds): return copy.deepcopy(self, *args, **kwds)
   def has_key(self, *args, **kwds): return self.attrib.has_key(*args, **kwds)
   def items(self, *args, **kwds): return self.attrib.items(*args, **kwds)
   def keys(self, *args, **kwds): return self.attrib.keys(*args, **kwds)
@@ -252,7 +248,9 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
-    if isinstance(obj, Pin): obj = obj.svg
+    try:
+      if not isinstance(obj, SVG): obj = obj.svg()
+    except AttributeError: pass
 
     if isinstance(treeindex, (int, long, slice)):
       return obj.children[treeindex]
@@ -268,7 +266,9 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
-    if isinstance(obj, Pin): obj = obj.svg
+    try:
+      if not isinstance(obj, SVG): obj = obj.svg()
+    except AttributeError: pass
 
     if isinstance(treeindex, (int, long, slice)):
       obj.children[treeindex] = value
@@ -284,7 +284,9 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
-    if isinstance(obj, Pin): obj = obj.svg
+    try:
+      if not isinstance(obj, SVG): obj = obj.svg()
+    except AttributeError: pass
 
     if isinstance(treeindex, (int, long, slice)):
       del obj.children[treeindex]
@@ -307,7 +309,7 @@ class SVG:
     """Manages SVG iteration."""
 
     def __init__(self, svg, treeindex, depth_limit, attrib):
-      self.svg = svg
+      self.current = svg
       self.treeindex = treeindex
       self.shown = False
       self.depth_limit = depth_limit
@@ -319,18 +321,21 @@ class SVG:
       if not self.shown:
         self.shown = True
         if self.treeindex != ():
-          return self.treeindex, self.svg
+          return self.treeindex, self.current
 
-      if isinstance(self.svg, Pin): self.svg = self.svg.svg
-      if not isinstance(self.svg, SVG): raise StopIteration
+      try:
+        if not isinstance(self.current, SVG): self.current = self.current.svg()
+      except AttributeError: pass
+
+      if not isinstance(self.current, SVG): raise StopIteration
       if self.depth_limit is not None and len(self.treeindex) >= self.depth_limit: raise StopIteration
 
       if "iterators" not in self.__dict__:
         self.iterators = []
-        for i, s in enumerate(self.svg.children):
+        for i, s in enumerate(self.current.children):
           self.iterators.append(self.__class__(s, self.treeindex + (i,), self.depth_limit, self.attrib))
         if self.attrib:
-          for k, s in self.svg.attrib.items():
+          for k, s in self.current.attrib.items():
             self.iterators.append(self.__class__(s, self.treeindex + (k,), self.depth_limit, self.attrib))
         self.iterators = itertools.chain(*self.iterators)
 
@@ -418,7 +423,9 @@ class SVG:
 
     # recursive function for writing XML
     def subxml(sub, depth=0):
-      if isinstance(sub, Pin): sub = sub.svg
+      try:
+        if not isinstance(sub, SVG): sub = sub.svg()
+      except AttributeError: pass
 
       if isinstance(sub, basestring):
         return [sub]
