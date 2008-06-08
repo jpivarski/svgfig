@@ -68,6 +68,11 @@ class SVG:
     if transform_function is not None:
       transform_function(trans.cannonical_transformation(expr), self)
 
+  def evaluate(self):
+    for child in self.children:
+      if isinstance(child, (SVG, trans.Hold)):
+        child.evaluate()
+
   ### signature attributes are accessible as member data
   def __getattr__(self, name):
     signature = defaults.signature.get(self.tag)
@@ -164,6 +169,8 @@ class SVG:
   def itervalues(self, *args, **kwds): return self.attrib.itervalues(*args, **kwds)
   def pop(self, *args, **kwds): return self.attrib.pop(*args, **kwds)
   def popitem(self, *args, **kwds): return self.attrib.popitem(*args, **kwds)
+  def copy(self): return copy.copy(self)
+  def deepcopy(self): return copy.deepcopy(self)
   ###
 
   def __repr__(self):
@@ -210,7 +217,7 @@ class SVG:
 
           # special handling of floats: use __str__ instead of __repr__
           elif isinstance(value, float):
-            repr_value = "'%s'" % str(value)
+            repr_value = "%s" % str(value)
 
           # normal handling
           else:
@@ -248,9 +255,7 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
-    try:
-      if not isinstance(obj, SVG): obj = obj.svg()
-    except AttributeError: pass
+    if isinstance(obj, trans.Hold): obj = obj.hold
 
     if isinstance(treeindex, (int, long, slice)):
       return obj.children[treeindex]
@@ -266,9 +271,7 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
-    try:
-      if not isinstance(obj, SVG): obj = obj.svg()
-    except AttributeError: pass
+    if isinstance(obj, trans.Hold): obj = obj.hold
 
     if isinstance(treeindex, (int, long, slice)):
       obj.children[treeindex] = value
@@ -284,9 +287,7 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
-    try:
-      if not isinstance(obj, SVG): obj = obj.svg()
-    except AttributeError: pass
+    if isinstance(obj, trans.Hold): obj = obj.hold
 
     if isinstance(treeindex, (int, long, slice)):
       del obj.children[treeindex]
@@ -323,20 +324,26 @@ class SVG:
         if self.treeindex != ():
           return self.treeindex, self.current
 
-      try:
-        if not isinstance(self.current, SVG): self.current = self.current.svg()
-      except AttributeError: pass
+      if isinstance(self.current, trans.Hold): self.current = self.current.hold
 
-      if not isinstance(self.current, SVG): raise StopIteration
       if self.depth_limit is not None and len(self.treeindex) >= self.depth_limit: raise StopIteration
 
       if "iterators" not in self.__dict__:
         self.iterators = []
-        for i, s in enumerate(self.current.children):
-          self.iterators.append(self.__class__(s, self.treeindex + (i,), self.depth_limit, self.attrib))
+
+        try:
+          for i, s in enumerate(self.current.children):
+            self.iterators.append(self.__class__(s, self.treeindex + (i,), self.depth_limit, self.attrib))
+        except AttributeError: pass
+
         if self.attrib:
-          for k, s in self.current.attrib.items():
-            self.iterators.append(self.__class__(s, self.treeindex + (k,), self.depth_limit, self.attrib))
+          try:
+            items = self.current.attrib.items()
+            items.sort()
+            for k, s in items:
+              self.iterators.append(self.__class__(s, self.treeindex + (k,), self.depth_limit, self.attrib))
+          except AttributeError: pass
+
         self.iterators = itertools.chain(*self.iterators)
 
       return self.iterators.next()
@@ -424,7 +431,7 @@ class SVG:
     # recursive function for writing XML
     def subxml(sub, depth=0):
       try:
-        if not isinstance(sub, SVG): sub = sub.svg()
+        sub = sub.svg() # if sub is a dynamic object that needs to be evaluated, now is the time to do it
       except AttributeError: pass
 
       if isinstance(sub, basestring):
@@ -438,7 +445,7 @@ class SVG:
         remaining = copy.copy(sub.attrib)  # shallow copy
 
         try:
-          line.append("id=%s " % remaining.pop("id"))
+          line.append("id=\"%s\" " % remaining.pop("id"))
         except KeyError: pass
 
         signature = defaults.signature.get(sub.tag)
