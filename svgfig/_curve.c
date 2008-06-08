@@ -19,21 +19,22 @@ struct common_block {
   int recursion_limit;
   double linearity_limit;
   double discontinuity_limit;
-  unsigned int fMt[624];
-  int fCount624;
+  unsigned int MT[624];
+  int count624;
 };
 
 /* An implementation of the Mersenne Twistor random algorithm */
 /* Copyright (C) 1997 Makoto Matsumoto and Takuji Nishimura. */
 /* Copied from ROOT's TRandom3 */
+/* (wanted to avoid compile-time dependencies for such a small part of the program) */
 static void _curve_setseed(int seed, struct common_block *block) {
-  block->fCount624 = 624;
+  block->count624 = 624;
   if (seed > 0) {
-    block->fMt[0] = seed;
+    block->MT[0] = seed;
   }
   int i;
   for (i = 1;  i < 624;  i++) {
-    block->fMt[i] = (1812433253 * (block->fMt[i-1] ^ (block->fMt[i-1] >> 30)) + i);
+    block->MT[i] = (1812433253 * (block->MT[i-1] ^ (block->MT[i-1] >> 30)) + i);
   }
 }
 
@@ -47,24 +48,24 @@ static double _curve_random(struct common_block *block) {
    unsigned int kLowerMask = 0x7fffffff;
    unsigned int kMatrixA = 0x9908b0df;
 
-   if (block->fCount624 >= kN) {
+   if (block->count624 >= kN) {
       int i;
       for (i = 0;  i < kN-kM;  i++) {
-         y = (block->fMt[i] & kUpperMask) | (block->fMt[i+1] & kLowerMask);
-         block->fMt[i] = block->fMt[i+kM] ^ (y >> 1) ^ ((y & 0x1) ? kMatrixA : 0x0);
+         y = (block->MT[i] & kUpperMask) | (block->MT[i+1] & kLowerMask);
+         block->MT[i] = block->MT[i+kM] ^ (y >> 1) ^ ((y & 0x1) ? kMatrixA : 0x0);
       }
 
       for (;  i < kN-1;  i++) {
-         y = (block->fMt[i] & kUpperMask) | (block->fMt[i+1] & kLowerMask);
-         block->fMt[i] = block->fMt[i+kM-kN] ^ (y >> 1) ^ ((y & 0x1) ? kMatrixA : 0x0);
+         y = (block->MT[i] & kUpperMask) | (block->MT[i+1] & kLowerMask);
+         block->MT[i] = block->MT[i+kM-kN] ^ (y >> 1) ^ ((y & 0x1) ? kMatrixA : 0x0);
       }
 
-      y = (block->fMt[kN-1] & kUpperMask) | (block->fMt[0] & kLowerMask);
-      block->fMt[kN-1] = block->fMt[kM-1] ^ (y >> 1) ^ ((y & 0x1) ? kMatrixA : 0x0);
-      block->fCount624 = 0;
+      y = (block->MT[kN-1] & kUpperMask) | (block->MT[0] & kLowerMask);
+      block->MT[kN-1] = block->MT[kM-1] ^ (y >> 1) ^ ((y & 0x1) ? kMatrixA : 0x0);
+      block->count624 = 0;
    }
 
-   y = block->fMt[block->fCount624++];
+   y = block->MT[block->count624++];
    y ^= (y >> 11);
    y ^= ((y << 7 ) & kTemperingMaskB);
    y ^= ((y << 15) & kTemperingMaskC);
@@ -74,6 +75,7 @@ static double _curve_random(struct common_block *block) {
    return _curve_random(block);
 }
 
+/* evaluate parametric function at a point, passing it through a list of coordinate transformations */
 static int _curve_eval(PyObject *parametric, PyObject *listoftrans, double t, double *fx, double *fy) {
   PyObject *args = Py_BuildValue("(d)", t);
   PyObject *result = PyObject_CallObject(parametric, args);
@@ -142,6 +144,9 @@ static int _curve_eval(PyObject *parametric, PyObject *listoftrans, double t, do
   return 1;
 }
 
+/* recursively called to fill a (doubly-linked) list of sample points where it needs it most */
+/* with the default parameters, it computes a few more points than are typically needed */
+/* after pruning the extras, that guarantees a nice smooth curve */
 int _curve_subsample(struct sample *left, struct sample *right, int depth, struct common_block *block) {
   /* make new mid node and link it up */
   struct sample *mid = (struct sample*)malloc(sizeof(struct sample));
@@ -157,7 +162,7 @@ int _curve_subsample(struct sample *left, struct sample *right, int depth, struc
   else {
     mid->t = left->t + 0.5*(right->t - left->t);
   }
-
+  
   if (!_curve_eval(block->parametric, block->listoftrans, mid->t, &(mid->x), &(mid->y))) {
     free(mid);
     return 0;
@@ -193,6 +198,7 @@ int _curve_subsample(struct sample *left, struct sample *right, int depth, struc
   return 1;
 }
 
+/* the only function which is called from the outside: the interface to Python */
 static PyObject *_curve_curve(PyObject *self, PyObject *args, PyObject *kwds) {
   const char *errstring = "arguments are: parametric function to plot, list of transformations to apply to each point, low endpoint, high endpoint.  \nkeyword arguments are: random_sampling (True), random_seed (12345), recursion_limit (15), linearity_limit (0.05), discontinuity_limit (5.)";
 
@@ -327,7 +333,7 @@ static PyObject *_curve_curve(PyObject *self, PyObject *args, PyObject *kwds) {
   for (i = 0;  i < length;  i++) {
     if (p->discontinuity) {
       Py_INCREF(Py_None);
-      if (PyTuple_SetItem(Py_None, i, output) != 0) failure = 1;
+      if (PyTuple_SetItem(output, i, Py_None) != 0) failure = 1;
     }
     else {
       if (PyTuple_SetItem(output, i, Py_BuildValue("dd", p->x, p->y)) != 0) failure = 1;
