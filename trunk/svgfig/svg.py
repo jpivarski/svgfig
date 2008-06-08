@@ -1,16 +1,7 @@
-# compatible with Python 2.3 and higher
+# should be compatible with Python 2.3 and higher (and tested with 2.4.3)
 
 import re, codecs, os, platform, copy, itertools, tempfile
-import defaults, trans, curve
-
-##############################################################################
-
-def rgb(r, g, b, maximum=1.):
-  """Create an SVG color string "#xxyyzz" from r, g, and b.
-
-  r,g,b = 0 is black and r,g,b = maximum is white.
-  """
-  return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)), max(0, min(g*255./maximum, 255)), max(0, min(b*255./maximum, 255)))
+import defaults, trans
 
 ##############################################################################
 
@@ -72,6 +63,20 @@ class SVG:
     for child in self.children:
       if isinstance(child, (SVG, trans.Hold)):
         child.evaluate()
+        
+  def make_static(self):
+    for i, child in enumerate(self.children):
+      doit = False
+      try:
+        child.svg
+        doit = True
+      except AttributeError: pass
+      if doit:
+        if callable(child.svg): self.children[i] = child.svg()
+        else: self.children[i] = child.svg
+        child = self.children[i]
+
+      child.make_static()
 
   ### signature attributes are accessible as member data
   def __getattr__(self, name):
@@ -79,14 +84,18 @@ class SVG:
     if signature is not None and name in signature:
       return self.attrib[name]
     else:
-      raise AttributeError, "Tag '%s' doesn't have a signature attribute '%s' (access other attributes with brackets)" % (self.tag, name)
+      raise AttributeError, "SVG tag '%s' has no signature attrib '%s' (access others with brackets)" % (self.tag, name)
 
   def __setattr__(self, name, value):
-    signature = defaults.signature.get(self.tag)
-    if signature is not None and name in signature:
-      self.attrib[name] = value
+    if name in self.__dict__:
+      self.__dict__[name] = value
+
     else:
-      raise AttributeError, "Tag '%s' doesn't have a signature attribute '%s' (access other attributes with brackets)" % (self.tag, name)
+      signature = defaults.signature.get(self.tag)
+      if signature is not None and name in signature:
+        self.attrib[name] = value
+      else:
+        raise AttributeError, "SVG tag '%s' has no signature attrib '%s' (access others with brackets)" % (self.tag, name)
 
   ### act like a list
   def append(self, other):
@@ -309,14 +318,37 @@ class SVG:
   class _SVGDepthIterator:
     """Manages SVG iteration."""
 
-    def __init__(self, svg, treeindex, depth_limit, attrib):
+    def __init__(self, svg, treeindex, depth_limit, attrib, attrib_first):
       self.current = svg
       self.treeindex = treeindex
       self.shown = False
       self.depth_limit = depth_limit
       self.attrib = attrib
+      self.attrib_first = attrib_first
 
     def __iter__(self): return self
+
+    def make_children_iterators(self):
+      doit = False
+      try:
+        self.current.children
+        doit = True
+      except AttributeError: pass
+      if doit:
+        for i, s in enumerate(self.current.children):
+          self.iterators.append(self.__class__(s, self.treeindex + (i,), self.depth_limit, self.attrib, self.attrib_first))
+
+    def make_attrib_iterators(self):
+      doit = False
+      try:
+        self.current.attrib
+        doit = True
+      except AttributeError: pass
+      if doit:
+        items = self.current.attrib.items()
+        items.sort()
+        for k, s in items:
+          self.iterators.append(self.__class__(s, self.treeindex + (k,), self.depth_limit, self.attrib, self.attrib_first))
 
     def next(self):
       if not self.shown:
@@ -331,34 +363,28 @@ class SVG:
       if "iterators" not in self.__dict__:
         self.iterators = []
 
-        try:
-          for i, s in enumerate(self.current.children):
-            self.iterators.append(self.__class__(s, self.treeindex + (i,), self.depth_limit, self.attrib))
-        except AttributeError: pass
-
-        if self.attrib:
-          try:
-            items = self.current.attrib.items()
-            items.sort()
-            for k, s in items:
-              self.iterators.append(self.__class__(s, self.treeindex + (k,), self.depth_limit, self.attrib))
-          except AttributeError: pass
+        if self.attrib and self.attrib_first: self.make_attrib_iterators()
+        self.make_children_iterators()
+        if self.attrib and not self.attrib_first: self.make_attrib_iterators()
 
         self.iterators = itertools.chain(*self.iterators)
 
       return self.iterators.next()
   ### end nested class
 
-  def walk(self, depth_limit=None, attrib=False):
+  def walk(self, depth_limit=None, attrib=False, attrib_first=False):
     """Returns a depth-first generator over the SVG.  If depth_limit
     is a number, stop recursion at that depth.  If attrib=True, show
     attributes as well as elements."""
-    return self._SVGDepthIterator(self, (), depth_limit, attrib)
+    return self._SVGDepthIterator(self, (), depth_limit, attrib, attrib_first)
 
-  def tree(self, depth_limit=None, attrib=False, index_width=20, asstring=False):
-    output = [("%s %s" % (("%%-%ds" % index_width) % repr(None), repr(self)))]
+  def tree(self, depth_limit=None, attrib=False, attrib_first=False, index_width=20, showtop=True, asstring=False):
+    if showtop:
+      output = [("%s %s" % (("%%-%ds" % index_width) % repr(None), repr(self)))]
+    else:
+      output = []
 
-    for treeindex, element in self.walk(depth_limit, attrib):
+    for treeindex, element in self.walk(depth_limit, attrib, attrib_first):
       if isinstance(element, basestring):
         if len(element) > 13:
           repr_element = "'%s...'" % element[0:10]
@@ -372,7 +398,7 @@ class SVG:
     if asstring: return "\n".join(output)
     else: print "\n".join(output)
 
-  def xml(self, indent="    ", newl="\n"):
+  def xml(self, indent=u"    ", newl=u"\n"):
     """Get an XML representation of the SVG that can be saved/rendered.
 
     indent      string used for indenting
@@ -380,14 +406,14 @@ class SVG:
     """
 
     # how to convert different attribute types into XML
-    def attribstr(name, value):
+    def attribstr(tag, name, value):
       if isinstance(value, basestring):
         return value
 
       elif isinstance(value, (int, long, float)):
         return repr(value)  # more precise
 
-      elif isinstance(value, (list, tuple)) and self.tag == "path" and name == "d":
+      elif isinstance(value, (list, tuple)) and tag == "path" and name == "d":
         def numbertostr(x):
           if isinstance(x, (int, long, float)): return repr(x)  # more precise
           else: return x
@@ -402,80 +428,84 @@ class SVG:
           args = map(numbertostr, datum[1:])
 
           if lastcommand == command:
-            line.append(" ")
-            line.append(" ".join(args))
+            line.append(u" ")
+            line.append(u" ".join(args))
             lastcommand = command
           else:
             line.append(command)
-            line.append(" ".join(args))
+            line.append(u" ".join(args))
 
           lastcommand = command
 
-        return "".join(line)
+        return u"".join(line)
 
       elif isinstance(value, (list, tuple)):
         line = []
         for v in value:
-          line.append(attribstr(name, v))
-        return ", ".join(line)
+          line.append(attribstr(tag, name, v))
+        return u", ".join(line)
 
       elif isinstance(value, dict):
         line = []
         for n, v in value.items():
-          line.append("%s:%s" % (n, attribstr(n, v)))
-        return "; ".join(line)
+          line.append(u"%s:%s" % (n, attribstr(tag, name, v)))
+        return u"; ".join(line)
 
       else:
-        return str(value)
+        return unicode(value)
 
     # recursive function for writing XML
     def subxml(sub, depth=0):
+      doit = False
       try:
-        sub = sub.svg() # if sub is a dynamic object that needs to be evaluated, now is the time to do it
+        sub.svg
+        doit = True
       except AttributeError: pass
+      if doit:
+        sub = sub.svg() # if sub is a dynamic object that needs to be evaluated, now is the time to do it
 
       if isinstance(sub, basestring):
         return [sub]
 
       elif isinstance(sub, SVG) and not sub.__class__ == SVG:
-        return ["%s%s" % (indent * depth, sub.xml())]
+        return [u"%s%s" % (indent * depth, sub.xml())]
 
       elif isinstance(sub, SVG):
-        line = [indent * depth, "<", sub.tag, " "]
+        line = [indent * depth, u"<", sub.tag, u" "]
         remaining = copy.copy(sub.attrib)  # shallow copy
 
         try:
-          line.append("id=\"%s\" " % remaining.pop("id"))
+          line.append(u"id=\"%s\" " % remaining.pop("id"))
         except KeyError: pass
 
         signature = defaults.signature.get(sub.tag)
         if signature is not None:
           for name in signature:
             try:
-              line.append("%s=\"%s\" " % (name, attribstr(name, remaining.pop(name))))
+              line.append(u"%s=\"%s\" " % (name, attribstr(sub.tag, name, remaining.pop(name))))
             except KeyError: pass
 
         for name, value in remaining.items():
-          line.append("%s=\"%s\" " % (name, attribstr(name, value)))
+          line.append(u"%s=\"%s\" " % (name, attribstr(sub.tag, name, value)))
 
         if len(sub.children) == 0:
-          line.append("/>")
-          return ["".join(line)]
+          line.append(u"/>")
+          return [u"".join(line)]
 
         else:
-          line.append(">")
+          line.append(u">")
 
           if sub.tag in ("text", "tspan"):
             for i in sub.children:
               line.extend(subxml(i, 0))
-            line.append("</%s>" % (sub.tag))
-            return ["".join(line)]
+            line.append(u"</%s>" % (sub.tag))
+            return [u"".join(line)]
 
           else:
-            lines = ["".join(line)]
+            lines = [u"".join(line)]
             for i in sub.children:
               lines.extend(subxml(i, depth+1))
-            lines.append("%s</%s>" % (indent * depth, sub.tag))
+            lines.append(u"%s</%s>" % (indent * depth, sub.tag))
             return lines
 
       else:
@@ -484,8 +514,8 @@ class SVG:
     # the actual xml() function is rather short
     if self.tag != "svg": svg = SVG("svg")(self)
     else: svg = self
-    output = [defaults.xml_header] + subxml(svg) + [""]
-    return newl.join(output)
+    output = [defaults.xml_header] + subxml(svg) + [u""]
+    return unicode(newl.join(output))
 
   def _expand_fileName(self, fileName):
     if re.search("windows", platform.system(), re.I) and not os.path.isabs(fileName):
@@ -738,3 +768,14 @@ def load_stream(stream):
   parser.setFeature(feature_external_ges, 0)
   parser.parse(stream)
   return ch.output
+
+##############################################################################
+
+# This rgb function could be a lot better... something to think about...
+def rgb(r, g, b, maximum=1.):
+  """Create an SVG color string "#xxyyzz" from r, g, and b.
+
+r,g,b = 0 is black and r,g,b = maximum is white.
+  """
+  return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)), max(0, min(g*255./maximum, 255)), max(0, min(b*255./maximum, 255)))
+

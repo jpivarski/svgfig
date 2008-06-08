@@ -1,7 +1,12 @@
-import svg, defaults, trans, pathdata, curve
+import svg, defaults, glyphs, trans, pathdata, curve
 
 # Only bring into the namespace the functions and classes that the user will need
-from svg import SVG, rgb, template, load, load_stream
-from trans import transform, Delay, Freeze, Pin, window, rotation
+# This distinguishes user interface from internal functions
+# (Though the user can still access them, it intentionally requires more typing)
+# Internal class members are preceeded by an underscore
+
+from svg import SVG, template, load, load_stream, rgb
+from trans import transform, transformation_angle, transformation_jacobian, Delay, Freeze, Pin, window, rotation
 from pathdata import poly, bezier, velocity, foreback, smooth
 from curve import Curve
+

@@ -1,10 +1,34 @@
 import math, cmath, copy
 
+epsilon = 1e-5
+
 def transform(expr, obj):
   """Return a copy of obj with transformation expr applied."""
   obj = copy.deepcopy(obj)
   obj.transform(expr)
   return obj
+
+def transformation_angle(expr, x, y, scale=1.):
+  func = cannonical_transformation(expr)
+  eps = epsilon
+  if scale != 0.: eps *= scale
+
+  xprime, yprime = func(x + eps, y)
+  x, y = func(x, y)
+
+  delx, dely = xprime - x, yprime - y
+  return math.atan2(dely, delx)
+
+def transformation_jacobian(expr, x, y, scale=1.):
+  func = cannonical_transformation(expr)
+  eps = epsilon
+  if scale != 0.: eps *= scale
+
+  X0, Y0 = func(x, y)
+  xhatx, xhaty = func(x + eps, y)
+  yhatx, yhaty = func(x, y + eps)
+
+  return (1.*(xhatx - X0)/eps, 1.*(xhaty - Y0)/eps), (1.*(yhatx - X0)/eps, 1.*(yhaty - Y0)/eps)
 
 ##############################################################################
 
@@ -18,8 +42,16 @@ class Hold:
 
   def evaluate(self): self.hold.evaluate()
 
-  def __getattr__(self, name): return self.hold.__getattr__(name)
+  def svg(self): return self.hold
 
+  def tree(self, depth_limit=None, attrib=False, attrib_first=False, index_width=20, showtop=True, asstring=False):
+    if showtop: output = "%s %s\n" % (("%%-%ds" % index_width) % repr(None), repr(self))
+    else: output = ""
+    output += self.hold.tree(depth_limit, attrib, attrib_first, index_width, False, True)
+    if asstring: return output
+    else: print output
+
+  def __getattr__(self, name): return self.hold.__getattr__(name)
   def __setattr__(self, name, value):
     if name in self.__dict__:
       self.__dict__[name] = value
@@ -66,7 +98,6 @@ class Hold:
     return isinstance(other, Hold) and self.hold == other.hold
   def __ne__(self, other): return not (self == other)
   def walk(self, *args, **kwds): return self.hold.walk(*args, **kwds)
-  def tree(self, *args, **kwds): return self.hold.tree(*args, **kwds)
   def xml(self, *args, **kwds): return self.hold.xml(*args, **kwds)
   def save(self, *args, **kwds): return self.hold.save(*args, **kwds)
   def inkview(self, *args, **kwds): return self.hold.inkview(*args, **kwds)
@@ -134,8 +165,6 @@ Members: svg"""
 
   def transform(self, expr): pass
 
-  def svg(self): return self.hold
-
   def __eq__(self, other):
     if id(self) == id(other): return True
     return isinstance(other, Freeze) and self.hold == other.hold
@@ -150,8 +179,6 @@ drawing rotates if rotate=True.
 Arguments: Pin(x, y, svg, rotate=False)
 
 Members: x, y, svg, rotate"""
-
-  epsilon = 1e-3
 
   def __init__(self, x, y, svg, rotate=False):
     self.__dict__["x"] = x
@@ -173,9 +200,7 @@ Members: x, y, svg, rotate"""
     self.__dict__["x"], self.__dict__["y"] = func(self.x, self.y)
 
     if self.rotate:
-      scale = abs(oldx)
-      if scale == 0.: scale = 1.
-      shiftx, shifty = func(oldx + scale*self.epsilon, oldy)
+      shiftx, shifty = func(oldx + epsilon, oldy)
       angle = math.atan2(shifty, shiftx)
 
       self.hold.transform(lambda x, y: (self.x + math.cos(angle)*(x - oldx) - math.sin(angle)*(y - oldy),
@@ -183,8 +208,6 @@ Members: x, y, svg, rotate"""
 
     else:
       self.hold.transform(lambda x, y: (x + self.x - oldx, y + self.y - oldy))
-
-  def svg(self): return self.hold
 
   def __eq__(self, other):
     if id(self) == id(other): return True
