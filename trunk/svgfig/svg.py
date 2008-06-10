@@ -64,7 +64,8 @@ class SVG:
       if isinstance(child, (SVG, trans.Hold)):
         child.evaluate()
         
-  def make_static(self):
+  def svg(self):
+    newchildren = []
     for i, child in enumerate(self.children):
       doit = False
       try:
@@ -72,11 +73,12 @@ class SVG:
         doit = True
       except AttributeError: pass
       if doit:
-        if callable(child.svg): self.children[i] = child.svg()
-        else: self.children[i] = child.svg
-        child = self.children[i]
+        if callable(child.svg): newchildren.append(child.svg())
+        else: newchildren.append(child.svg)
+      else:
+        newchildren.append(copy.deepcopy(child))
 
-      child.make_static()
+    return SVG(self.tag, **self.attrib)(*newchildren)
 
   ### signature attributes are accessible as member data
   def __getattr__(self, name):
