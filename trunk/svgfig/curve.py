@@ -1,5 +1,5 @@
 import math, cmath, copy
-import _curve, svg, trans, pathdata, glyphs
+import svg, trans, pathdata, glyphs
 
 ##############################################################################
 
@@ -101,6 +101,7 @@ class Curve:
     return math.atan2(dely, delx)
 
   def d(self):
+    import _curve
     data = _curve.curve(self.f, self.transformations, self.low, self.high,
                         self.random_sampling, self.random_seed, self.recursion_limit, self.linearity_limit, self.discontinuity_limit)
 

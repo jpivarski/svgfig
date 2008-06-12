@@ -519,6 +519,10 @@ class SVG:
     output = [defaults.xml_header] + subxml(svg) + [u""]
     return unicode(newl.join(output))
 
+  def view(self):
+    import _viewer
+    _viewer.str(self.xml())
+
   def _expand_fileName(self, fileName):
     if re.search("windows", platform.system(), re.I) and not os.path.isabs(fileName):
       fileName = defaults.directory + os.sep + fileName
