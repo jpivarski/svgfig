@@ -1,4 +1,4 @@
-import math, cmath, copy
+import math, cmath, copy, re
 import svg, trans, pathdata, glyphs
 
 ##############################################################################
@@ -42,11 +42,21 @@ class Curve:
       del kwds["stroke"]
           
     if "farrow" in kwds:
-      self.farrow(kwds["farrow"])
+      if kwds["farrow"] is True:
+        self.add(self.high, glyphs.farrowhead)
+        self.marks[-1][1]["fill"] = self["stroke"]
+      else:
+        self.add(self.high, kwds["farrow"])
+        self.marks[-1][1]["fill"] = self["stroke"]
       del kwds["farrow"]
 
     if "barrow" in kwds:
-      self.barrow(kwds["barrow"])
+      if kwds["barrow"] is True:
+        self.add(self.low, glyphs.barrowhead)
+        self.marks[-1][1]["fill"] = self["stroke"]
+      else:
+        self.add(self.low, kwds["barrow"])
+        self.marks[-1][1]["fill"] = self["stroke"]
       del kwds["barrow"]
 
     # now add the rest of the attributes
@@ -128,7 +138,8 @@ class Curve:
     else:
       output = svg.SVG("g", svg.SVG("path", self.d(), **self.attrib))
 
-      tolerance = 2. * trans.epsilon * abs(self.high - self.low)
+      lowX, lowY = self(self.low)
+      highX, highY = self(self.high)
 
       items = copy.copy(self.marks)
       items.sort()
@@ -138,9 +149,12 @@ class Curve:
         else:
           t, mark = item # marks should be (pos, mark) pairs or just pos
 
-        if self.low - tolerance < t < self.high + tolerance:
-          X, Y = self(t, transformed=True)
-          angle = self.angle(t, transformed=True)
+        X, Y = self(t)
+        if self.low <= t <= self.high or \
+           math.sqrt((X - lowX)**2 + (Y - lowY)**2) < trans.epsilon or \
+           math.sqrt((X - highX)**2 + (Y - highY)**2) < trans.epsilon:
+
+          angle = self.angle(t)
 
           if isinstance(mark, basestring):
             text_attrib = {"transform": "translate(%g, %g) rotate(%g)" %
@@ -177,41 +191,98 @@ class Curve:
     memo[id(self)] = result
     return result
 
-  def drop(self, t, tolerance=None):
+  def _matches(self, matching, mark):
+    if matching is None: return True
+
+    try:
+      if isinstance(mark, matching): return True
+    except TypeError: pass
+    
+    if isinstance(mark, svg.SVG) and isinstance(matching, basestring):
+      if re.search(matching, mark.tag): return True
+      if "repr" in mark.__dict__ and re.search(matching, mark.repr): return True
+
+    if isinstance(matching, basestring) and isinstance(mark, basestring):
+      if re.search(matching, mark): return True
+
+    return matching == mark
+
+  def wipe(self, low=None, high=None, matching=None):
+    if low is None: low = self.low
+    if high is None: high = self.high
+
+    newmarks = []
+    for item in self.marks:
+      if isinstance(item, (int, long, float)):
+        if self._matches(matching, item):
+          if not low <= item <= high: newmarks.append(item)
+        else:
+          newmarks.append(item)
+
+      else:
+        pos, mark = item # marks should be (pos, mark) pairs or just pos
+        if self._matches(matching, mark):
+          if not low <= pos <= high: newmarks.append(item)
+        else:
+          newmarks.append(item)
+
+    self.marks = newmarks
+
+  def keep(self, low=None, high=None, matching=None):
+    if low is None: low = self.low
+    if high is None: high = self.high
+
+    newmarks = []
+    for item in self.marks:
+      if isinstance(item, (int, long, float)):
+        if self._matches(matching, item):
+          if low <= item <= high: newmarks.append(item)
+
+      else:
+        pos, mark = item # marks should be (pos, mark) pairs or just pos
+        if self._matches(matching, mark):
+          if low <= pos <= high: newmarks.append(item)
+
+    self.marks = newmarks
+
+  def drop(self, t, tolerance=None, matching=None):
     if tolerance is None: tolerance = trans.epsilon * abs(self.high - self.low)
-    newmarks = []
-    for item in self.marks:
-      if isinstance(item, (int, long, float)):
-        if abs(item - t) > tolerance:
-          newmarks.append(item)
-      else:
-        pos, mark = item # marks should be (pos, mark) pairs or just pos
-        if abs(pos - t) > tolerance:
-          newmarks.append(item)
-    self.marks = newmarks
+    self.wipe(t - tolerance, t + tolerance, matching=matching)
 
-  def wipe(self, low, high):
-    newmarks = []
+  def clean(self, keep="arrowhead", drop="tick", clearance=1.):
+    hold = {}
     for item in self.marks:
       if isinstance(item, (int, long, float)):
-        if not low <= item < high:
-          newmarks.append(item)
-      else:
-        pos, mark = item # marks should be (pos, mark) pairs or just pos
-        if not low <= pos < high:
-          newmarks.append(item)
-    self.marks = newmarks
+        if self._matches(keep, item):
+          hold[item] = None
 
-  def keep(self, low, high):
+      else:
+        pos, mark = item # marks should be (pos, mark) pairs or just pos
+        if self._matches(keep, mark):
+          hold[pos] = mark
+    
     newmarks = []
     for item in self.marks:
       if isinstance(item, (int, long, float)):
-        if low <= item < high:
-          newmarks.append(item)
+        pos, mark = item, None
       else:
-        pos, mark = item # marks should be (pos, mark) pairs or just pos
-        if low <= pos < high:
-          newmarks.append(item)
+        pos, mark = item
+
+      okay = True
+      if self._matches(drop, mark):
+        for kpos, kmark in hold.items():
+          x1, y1 = self(pos)
+          x2, y2 = self(kpos)
+          if math.sqrt((x1 - x2)**2 + (y1 - y2)**2) < clearance: okay = False
+
+      if okay: newmarks.append(item)
+
+    for kpos, kmark in hold.items():
+      if kmark is None:
+        newmarks.append(kpos)
+      else:
+        newmarks.append((kpos, kmark))
+
     self.marks = newmarks
 
   def add(self, t, mark, angle=0., dx=0., dy=0.):
@@ -219,6 +290,20 @@ class Curve:
       mark = trans.transform(lambda x, y: (dx + math.cos(angle)*x - math.sin(angle)*y,
                                            dy + math.sin(angle)*x + math.cos(angle)*y), mark)
     self.marks.append((t, mark))
+
+  def tick(self, t, mark=None):
+    if mark is None:
+      self.add(t, glyphs.tick)
+      self.marks[-1][1]["stroke"] = self["stroke"]
+    elif isinstance(mark, basestring):
+      self.add(t, glyphs.tick)
+      self.marks[-1][1]["stroke"] = self["stroke"]
+      self.add(t, mark)
+    else:
+      self.add(t, mark)
+      self.marks[-1][1]["stroke"] = self["stroke"]
+
+  def minitick(self, t): self.tick(t, glyphs.minitick)
 
   def _markorder(self, a, b):
     if isinstance(a, (int, long, float)):
@@ -238,59 +323,32 @@ class Curve:
     if order is None: order = lambda a, b: self._markorder(a, b)
     self.marks.sort(order)
 
-  def mark(self, t, tolerance=None):
+  def closest(self, t, tolerance=None, matching=None):
     if tolerance is None: tolerance = trans.epsilon * abs(self.high - self.low)
 
     candidates = []
     for item in self.marks:
       if isinstance(item, (int, long, float)):
-        if abs(item - t) < tolerance:
+        if self._matches(matching, item) and abs(t - item) < tolerance:
           candidates.append(item)
       else:
-        pos, mark = item # marks should be (pos, mark) pairs or just pos
-        if abs(pos - t) < tolerance:
+        pos, mark = item
+        if self._matches(matching, mark) and abs(t - pos) < tolerance:
           candidates.append(item)
 
-    candidates.sort(lambda a, b: self._markorder(a, b))
-    try:
-      return candidates[0][1]
-    except:
-      return None
+    def closecmp(a, b):
+      if isinstance(a, (int, long, float)):
+        posa, marka = a, None
+      else:
+        posa, marka = a # marks should be (pos, mark) pairs or just pos
+      if isinstance(b, (int, long, float)):
+        posb, markb = b, None
+      else:
+        posb, markb = b # marks should be (pos, mark) pairs or just pos
+      return cmp(abs(posa - t), abs(posb - t))
 
-  ### convenience functions for adding forward and backward arrows
-  def farrow(self, mark=True):
-    self.drop(self.high)
-    if mark is False or mark is None: pass
-    elif mark is True:
-      self.add(self.high, glyphs.farrowhead)
-      self.marks[-1][1]["fill"] = self["stroke"]
-    else:
-      self.add(self.high, mark)
-      self.marks[-1][1]["fill"] = self["stroke"]
-
-  def barrow(self, mark=True):
-    self.drop(self.low)
-    if mark is False or mark is None: pass
-    elif mark is True:
-      self.add(self.low, glyphs.barrowhead)
-      self.marks[-1][1]["fill"] = self["stroke"]
-    else:
-      self.add(self.low, mark, angle=math.pi)
-      self.marks[-1][1]["fill"] = self["stroke"]
-
-  def tick(self, t, mark=None):
-    if mark is None:
-      self.add(t, glyphs.tick)
-      self.marks[-1][1]["stroke"] = self["stroke"]
-    elif isinstance(mark, basestring):
-      self.add(t, glyphs.tick)
-      self.marks[-1][1]["stroke"] = self["stroke"]
-      self.add(t, mark)
-    else:
-      self.add(t, mark)
-      self.marks[-1][1]["stroke"] = self["stroke"]
-
-  def minitick(self, t): self.tick(t, glyphs.minitick)
+    candidates.sort(closecmp)
+    return candidates
 
 ##############################################################################
 
@@ -376,18 +434,17 @@ Unicode characters to make nice minus signs and scientific notation."""
 
 ##############################################################################
 
-def ticks(low, high, maximum=None, exactly=None, format=unicode_number, tolerance=None):
+def ticks(low, high, maximum=None, exactly=None, format=unicode_number):
   if exactly is not None:
     output = []
     t = low
     for i in xrange(exactly):
       output.append((t, glyphs.tick))
-      output.append((t, format(t)))
+      output.append((t, format(t, scale=abs(high - low))))
       t += (high - low)/(exactly - 1.)
     return output
 
   if maximum is None: maximum = 10
-  if tolerance is None: tolerance = trans.epsilon * abs(high - low)
 
   counter = 0
   granularity = 10**math.ceil(math.log10(max(abs(low), abs(high))))
@@ -420,7 +477,7 @@ def ticks(low, high, maximum=None, exactly=None, format=unicode_number, toleranc
     if len(trial) > maximum:
       if last_trial is None:
         v1, v2 = low, high
-        return [(v1, format(v1)), (v2, format(v2))]
+        return [(v1, format(v1, scale=abs(high - low))), (v2, format(v2, scale=abs(high - low)))]
 
       else:
         if counter % 3 == 2:
@@ -434,7 +491,7 @@ def ticks(low, high, maximum=None, exactly=None, format=unicode_number, toleranc
         output = []
         for t in last_trial:
           output.append((t, glyphs.tick))
-          output.append((t, format(t)))
+          output.append((t, format(t, scale=abs(high - low))))
         for t in trial:
           if t not in last_trial:
             output.append((t, glyphs.minitick))
@@ -446,18 +503,15 @@ def ticks(low, high, maximum=None, exactly=None, format=unicode_number, toleranc
     counter, granularity, low, high, lowN, highN = \
              subdivide(counter, granularity, low, high, lowN, highN)
 
-def logticks(low, high, base=10., maximum=None, format=unicode_number, tolerance=None):
+def logticks(low, high, base=10., maximum=None, format=unicode_number):
   if maximum is None: maximum = 10
-  if tolerance is None: tolerance = trans.epsilon * abs(high - low)
 
   lowN = math.floor(math.log(low, base))
   highN = math.ceil(math.log(high, base))
 
   trial = []
   for n in range(int(lowN), int(highN)+1):
-    t = base**n
-    if low - tolerance <= t < high + tolerance:
-      trial.append(t)
+    trial.append(base**n)
 
   output = []
 
@@ -472,7 +526,7 @@ def logticks(low, high, base=10., maximum=None, format=unicode_number, tolerance
       break
 
   if len(trial) <= 2:
-    output2 = ticks(low, high, maximum=maximum, format=format, tolerance=tolerance)
+    output2 = ticks(low, high, maximum=maximum, format=format)
 
     lowest = min(output2)
     for t, mark in output:
@@ -483,8 +537,6 @@ def logticks(low, high, base=10., maximum=None, format=unicode_number, tolerance
   for n in range(int(lowN), int(highN)+1):
     t = base**n
     for m in range(2, int(math.ceil(base))):
-      tt = m * t
-      if low - tolerance <= tt < high + tolerance:
-        output.append((tt, glyphs.minitick))
+      output.append((m * t, glyphs.minitick))
         
   return output
