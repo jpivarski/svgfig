@@ -1,4 +1,4 @@
-import svg, defaults, glyphs, trans, pathdata, curve
+import defaults, svg, glyphs, trans, pathdata, curve, plot
 
 # Only bring into the namespace the functions and classes that the user will need
 # This distinguishes user interface from internal functions
@@ -9,4 +9,5 @@ from svg import SVG, template, load, load_stream, rgb
 from trans import transform, transformation_angle, transformation_jacobian, Delay, Freeze, Pin, window, rotation
 from pathdata import poly, bezier, velocity, foreback, smooth
 from curve import Curve, format_number, unicode_number, ticks, logticks
+from plot import Fig
 

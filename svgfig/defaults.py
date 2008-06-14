@@ -1,7 +1,7 @@
 ### default values, may be modified at runtime by importing defaults
 
 import math, os, re, platform
-import pathdata, svg, trans
+import pathdata
 
 ##############################################################################
 
@@ -52,7 +52,7 @@ def transform_circle(func, obj):
   obj.cx, obj.cy = x1, y1
   obj.r = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
 def bbox_circle(obj):
-  return trans.BBox(obj.cx - obj.r, obj.cx + obj.r, obj.cy - obj.r, obj.cy + obj.r)
+  return BBox(obj.cx - obj.r, obj.cx + obj.r, obj.cy - obj.r, obj.cy + obj.r)
 
 ##### clipPath
 ##### color-profile
@@ -101,7 +101,7 @@ def transform_g(func, obj):
   for child in obj.children:
     child.transform(func)
 def bbox_g(obj):
-  output = trans.BBox(None, None, None, None)
+  output = BBox(None, None, None, None)
   for child in obj.children:
     output += child.bbox()
   return output
@@ -120,7 +120,7 @@ def transform_line(func, obj):
   obj.x1, obj.y1 = x1, y1
   obj.x2, obj.y2 = x2, y2
 def bbox_line(obj):
-  return trans.BBox(obj.x1, obj.x2, obj.y1, obj.y2)
+  return BBox(obj.x1, obj.x2, obj.y1, obj.y2)
 
 ##### linearGradient
 ##### marker
@@ -153,7 +153,7 @@ def transform_rect(func, obj):
   obj.x, obj.y = x1, y1
   obj.width, obj.height = x2 - x1, y2 - y1
 def bbox_rect(obj):
-  return trans.BBox(obj.x, obj.x + obj.width, obj.y, obj.y + obj.height)
+  return BBox(obj.x, obj.x + obj.width, obj.y, obj.y + obj.height)
 
 ##### script
 ##### set
@@ -170,7 +170,7 @@ def transform_svg(func, obj):
   for child in obj.children:
     child.transform(func)
 def bbox_svg(obj):
-  output = trans.BBox(None, None, None, None)
+  output = BBox(None, None, None, None)
   for child in obj.children:
     output += child.bbox()
   return output
@@ -186,12 +186,12 @@ defaults["text"] = {"stroke": "none", "fill": "black"}
 def transform_text(func, obj):
   obj.x, obj.y = func(obj.x, obj.y)
   for child in obj.children:
-    if isinstance(child, (svg.SVG, trans.Hold)):
+    if callable(getattr(child, "transform", None)):
       child.transform(func)
 def bbox_text(obj):
-  output = trans.BBox(obj.x, obj.x, obj.y, obj.y) # how to calculate text size???
+  output = BBox(obj.x, obj.x, obj.y, obj.y) # how to calculate text size???
   for child in obj.children:
-    if isinstance(child, (svg.SVG, trans.Hold)):
+    if callable(getattr(child, "bbox", None)):
       output += child.bbox()
   return output
 
@@ -202,12 +202,12 @@ def bbox_text(obj):
 inline.append("tspan")
 def transform_tspan(func, obj):
   for child in obj.children:
-    if isinstance(child, (svg.SVG, trans.Hold)):
+    if callable(getattr(child, "transform", None)):
       child.transform(func)
 def bbox_text(obj):
-  output = trans.BBox(obj.x, obj.x, obj.y, obj.y) # how to calculate text size???
+  output = BBox(obj.x, obj.x, obj.y, obj.y) # how to calculate text size???
   for child in obj.children:
-    if isinstance(child, (svg.SVG, trans.Hold)):
+    if callable(getattr(child, "bbox", None)):
       output += child.bbox()
   return output
 
@@ -217,7 +217,53 @@ require["use"] = ["x", "y", "xlink:href"]
 def transform_use(func, obj):
   obj.x, obj.y = func(float(obj.x), float(obj.y))
 def bbox_use(obj):
-  return trans.BBox(obj.x, obj.x, obj.y, obj.y)
+  return BBox(obj.x, obj.x, obj.y, obj.y)
 
 ##### view
 ##### vkern
+
+##############################################################################
+
+class BBox:
+  def __init__(self, xmin, xmax, ymin, ymax):
+    self.xmin, self.xmax, self.ymin, self.ymax = xmin, xmax, ymin, ymax
+
+  def __repr__(self):
+    return "<BBox xmin=%g xmax=%g ymin=%g ymax=%g>" % (self.xmin, self.xmax, self.ymin, self.ymax)
+
+  def insert(self, x, y):
+    if self.xmin == None or x < self.xmin: self.xmin = x
+    if self.ymin == None or y < self.ymin: self.ymin = y
+    if self.xmax == None or x > self.xmax: self.xmax = x
+    if self.ymax == None or y > self.ymax: self.ymax = y
+
+  def __add__(self, other):
+    output = BBox(self.xmin, self.xmax, self.ymin, self.ymax)
+    output += other
+    return output
+
+  def __iadd__(self, other):
+    if self.xmin is None: self.xmin = other.xmin
+    elif other.xmin is None: pass
+    else: self.xmin = min(self.xmin, other.xmin)
+
+    if self.xmax is None: self.xmax = other.xmax
+    elif other.xmax is None: pass
+    else: self.xmax = max(self.xmax, other.xmax)
+
+    if self.ymin is None: self.ymin = other.ymin
+    elif other.ymin is None: pass
+    else: self.ymin = min(self.ymin, other.ymin)
+
+    if self.ymax is None: self.ymax = other.ymax
+    elif other.ymax is None: pass
+    else: self.ymax = max(self.ymax, other.ymax)
+
+    return self
+
+  def __eq__(self, other):
+    return self.xmin == other.xmin and self.xmax == other.xmax and self.ymin == other.ymin and self.ymax == other.ymax
+
+  def __ne__(self, other): return not (self == other)
+
+

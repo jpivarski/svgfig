@@ -1,9 +1,14 @@
 # should be compatible with Python 2.3 and higher (and tested with 2.4.3)
 
-import re, codecs, os, platform, copy, itertools, tempfile
-import defaults, trans
+import re, codecs, os, platform, copy, itertools, tempfile, math, cmath, random
+import defaults
 
 saved = []
+
+##############################################################################
+
+def newid(prefix=""):
+  return prefix + "".join(random.sample("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 10))
 
 ##############################################################################
 
@@ -59,35 +64,28 @@ class SVG:
   def transform(self, expr):
     transform_function = defaults.__dict__.get("transform_%s" % self.tag)
     if transform_function is not None:
-      transform_function(trans.cannonical_transformation(expr), self)
+      transform_function(cannonical_transformation(expr), self)
 
   def bbox(self):
     bbox_function = defaults.__dict__.get("bbox_%s" % self.tag)
     if bbox_function is not None:
       return bbox_function(self)
     else:
-      return trans.BBox(None, None, None, None)
+      return BBox(None, None, None, None)
 
   def evaluate(self):
     for child in self.children:
-      if isinstance(child, (SVG, trans.Hold)):
+      if callable(getattr(child, "evaluate", None)):
         child.evaluate()
         
   def svg(self):
-    newchildren = []
-    for i, child in enumerate(self.children):
-      doit = False
-      try:
-        child.svg
-        doit = True
-      except AttributeError: pass
-      if doit:
-        if callable(child.svg): newchildren.append(child.svg())
-        else: newchildren.append(child.svg)
-      else:
-        newchildren.append(copy.deepcopy(child))
-
-    return SVG(self.tag, **self.attrib)(*newchildren)
+    output = SVG(None)
+    output.tag = self.tag
+    output.attrib = copy.deepcopy(self.attrib)
+    output.children = []
+    for child in self.children:
+      output.append(child.svg())
+    return output
 
   ### signature attributes are accessible as member data
   def __getattr__(self, name):
@@ -277,7 +275,6 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
-    if isinstance(obj, trans.Hold): obj = obj.hold
 
     if isinstance(treeindex, (int, long, slice)):
       return obj.children[treeindex]
@@ -293,7 +290,6 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
-    if isinstance(obj, trans.Hold): obj = obj.hold
 
     if isinstance(treeindex, (int, long, slice)):
       obj.children[treeindex] = value
@@ -309,7 +305,6 @@ class SVG:
     if isinstance(treeindex, (list, tuple)):
       for i in treeindex[:-1]: obj = obj[i]
       treeindex = treeindex[-1]
-    if isinstance(obj, trans.Hold): obj = obj.hold
 
     if isinstance(treeindex, (int, long, slice)):
       del obj.children[treeindex]
@@ -321,7 +316,7 @@ class SVG:
   def __eq__(self, other):
     """x == y iff x represents the same SVG as y."""
     if id(self) == id(other): return True
-    return isinstance(other, SVG) and self.tag == other.tag and self.children == other.children and self.attrib == other.attrib
+    return self.__class__ == other.__class__ and self.tag == other.tag and self.children == other.children and self.attrib == other.attrib
 
   def __ne__(self, other):
     """x != y iff x does not represent the same SVG as y."""
@@ -342,22 +337,12 @@ class SVG:
     def __iter__(self): return self
 
     def make_children_iterators(self):
-      doit = False
-      try:
-        self.current.children
-        doit = True
-      except AttributeError: pass
-      if doit:
+      if getattr(self.current, "children", None) is not None:
         for i, s in enumerate(self.current.children):
           self.iterators.append(self.__class__(s, self.treeindex + (i,), self.depth_limit, self.attrib, self.attrib_first))
 
     def make_attrib_iterators(self):
-      doit = False
-      try:
-        self.current.attrib
-        doit = True
-      except AttributeError: pass
-      if doit:
+      if getattr(self.current, "attrib", None) is not None:
         items = self.current.attrib.items()
         items.sort()
         for k, s in items:
@@ -368,8 +353,6 @@ class SVG:
         self.shown = True
         if self.treeindex != ():
           return self.treeindex, self.current
-
-      if isinstance(self.current, trans.Hold): self.current = self.current.hold
 
       if self.depth_limit is not None and len(self.treeindex) >= self.depth_limit: raise StopIteration
 
@@ -469,19 +452,10 @@ class SVG:
 
     # recursive function for writing XML
     def subxml(sub, depth=0):
-      doit = False
-      try:
-        sub.svg
-        doit = True
-      except AttributeError: pass
-      if doit:
-        sub = sub.svg() # if sub is a dynamic object that needs to be evaluated, now is the time to do it
+      if sub.tag is None: sub = sub.svg()
 
       if isinstance(sub, basestring):
         return [sub]
-
-      elif isinstance(sub, SVG) and not sub.__class__ == SVG:
-        return [u"%s%s" % (indent * depth, sub.xml())]
 
       elif isinstance(sub, SVG):
         line = [indent * depth, u"<", sub.tag, u" "]
@@ -795,4 +769,88 @@ def rgb(r, g, b, maximum=1.):
 r,g,b = 0 is black and r,g,b = maximum is white.
   """
   return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)), max(0, min(g*255./maximum, 255)), max(0, min(b*255./maximum, 255)))
+
+##############################################################################
+
+def cannonical_transformation(expr):
+  """Put transformation function into cannonical form (function of two variables -> 2-tuple)"""
+
+  if expr is None:
+    return lambda x, y: (x, y)
+
+  elif callable(expr):
+
+    # 2 real -> 2 real
+    if expr.func_code.co_argcount == 2:
+      return expr
+
+    # complex -> complex
+    elif expr.func_code.co_argcount == 1:
+      split = lambda z: (z.real, z.imag)
+      output = lambda x, y: split(expr(complex(x, y)))
+      output.func_name = expr.func_name
+      return output
+
+    else:
+      raise TypeError, "Must be a 2 -> 2 real function or a complex -> complex function"
+
+  else:
+    compiled = compile(expr, expr, "eval")
+
+    # 2 real -> 2 real
+    if "x" in compiled.co_names and "y" in compiled.co_names:
+      output = lambda x, y: eval(compiled, math.__dict__, {"x": float(x), "y": float(y)})
+      output.func_name = "x, y -> %s" % expr
+      return output
+
+    # complex -> complex
+    elif "z" in compiled.co_names:
+      split = lambda z: (z.real, z.imag)
+      output = lambda x, y: split(eval(compiled, cmath.__dict__, {"z": complex(x, y)}))
+      output.func_name = "z -> %s" % expr
+      return output
+
+    else:
+      raise TypeError, "Transformation string '%s' must contain real 'x' and 'y' or complex 'z'" % expr
+
+##############################################################################
+
+def cannonical_parametric(expr):
+  """Put parametric expression into cannonical form (function of one variable -> 2-tuple)"""
+
+  if callable(expr):
+
+    # 1 real -> 2 real
+    if expr.func_code.co_argcount == 1:
+      return expr
+
+    else:
+      raise TypeError, "Must be a 1 -> 2 real function"
+
+  else:
+    compiled = compile(expr, expr, "eval")
+
+    # 1 real -> 2 real
+    if "t" in compiled.co_names:
+      output = lambda t: eval(compiled, math.__dict__, {"t": float(t)})
+      output.func_name = "t -> %s" % expr
+      return output
+
+    # 1 real -> 1 real
+    elif "x" in compiled.co_names:
+      output = lambda t: (t, eval(compiled, math.__dict__, {"x": float(t)}))
+      output.func_name = "x -> %s" % expr
+      return output
+
+    # real (a complex number restricted to the real axis) -> complex
+    elif "z" in compiled.co_names:
+      split = lambda z: (z.real, z.imag)
+      output = lambda z: split(eval(compiled, cmath.__dict__, {"z": complex(z)}))
+      output.func_name = "z -> %s" % expr
+      return output
+
+    else:
+      raise TypeError, "Parametric string '%s' must contain real 't', 'x', or 'z'" % expr
+
+##############################################################################
 
