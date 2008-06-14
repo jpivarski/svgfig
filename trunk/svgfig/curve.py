@@ -480,55 +480,11 @@ def logticks(low, high, base=10., maximum=None, format=unicode_number, tolerance
 
     return output2
 
+  for n in range(int(lowN), int(highN)+1):
+    t = base**n
+    for m in range(2, int(math.ceil(base))):
+      tt = m * t
+      if low - tolerance <= tt < high + tolerance:
+        output.append((tt, glyphs.minitick))
+        
   return output
-
-# def compute_logticks(self, base, N, format):
-#   lowN = math.floor(math.log(self.low, base))
-#   highN = math.ceil(math.log(self.high, base))
-#   output = {}
-#   for n in range(int(lowN), int(highN)+1):
-#     x = base**n
-#     label = format(x)
-#     if self.low <= x <= self.high: output[x] = label
-
-#   for i in range(1, len(output)):
-#     keys = output.keys()
-#     keys.sort()
-#     keys = keys[::i]
-#     values = map(lambda k: output[k], keys)
-#     if len(values) <= N:
-#       for k in output.keys():
-#         if k not in keys:
-#           output[k] = ""
-#       break
-
-#   if len(output) <= 2:
-#     output2 = self.compute_ticks(N=-int(math.ceil(N/2.)), format=format)
-#     lowest = min(output2)
-
-#     for k in output:
-#       if k < lowest: output2[k] = output[k]
-#     output = output2
-
-#   return output
-
-# def compute_logminiticks(self, base):
-#   """Return optimal logarithmic miniticks, given a set of ticks.
-
-#   Normally only used internally.
-#   """
-#   if self.low >= self.high: raise ValueError, "low must be less than high"
-
-#   lowN = math.floor(math.log(self.low, base))
-#   highN = math.ceil(math.log(self.high, base))
-#   output = []
-#   num_ticks = 0
-#   for n in range(int(lowN), int(highN)+1):
-#     x = base**n
-#     if self.low <= x <= self.high: num_ticks += 1
-#     for m in range(2, int(math.ceil(base))):
-#       minix = m * x
-#       if self.low <= minix <= self.high: output.append(minix)
-
-#   if num_ticks <= 2: return []
-#   else: return output

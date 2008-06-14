@@ -8,5 +8,5 @@ import svg, defaults, glyphs, trans, pathdata, curve
 from svg import SVG, template, load, load_stream, rgb
 from trans import transform, transformation_angle, transformation_jacobian, Delay, Freeze, Pin, window, rotation
 from pathdata import poly, bezier, velocity, foreback, smooth
-from curve import Curve
+from curve import Curve, format_number, unicode_number, ticks, logticks
 
