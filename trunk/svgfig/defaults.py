@@ -152,7 +152,7 @@ def transform_rect(func, obj):
 ##### svg
 signature["svg"] = ["width", "height", "viewBox"]
 defaults["svg"] = {"width": 400, "height": 400, "viewBox": (0, 0, 100, 100),
-                   "style": {"stroke-width": "0.5pt", "font-size": "4", "text-anchor": "middle"},
+                   "style": {"stroke-width": "0.5pt", "font-size": "4px", "text-anchor": "middle"},
                    "font-family": ["Helvetica", "Arial", "FreeSans", "Sans", "sans", "sans-serif"],
                    "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "version":"1.1",
                    }
