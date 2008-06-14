@@ -6,12 +6,12 @@ import svg, trans, pathdata, glyphs
 class Curve:
   attrib = {"stroke": "black", "fill": "none"}
   smooth = False
-  marks = {}
+  marks = []
   random_sampling = True
   random_seed = 12345
-  recursion_limit = 15
+  recursion_limit = 50
   linearity_limit = 0.05
-  discontinuity_limit = 5.
+  discontinuity_limit = 1.
   text_offsetx = 0.
   text_offsety = -2.5
   text_attrib = {}
@@ -23,11 +23,12 @@ class Curve:
       if var in kwds:
         exec("self.%s = %s" % (var, kwds[var]))
         del kwds[var]
-
-    self.marks = copy.deepcopy(self.marks)
+    
     if "marks" in kwds:
-      self.marks.update(kwds["marks"])
+      self.marks = copy.deepcopy(kwds["marks"])
       del kwds["marks"]
+    else:
+      self.marks = copy.deepcopy(self.marks)      
 
     self.text_attrib = copy.deepcopy(self.text_attrib)
     if "text_attrib" in kwds:
@@ -39,15 +40,6 @@ class Curve:
     if "stroke" in kwds:
       self.attrib["stroke"] = kwds["stroke"]
       del kwds["stroke"]
-
-    if "ticks" in kwds:
-      ticks = kwds["ticks"]
-      del kwds["ticks"]
-
-      if isinstance(ticks, dict):
-        for t, mark in ticks.items(): self.tick(t, mark)
-      else:
-        for t in ticks: self.tick(t, unicode_number(t, scale=(self.high - self.low)))
           
     if "farrow" in kwds:
       self.farrow(kwds["farrow"])
@@ -131,16 +123,21 @@ class Curve:
     return svgdata
 
   def svg(self):
-    if self.marks == {}:
+    if self.marks == []:
       return svg.SVG("path", self.d(), **self.attrib)
     else:
       output = svg.SVG("g", svg.SVG("path", self.d(), **self.attrib))
 
       tolerance = 2. * trans.epsilon * abs(self.high - self.low)
 
-      items = self.marks.items()
+      items = copy.copy(self.marks)
       items.sort()
-      for t, mark in items:
+      for item in items:
+        if isinstance(item, (int, long, float)):
+          t, mark = item, glyphs.tick
+        else:
+          t, mark = item # marks should be (pos, mark) pairs or just pos
+
         if self.low - tolerance < t < self.high + tolerance:
           X, Y = self(t, transformed=True)
           angle = self.angle(t, transformed=True)
@@ -182,64 +179,116 @@ class Curve:
 
   def drop(self, t, tolerance=None):
     if tolerance is None: tolerance = trans.epsilon * abs(self.high - self.low)
-
-    for pos in self.marks.keys():
-      if abs(pos - t) < tolerance:
-        del self.marks[pos]
+    newmarks = []
+    for item in self.marks:
+      if isinstance(item, (int, long, float)):
+        if abs(item - t) > tolerance:
+          newmarks.append(item)
+      else:
+        pos, mark = item # marks should be (pos, mark) pairs or just pos
+        if abs(pos - t) > tolerance:
+          newmarks.append(item)
+    self.marks = newmarks
 
   def wipe(self, low, high):
-    for pos in self.marks.keys():
-      if low <= pos < high:
-        del self.marks[pos]
+    newmarks = []
+    for item in self.marks:
+      if isinstance(item, (int, long, float)):
+        if not low <= item < high:
+          newmarks.append(item)
+      else:
+        pos, mark = item # marks should be (pos, mark) pairs or just pos
+        if not low <= pos < high:
+          newmarks.append(item)
+    self.marks = newmarks
 
-  def add(self, t, mark, angle=0., dx=0., dy=0., replace=False):
+  def keep(self, low, high):
+    newmarks = []
+    for item in self.marks:
+      if isinstance(item, (int, long, float)):
+        if low <= item < high:
+          newmarks.append(item)
+      else:
+        pos, mark = item # marks should be (pos, mark) pairs or just pos
+        if low <= pos < high:
+          newmarks.append(item)
+    self.marks = newmarks
+
+  def add(self, t, mark, angle=0., dx=0., dy=0.):
     if not isinstance(mark, basestring):
-      # always copies mark (through transformation), before adding it
-      # so that the behavior is predictable (always copy rather than only sometimes)
-      # (strings are always constants)
       mark = trans.transform(lambda x, y: (dx + math.cos(angle)*x - math.sin(angle)*y,
                                            dy + math.sin(angle)*x + math.cos(angle)*y), mark)
+    self.marks.append((t, mark))
 
-    # floating point keys are hard to reproduce, so in the interest of
-    # predictable behavior, don't allow collisions by default
-    if not replace and t in self.marks: raise KeyError, "Position %g is already occupied (set replace=True to replace it)"
+  def _markorder(self, a, b):
+    if isinstance(a, (int, long, float)):
+      posa, marka = a, None
+    else:
+      posa, marka = a # marks should be (pos, mark) pairs or just pos
+    if isinstance(b, (int, long, float)):
+      posb, markb = b, None
+    else:
+      posb, markb = b # marks should be (pos, mark) pairs or just pos
 
-    self.marks[t] = mark
+    if marka is None and markb is not None: return 1
+    if marka is not None and markb is None: return -1
+    return cmp(posa, posb)
+
+  def sort(self, order=None):
+    if order is None: order = lambda a, b: self._markorder(a, b)
+    self.marks.sort(order)
+
+  def mark(self, t, tolerance=None):
+    if tolerance is None: tolerance = trans.epsilon * abs(self.high - self.low)
+
+    candidates = []
+    for item in self.marks:
+      if isinstance(item, (int, long, float)):
+        if abs(item - t) < tolerance:
+          candidates.append(item)
+      else:
+        pos, mark = item # marks should be (pos, mark) pairs or just pos
+        if abs(pos - t) < tolerance:
+          candidates.append(item)
+
+    candidates.sort(lambda a, b: self._markorder(a, b))
+    try:
+      return candidates[0][1]
+    except:
+      return None
 
   ### convenience functions for adding forward and backward arrows
   def farrow(self, mark=True):
-    if mark is False or mark is None:
-      if self.high in self.marks:
-        del self.marks[self.high]
+    self.drop(self.high)
+    if mark is False or mark is None: pass
     elif mark is True:
-      self.add(self.high, glyphs.arrowhead, angle=0., dx=0., dy=0., replace=True)
-      self.marks[self.high]["fill"] = self["stroke"]
+      self.add(self.high, glyphs.farrowhead)
+      self.marks[-1][1]["fill"] = self["stroke"]
     else:
-      self.add(self.high, mark, angle=0., dx=0., dy=0., replace=True)
-      self.marks[self.high]["fill"] = self["stroke"]
+      self.add(self.high, mark)
+      self.marks[-1][1]["fill"] = self["stroke"]
 
   def barrow(self, mark=True):
-    if mark is False or mark is None:
-      if self.low in self.marks:
-        del self.marks[self.low]
+    self.drop(self.low)
+    if mark is False or mark is None: pass
     elif mark is True:
-      self.add(self.low, glyphs.arrowhead, angle=math.pi, dx=0., dy=0., replace=True)
-      self.marks[self.low]["fill"] = self["stroke"]
+      self.add(self.low, glyphs.barrowhead)
+      self.marks[-1][1]["fill"] = self["stroke"]
     else:
-      self.add(self.low, mark, angle=math.pi, dx=0., dy=0., replace=True)
-      self.marks[self.low]["fill"] = self["stroke"]
+      self.add(self.low, mark, angle=math.pi)
+      self.marks[-1][1]["fill"] = self["stroke"]
 
   def tick(self, t, mark=None):
     if mark is None:
       self.add(t, glyphs.tick)
-      self.marks[t]["stroke"] = self["stroke"]
+      self.marks[-1][1]["stroke"] = self["stroke"]
     elif isinstance(mark, basestring):
       self.add(t, glyphs.tick)
-      self.marks[t]["stroke"] = self["stroke"]
-      self.add(t + trans.epsilon * abs(self.high - self.low), mark)
+      self.marks[-1][1]["stroke"] = self["stroke"]
+      self.add(t, mark)
     else:
       self.add(t, mark)
-      self.marks[t]["stroke"] = self["stroke"]
+      self.marks[-1][1]["stroke"] = self["stroke"]
 
   def minitick(self, t): self.tick(t, glyphs.minitick)
 
@@ -262,20 +311,20 @@ def cannonical_parametric(expr):
 
     # 1 real -> 2 real
     if "t" in compiled.co_names:
-      output = lambda t: eval(compiled, math.__dict__, {"t": t})
+      output = lambda t: eval(compiled, math.__dict__, {"t": float(t)})
       output.func_name = "t -> %s" % expr
       return output
 
     # 1 real -> 1 real
     elif "x" in compiled.co_names:
-      output = lambda t: (t, eval(compiled, math.__dict__, {"x": t}))
+      output = lambda t: (t, eval(compiled, math.__dict__, {"x": float(t)}))
       output.func_name = "x -> %s" % expr
       return output
 
     # real (a complex number restricted to the real axis) -> complex
     elif "z" in compiled.co_names:
       split = lambda z: (z.real, z.imag)
-      output = lambda z: split(eval(compiled, cmath.__dict__, {"z": z}))
+      output = lambda z: split(eval(compiled, cmath.__dict__, {"z": complex(z)}))
       output.func_name = "z -> %s" % expr
       return output
 
@@ -327,164 +376,113 @@ Unicode characters to make nice minus signs and scientific notation."""
 
 ##############################################################################
 
+def ticks(low, high, maximum=None, exactly=None, format=unicode_number, tolerance=None):
+  if exactly is not None:
+    output = []
+    t = low
+    for i in xrange(exactly):
+      output.append((t, glyphs.tick))
+      output.append((t, format(t)))
+      t += (high - low)/(exactly - 1.)
+    return output
 
+  if maximum is None: maximum = 10
+  if tolerance is None: tolerance = trans.epsilon * abs(high - low)
 
+  counter = 0
+  granularity = 10**math.ceil(math.log10(max(abs(low), abs(high))))
+  lowN = math.ceil(1.*low / granularity)
+  highN = math.floor(1.*high / granularity)
 
+  def subdivide(counter, granularity, low, high, lowN, highN):
+    countermod3 = counter % 3
+    if countermod3 == 0: granularity *= 0.5
+    elif countermod3 == 1: granularity *= 0.4
+    elif countermod3 == 2: granularity *= 0.5
+    counter += 1
+    lowN = math.ceil(1.*low / granularity)
+    highN = math.floor(1.*high / granularity)
+    return counter, granularity, low, high, lowN, highN
+    
+  while lowN > highN:
+    counter, granularity, low, high, lowN, highN = \
+             subdivide(counter, granularity, low, high, lowN, highN)
 
+  last_granularity = granularity
+  last_trial = None
 
+  while True:
+    trial = []
+    for n in range(int(lowN), int(highN)+1):
+      t = n * granularity
+      trial.append(t)
 
+    if len(trial) > maximum:
+      if last_trial is None:
+        v1, v2 = low, high
+        return [(v1, format(v1)), (v2, format(v2))]
 
+      else:
+        if counter % 3 == 2:
+          counter, granularity, low, high, lowN, highN = \
+                   subdivide(counter, granularity, low, high, lowN, highN)
+        trial = []
+        for n in range(int(lowN), int(highN)+1):
+          t = n * granularity
+          trial.append(t)
 
+        output = []
+        for t in last_trial:
+          output.append((t, glyphs.tick))
+          output.append((t, format(t)))
+        for t in trial:
+          if t not in last_trial:
+            output.append((t, glyphs.minitick))
+        return output
 
+    last_granularity = granularity
+    last_trial = trial
 
+    counter, granularity, low, high, lowN, highN = \
+             subdivide(counter, granularity, low, high, lowN, highN)
 
+def logticks(low, high, base=10., maximum=None, format=unicode_number, tolerance=None):
+  if maximum is None: maximum = 10
+  if tolerance is None: tolerance = trans.epsilon * abs(high - low)
 
+  lowN = math.floor(math.log(low, base))
+  highN = math.ceil(math.log(high, base))
 
+  trial = []
+  for n in range(int(lowN), int(highN)+1):
+    t = base**n
+    if low - tolerance <= t < high + tolerance:
+      trial.append(t)
 
+  output = []
 
+  # don't need every decade if the ticks cover too many
+  for i in range(1, len(trial)):
+    subtrial = trial[::i]
+    if len(subtrial) <= maximum:
+      for t in trial:
+        output.append((t, glyphs.tick))
+        if t in subtrial:
+          output.append((t, format(t)))
+      break
 
+  if len(trial) <= 2:
+    output2 = ticks(low, high, maximum=maximum, format=format, tolerance=tolerance)
 
+    lowest = min(output2)
+    for t, mark in output:
+      if t < lowest: output2.append((t, mark))
 
+    return output2
 
-# def compute_ticks(self, N, format):
-#   """Return less than -N or exactly N optimal linear ticks.
-
-#   Normally only used internally.
-#   """
-#   if self.low >= self.high: raise ValueError, "low must be less than high"
-#   if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
-
-#   eps = _epsilon * (self.high - self.low)
-
-#   if N >= 0:
-#     output = {}
-#     x = self.low
-#     for i in xrange(N):
-#       if format == unumber and abs(x) < eps: label = u"0"
-#       else: label = format(x)
-#       output[x] = label
-#       x += (self.high - self.low)/(N-1.)
-#     return output
-
-#   N = -N
-
-#   counter = 0
-#   granularity = 10**math.ceil(math.log10(max(abs(self.low), abs(self.high))))
-#   lowN = math.ceil(1.*self.low / granularity)
-#   highN = math.floor(1.*self.high / granularity)
-
-#   while (lowN > highN):
-#     countermod3 = counter % 3
-#     if countermod3 == 0: granularity *= 0.5
-#     elif countermod3 == 1: granularity *= 0.4
-#     else: granularity *= 0.5
-#     counter += 1
-#     lowN = math.ceil(1.*self.low / granularity)
-#     highN = math.floor(1.*self.high / granularity)
-
-#   last_granularity = granularity
-#   last_trial = None
-
-#   while True:
-#     trial = {}
-#     for n in range(int(lowN), int(highN)+1):
-#       x = n * granularity
-#       if format == unumber and abs(x) < eps: label = u"0"
-#       else: label = format(x)
-#       trial[x] = label
-
-#     if int(highN)+1 - int(lowN) >= N:
-#       if last_trial == None:
-#         v1, v2 = self.low, self.high
-#         return {v1: format(v1), v2: format(v2)}
-#       else:
-#         low_in_ticks, high_in_ticks = False, False
-#         for t in last_trial.keys():
-#           if 1.*abs(t - self.low)/last_granularity < _epsilon: low_in_ticks = True
-#           if 1.*abs(t - self.high)/last_granularity < _epsilon: high_in_ticks = True
-
-#         lowN = 1.*self.low / last_granularity
-#         highN = 1.*self.high / last_granularity
-#         if abs(lowN - round(lowN)) < _epsilon and not low_in_ticks:
-#           last_trial[self.low] = format(self.low)
-#         if abs(highN - round(highN)) < _epsilon and not high_in_ticks:
-#           last_trial[self.high] = format(self.high)
-#         return last_trial
-
-#     last_granularity = granularity
-#     last_trial = trial
-
-#     countermod3 = counter % 3
-#     if countermod3 == 0: granularity *= 0.5
-#     elif countermod3 == 1: granularity *= 0.4
-#     else: granularity *= 0.5
-#     counter += 1
-#     lowN = math.ceil(1.*self.low / granularity)
-#     highN = math.floor(1.*self.high / granularity)
-
-# def regular_miniticks(self, N):
-#   """Return exactly N linear ticks.
-
-#   Normally only used internally.
-#   """
-#   output = []
-#   x = self.low
-#   for i in xrange(N):
-#     output.append(x)
-#     x += (self.high - self.low)/(N-1.)
-#   return output
-
-# def compute_miniticks(self, original_ticks):
-#   """Return optimal linear miniticks, given a set of ticks.
-
-#   Normally only used internally.
-#   """
-#   if len(original_ticks) < 2: original_ticks = ticks(self.low, self.high)
-#   original_ticks = original_ticks.keys()
-#   original_ticks.sort()
-
-#   if self.low > original_ticks[0] + _epsilon or self.high < original_ticks[-1] - _epsilon:
-#     raise ValueError, "original_ticks {%g...%g} extend beyond [%g, %g]" % (original_ticks[0], original_ticks[-1], self.low, self.high)
-
-#   granularities = []
-#   for i in range(len(original_ticks)-1):
-#     granularities.append(original_ticks[i+1] - original_ticks[i])
-#   spacing = 10**(math.ceil(math.log10(min(granularities)) - 1))
-
-#   output = []
-#   x = original_ticks[0] - math.ceil(1.*(original_ticks[0] - self.low) / spacing) * spacing
-
-#   while x <= self.high:
-#     if x >= self.low:
-#       already_in_ticks = False
-#       for t in original_ticks:
-#         if abs(x-t) < _epsilon * (self.high - self.low): already_in_ticks = True
-#       if not already_in_ticks: output.append(x)
-#     x += spacing
-#   return output
+  return output
 
 # def compute_logticks(self, base, N, format):
-#   """Return less than -N or exactly N optimal logarithmic ticks.
-
-#   Normally only used internally.
-#   """
-#   if self.low >= self.high: raise ValueError, "low must be less than high"
-#   if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
-
-#   eps = _epsilon * (self.high - self.low)
-
-#   if N >= 0:
-#     output = {}
-#     x = self.low
-#     for i in xrange(N):
-#       if format == unumber and abs(x) < eps: label = u"0"
-#       else: label = format(x)
-#       output[x] = label
-#       x += (self.high - self.low)/(N-1.)
-#     return output
-
-#   N = -N
-
 #   lowN = math.floor(math.log(self.low, base))
 #   highN = math.ceil(math.log(self.high, base))
 #   output = {}

@@ -3,6 +3,8 @@
 import re, codecs, os, platform, copy, itertools, tempfile
 import defaults, trans
 
+saved = []
+
 ##############################################################################
 
 class SVG:
@@ -89,7 +91,7 @@ class SVG:
       raise AttributeError, "SVG tag '%s' has no signature attrib '%s' (access others with brackets)" % (self.tag, name)
 
   def __setattr__(self, name, value):
-    if name in self.__dict__:
+    if name in self.__dict__ or name == "repr":
       self.__dict__[name] = value
 
     else:
@@ -185,6 +187,8 @@ class SVG:
   ###
 
   def __repr__(self):
+    if "repr" in self.__dict__: return self.repr
+
     output = ["%s" % self.tag]
 
     remaining = copy.copy(self.attrib)  # shallow copy
@@ -532,7 +536,7 @@ class SVG:
     """Save to a file for viewing.
 
     fileName                                If the extension is ".svgz" or ".gz", the output will be gzipped
-    encoding        default="utf-8"         file encoding (default is Unicode)
+    encoding        default="utf-8"         file encoding ("utf-8" is Unicode mostly-readable as ASCII)
     compresslevel   default=None            if a number, the output will be gzipped with that
                                             compression level (1-9, 1 being fastest and 9 most
                                             thorough)
@@ -546,7 +550,7 @@ class SVG:
       else:
         f = gzip.GzipFile(fileName, "w", compresslevel)
 
-      f = codecs.EncodedFile(f, "utf-8", encoding)
+      f = codecs.EncodedFile(f, "utf-16", encoding)
       f.write(self.xml())
       f.close()
 
@@ -555,47 +559,47 @@ class SVG:
       f.write(self.xml())
       f.close()
 
-    return fileName
+    saved.append(fileName)
 
   def _write_tempfile(self, fileName=None, encoding="utf-8"):
     if fileName is None:
       fd, fileName = tempfile.mkstemp(".svg", "svgfig-")
-      os.write(fd, self.xml())
       os.close(fd)
     else:
       fileName = self._expand_fileName(fileName)
-      self.save(fileName, encoding)
+
+    self.save(fileName, encoding)
     return fileName
     
   def inkview(self, fileName=None, encoding="utf-8"):
     """View in "inkview", assuming that program is available on your system.
 
     fileName        default=None            if None, generate a temporary file
-    encoding        default="utf-8"         file encoding (default is Unicode)
+    encoding        default="utf-8"         file encoding ("utf-8" is Unicode mostly-readable as ASCII)
     """
     fileName = self._write_tempfile(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkview", ("inkview", fileName))
-    return fileName
+    saved.append(fileName)
 
   def inkscape(self, fileName=None, encoding="utf-8"):
     """View in "inkscape", assuming that program is available on your system.
 
     fileName        default=None            if None, generate a temporary file
-    encoding        default="utf-8"         file encoding (default is Unicode)
+    encoding        default="utf-8"         file encoding ("utf-8" is Unicode mostly-readable as ASCII)
     """
     fileName = self._write_tempfile(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkscape", ("inkscape", fileName))
-    return fileName
+    saved.append(fileName)
 
   def firefox(self, fileName=None, encoding="utf-8"):
     """View in "firefox", assuming that program is available on your system.
 
     fileName        default=None            if None, generate a temporary file
-    encoding        default="utf-8"         file encoding (default is Unicode)
+    encoding        default="utf-8"         file encoding ("utf-8" is Unicode mostly-readable as ASCII)
     """
     fileName = self._write_tempfile(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "firefox", ("firefox", fileName))
-    return fileName
+    saved.append(fileName)
 
 ##############################################################################
 

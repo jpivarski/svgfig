@@ -5,10 +5,20 @@ import svg # don't use glyphs in anything that gets imported into svg.py!
 # things that get attached to Curves as marks should assume that the line is horizontal, points to the right, and passes through 0
 # these marks are effectively like Pins at (0,0)
 
-arrowhead = svg.SVG("path", "M0 0L-0.75 -1.8 4.5 0 -0.75 1.8 0 0Z", stroke="none", fill="black")
+farrowhead = svg.SVG("path", "M0 0L-0.5 -1.2 3 0 -0.5 1.2 0 0Z", stroke="none", fill="black")
+farrowhead.repr = "<farrowhead>"
+
+barrowhead = svg.SVG("path", "M0 0L0.5 -1.2 -3 0 0.5 1.2 0 0Z", stroke="none", fill="black")
+barrowhead.repr = "<barrowhead>"
 
 tick = svg.SVG("path", "M0 -1.5L0 1.5")
-minitick = svg.SVG("path", "M0 -0.75L0 0.75")
-frametick = svg.SVG("path", "M0 0L0 1.5")
-frameminitick = svg.SVG("path", "M0 0L0 0.75")
+tick.repr = "<tick>"
 
+minitick = svg.SVG("path", "M0 -0.75L0 0.75")
+minitick.repr = "<minitick>"
+
+frtick = svg.SVG("path", "M0 0L0 1.5")
+frtick.repr = "<frtick>"
+
+frminitick = svg.SVG("path", "M0 0L0 0.75")
+frminitick.repr = "<frminitick>"

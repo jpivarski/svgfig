@@ -242,7 +242,7 @@ def cannonical_transformation(expr):
 
     # 2 real -> 2 real
     if "x" in compiled.co_names and "y" in compiled.co_names:
-      output = lambda x, y: eval(compiled, math.__dict__, {"x": x, "y": y})
+      output = lambda x, y: eval(compiled, math.__dict__, {"x": float(x), "y": float(y)})
       output.func_name = "x, y -> %s" % expr
       return output
 
