@@ -3,25 +3,29 @@ import svg, trans, pathdata, glyphs
 
 ##############################################################################
 
-class Curve:
+class Curve(svg.SVG):
   attrib = {"stroke": "black", "fill": "none"}
   smooth = False
   marks = []
   random_sampling = True
   random_seed = 12345
   recursion_limit = 50
-  linearity_limit = 0.05
+  linearity_limit = 0.01
   discontinuity_limit = 1.
   text_offsetx = 0.
   text_offsety = -2.5
   text_attrib = {}
 
   def __init__(self, expr, low, high, **kwds):
-    self.f, self.low, self.high = cannonical_parametric(expr), low, high
+    self.tag = None
+    self.children = []
+    self.trans = []
+
+    self.f, self.low, self.high = svg.cannonical_parametric(expr), low, high
 
     for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety":
       if var in kwds:
-        exec("self.%s = %s" % (var, kwds[var]))
+        exec("self.%s = kwds[\"%s\"]" % (var, var))
         del kwds[var]
     
     if "marks" in kwds:
@@ -61,8 +65,9 @@ class Curve:
 
     # now add the rest of the attributes
     self.attrib.update(kwds)
-    
-    self.transformations = []
+
+  def __getattr__(self, name): return self.__dict__[name]
+  def __setattr__(self, name, value): self.__dict__[name] = value
 
   def __repr__(self):
     specials = []
@@ -72,25 +77,24 @@ class Curve:
     specials = " ".join(specials)
     if specials != "": specials = " " + specials
 
-    transformations = ""
-    lentransformations = len(self.transformations)
-    if lentransformations == 1: transformations = " (1 transformation)"
-    elif lentransformations > 1: transformations = " (%d transformations)" % lentransformations
+    trans = ""
+    lentrans = len(self.trans)
+    if lentrans > 0: trans = " (%d trans)" % lentrans
 
     marks = ""
     lenmarks = len(self.marks)
     if lenmarks == 1: marks = " (1 mark)"
     elif lenmarks > 1: marks = " (%d marks)" % lenmarks
 
-    return "<Curve %s from %g to %g%s%s%s>" % (self.f, self.low, self.high, specials, transformations, marks)
+    return "<Curve %s from %g to %g%s%s%s>" % (self.f, self.low, self.high, specials, trans, marks)
 
-  def transform(self, expr): self.transformations.append(trans.cannonical_transformation(expr))
+  def transform(self, expr): self.trans.append(svg.cannonical_transformation(expr))
 
   def __call__(self, t, transformed=True):
     x, y = self.f(t)
     if transformed:
-      for transformation in self.transformations:
-        x, y = transformation(x, y)
+      for trans in self.trans:
+        x, y = trans(x, y)
     return x, y
 
   def angle(self, t, transformed=True):
@@ -104,7 +108,7 @@ class Curve:
 
   def d(self):
     import _curve
-    data = _curve.curve(self.f, self.transformations, self.low, self.high,
+    data = _curve.curve(self.f, self.trans, self.low, self.high,
                         self.random_sampling, self.random_seed, self.recursion_limit, self.linearity_limit, self.discontinuity_limit)
 
     svgdata = []
@@ -171,23 +175,23 @@ class Curve:
 
       return output
 
-  def __getitem__(self, name): return self.attrib[name]
-  def __setitem__(self, name, value): self.attrib[name] = value
-  def __delitem__(self, name): del self.attrib[name]
+  def bbox(self): return self.svg().bbox()
 
   def __eq__(self, other):
     if id(self) == id(other): return True
     if not isinstance(other, Curve): return False
-    for var in "f", "low", "high", "smooth", "marks", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "transformations":
+    for var in "f", "low", "high", "attrib", "smooth", "marks", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety", "text_attrib", "trans":
       if eval("self.%s" % var) != eval("other.%s" % var): return False
     return True
-  def __ne__(self, other): return not (self == other)
   
   def __deepcopy__(self, memo={}):
-    kwds = copy.deepcopy(self.attrib)
-    for var in "smooth", "marks", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit":
-      kwds[var] = eval("self.%s" % var)
-    result = self.__class__(self.f, self.low, self.high, **kwds)
+    result = self.__class__(self.f, self.low, self.high)
+    for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety":
+      result.__dict__[var] = eval("self.%s" % var)
+    for var in "attrib", "marks", "text_attrib":
+      result.__dict__[var] = copy.deepcopy(eval("self.%s" % var))
+    result.trans = copy.copy(self.trans)
+
     memo[id(self)] = result
     return result
 
@@ -349,45 +353,6 @@ class Curve:
 
     candidates.sort(closecmp)
     return candidates
-
-##############################################################################
-
-def cannonical_parametric(expr):
-  """Put parametric expression into cannonical form (function of one variable -> 2-tuple)"""
-
-  if callable(expr):
-
-    # 1 real -> 2 real
-    if expr.func_code.co_argcount == 1:
-      return expr
-
-    else:
-      raise TypeError, "Must be a 1 -> 2 real function"
-
-  else:
-    compiled = compile(expr, expr, "eval")
-
-    # 1 real -> 2 real
-    if "t" in compiled.co_names:
-      output = lambda t: eval(compiled, math.__dict__, {"t": float(t)})
-      output.func_name = "t -> %s" % expr
-      return output
-
-    # 1 real -> 1 real
-    elif "x" in compiled.co_names:
-      output = lambda t: (t, eval(compiled, math.__dict__, {"x": float(t)}))
-      output.func_name = "x -> %s" % expr
-      return output
-
-    # real (a complex number restricted to the real axis) -> complex
-    elif "z" in compiled.co_names:
-      split = lambda z: (z.real, z.imag)
-      output = lambda z: split(eval(compiled, cmath.__dict__, {"z": complex(z)}))
-      output.func_name = "z -> %s" % expr
-      return output
-
-    else:
-      raise TypeError, "Parametric string '%s' must contain real 't', 'x', or 'z'" % expr
 
 ##############################################################################
 

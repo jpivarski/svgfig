@@ -201,7 +201,7 @@ int _curve_subsample(struct sample *left, struct sample *right, int depth, struc
 
 /* the only function which is called from the outside: the interface to Python */
 static PyObject *_curve_curve(PyObject *self, PyObject *args, PyObject *kwds) {
-  const char *errstring = "arguments are: parametric function to plot, list of transformations to apply to each point, low endpoint, high endpoint.  \nkeyword arguments are: random_sampling (True), random_seed (12345), recursion_limit (50), linearity_limit (0.05), discontinuity_limit (1.)";
+  const char *errstring = "arguments are: parametric function to plot, list of transformations to apply to each point, low endpoint, high endpoint.  \nkeyword arguments are: random_sampling (True), random_seed (12345), recursion_limit (50), linearity_limit (0.01), discontinuity_limit (1.)";
 
   PyObject *parametric;
   PyObject *listoftrans;
@@ -209,7 +209,7 @@ static PyObject *_curve_curve(PyObject *self, PyObject *args, PyObject *kwds) {
   PyObject *random_sampling = Py_True;
   int random_seed = 12345;
   int recursion_limit = 50;
-  double linearity_limit = 0.05;
+  double linearity_limit = 0.01;
   double discontinuity_limit = 1.;
 
   static char *kwlist[] = {"parametric", "listoftrans", "low", "high", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", NULL};

@@ -1,4 +1,4 @@
-import math, cmath, copy
+import svg, math, copy
 
 epsilon = 1e-5
 
@@ -9,7 +9,7 @@ def transform(expr, obj):
   return obj
 
 def transformation_angle(expr, x, y, scale=1.):
-  func = cannonical_transformation(expr)
+  func = svg.cannonical_transformation(expr)
   eps = epsilon
   if scale != 0.: eps *= scale
 
@@ -20,7 +20,7 @@ def transformation_angle(expr, x, y, scale=1.):
   return math.atan2(dely, delx)
 
 def transformation_jacobian(expr, x, y, scale=1.):
-  func = cannonical_transformation(expr)
+  func = svg.cannonical_transformation(expr)
   eps = epsilon
   if scale != 0.: eps *= scale
 
@@ -32,273 +32,144 @@ def transformation_jacobian(expr, x, y, scale=1.):
 
 ##############################################################################
 
-class Hold:
-  """Holds an SVG object for special transformation handling."""
+class Hold(svg.SVG):
+  """Holds SVG objects for special transformation handling."""
 
-  def __init__(self, hold):
-    self.__dict__["hold"] = hold
-
-  def __repr__(self): return "<Hold %s>" % self.hold
-
-  def evaluate(self): self.hold.evaluate()
-
-  def svg(self): return self.hold
-
-  def tree(self, depth_limit=None, attrib=False, attrib_first=False, index_width=20, showtop=True, asstring=False):
-    if showtop: output = "%s %s\n" % (("%%-%ds" % index_width) % repr(None), repr(self))
-    else: output = ""
-    output += self.hold.tree(depth_limit, attrib, attrib_first, index_width, False, True)
-    if asstring: return output
-    else: print output
-
-  def __getattr__(self, name): return self.hold.__getattr__(name)
-  def __setattr__(self, name, value):
-    if name in self.__dict__:
-      self.__dict__[name] = value
-    else:
-      self.hold.__setattr__(name, value)
-
-  def append(self, other): self.hold.append(other)
-  def prepend(self, other): self.hold.prepend(other)
-  def extend(self, other): self.hold.extend(other)
-  def insert(self, i, other): self.hold.insert(i, other)
-  def remove(self, other): self.hold.remove(other)
-  def __len__(self): return len(self.hold.children)
-  def __add__(self, other): return self.hold + other
-  def __iadd__(self, other): self.hold += other
-  def __mul__(self, other): return self.hold * other
-  def __rmul__(self, other): return self * other
-  def __imul__(self, other): self.hold *= other
-  def count(self, *args, **kwds): return self.hold.count(*args, **kwds)
-  def index(self, *args, **kwds): return self.hold.index(*args, **kwds)
-  def pop(self, *args, **kwds): return self.hold.pop(*args, **kwds)
-  def reverse(self, *args, **kwds): return self.hold.reverse(*args, **kwds)
-  def clear(self, *args, **kwds): return self.hold.clear(*args, **kwds)
-  def update(self, other): return self.hold.update(other)
-  def __contains__(self, other): return other in self.hold
-  def fromkeys(self, *args, **kwds): return self.hold.fromkeys(*args, **kwds)
-  def has_key(self, *args, **kwds): return self.hold.has_key(*args, **kwds)
-  def items(self, *args, **kwds): return self.hold.items(*args, **kwds)
-  def keys(self, *args, **kwds): return self.hold.keys(*args, **kwds)
-  def values(self, *args, **kwds): return self.hold.values(*args, **kwds)
-  def get(self, *args, **kwds): return self.hold.get(*args, **kwds)
-  def setdefault(self, *args, **kwds): return self.hold.setdefault(*args, **kwds)
-  def iteritems(self, *args, **kwds): return self.hold.iteritems(*args, **kwds)
-  def iterkeys(self, *args, **kwds): return self.hold.iterkeys(*args, **kwds)
-  def itervalues(self, *args, **kwds): return self.hold.itervalues(*args, **kwds)
-  def pop(self, *args, **kwds): return self.hold.pop(*args, **kwds)
-  def popitem(self, *args, **kwds): return self.hold.popitem(*args, **kwds)
-  def copy(self): return self.hold.copy(*args, **kwds)
-  def deepcopy(self): return self.hold.deepcopy(*args, **kwds)
-  def __getitem__(self, treeindex): return self.hold[treeindex]
-  def __setitem__(self, treeindex, value): self.hold[treeindex] = value
-  def __delitem__(self, treeindex): del self.hold[treeindex]
-  def __eq__(self, other):
-    if id(self) == id(other): return True
-    return isinstance(other, Hold) and self.hold == other.hold
-  def __ne__(self, other): return not (self == other)
-  def walk(self, *args, **kwds): return self.hold.walk(*args, **kwds)
-  def xml(self, *args, **kwds): return self.hold.xml(*args, **kwds)
-  def save(self, *args, **kwds): return self.hold.save(*args, **kwds)
-  def inkview(self, *args, **kwds): return self.hold.inkview(*args, **kwds)
-  def inkscape(self, *args, **kwds): return self.hold.inkscape(*args, **kwds)
-  def firefox(self, *args, **kwds): return self.hold.firefox(*args, **kwds)
-
-##############################################################################
-
-class Delay(Hold):
-  """Delay holds an SVG object and accumulates transformations to
-apply to it without applying them right away.  Transformations are
-applied (a) when evaluate() is called, (b) to a copy when svg() is
-called, and (c) to a copy when drawn as XML.
-
-Arguments: Delay(svg)
-
-Members: hold, transformations"""
-
-  def __init__(self, svg):
-    Hold.__init__(self, svg)
-    self.__dict__["transformations"] = []
+  def __init__(self, *args, **kwds):
+    self.tag = None
+    self.attrib = {}
+    self.children = list(args)
 
   def __repr__(self):
-    s = "s"
-    if len(self.transformations) == 1: s = ""
-    return "<Delay %s (%d transformation%s)>" % (self.hold, len(self.transformations), s)
-
-  def transform(self, expr):
-    """Store a transformation for later."""
-    self.transformations.append(cannonical_transformation(expr))
+    if len(self.children) == 1: return "<Hold (1 child)>"
+    else: return "<Hold (%d children)>" % len(self.children)
 
   def evaluate(self):
-    """Apply all transformations."""
-    for t in self.transformations: self.hold.transform(t)
-    self.__dict__["transformations"] = []
-    self.hold.evaluate()
+    for child in self.children: child.evaluate()
 
   def svg(self):
-    """Return a copy of SVG with transformations applied."""
-    output = copy.deepcopy(self.hold)
-    for t in self.transformations: output.transform(t)
+    output = svg.SVG("g", **self.attrib)
+    for child in self.children: output.append(copy.deepcopy(child))
     return output
 
   def __eq__(self, other):
     if id(self) == id(other): return True
-    return isinstance(other, Delay) and self.hold == other.hold and self.transformations == other.transformations
+    return self.__class__ == other.__class__ and self.tag == other.tag and self.children == other.children and self.attrib == other.attrib
 
   def __deepcopy__(self, memo={}):
-    result = self.__class__(copy.deepcopy(self.hold))
-    result.__dict__["transformations"] = copy.copy(self.transformations)
+    result = self.__class__(*copy.deepcopy(self.children), **copy.deepcopy(self.attrib))
     memo[id(self)] = result
+    return result
+
+  def __getattr__(self, name): return self.__dict__[name]
+  def __setattr__(self, name, value): self.__dict__[name] = value
+
+##############################################################################
+
+class Delay(Hold):
+  """Delay SVG objects and accumulates transformations to
+apply to them without applying them right away.  Transformations are
+applied (a) when evaluate() is called, (b) to a copy when svg() is
+called, and (c) to a copy when drawn as XML."""
+
+  def __init__(self, *args, **kwds):
+    Hold.__init__(self, *args, **kwds)
+    self.trans = []
+
+  def __repr__(self):
+    ren = "ren"
+    if len(self.children) == 1: ren = ""
+    return "<Delay (%d child%s) (%d trans)>" % (len(self.children), ren, len(self.trans))
+
+  def transform(self, expr):
+    """Store a transformation for later."""
+    self.trans.append(svg.cannonical_transformation(expr))
+
+  def bbox(self): return self.svg().bbox()
+
+  def evaluate(self):
+    """Apply all transformations."""
+    for t in self.trans:
+      for child in self.children:
+        child.transform(t)
+    self.trans = []
+    Hold.evaluate(self)
+
+  def svg(self):
+    """Return a copy of SVG with transformations applied."""
+    output = Hold.svg(self)
+    for t in self.trans: output.transform(t)
+    return output
+
+  def __eq__(self, other):
+    return Hold.__eq__(self, other) and self.trans == other.trans
+
+  def __deepcopy__(self, memo={}):
+    result = Hold.__deepcopy__(self, memo)
+    result.trans = copy.copy(self.trans)
     return result
 
 ##############################################################################
 
 class Freeze(Hold):
-  """Freeze holds an SVG object and ignores all attempts to transform it.
-
-Arguments: Freeze(svg)
-
-Members: svg"""
-  def __init__(self, svg): self.__dict__["hold"] = svg
-
-  def __repr__(self): return "<Freeze %s>" % self.hold
+  """Freeze holds an SVG object and ignores all attempts to transform it."""
+  def __repr__(self):
+    if len(self.children) == 1: return "<Freeze (1 child)>"
+    else: return "<Freeze (%d children)>" % len(self.children)
 
   def transform(self, expr): pass
-
-  def __eq__(self, other):
-    if id(self) == id(other): return True
-    return isinstance(other, Freeze) and self.hold == other.hold
 
 ##############################################################################
 
 class Pin(Hold):
   """Pin holds an SVG object and applies transformations to only one
 point, such that the drawing is never distorted, only moved.  The
-drawing rotates if rotate=True.
+drawing rotates if rotate=True."""
+  x = 0.
+  y = 0.
+  rotate = False
 
-Arguments: Pin(x, y, svg, rotate=False)
-
-Members: x, y, svg, rotate"""
-
-  def __init__(self, x, y, svg, rotate=False):
-    self.__dict__["x"] = x
-    self.__dict__["y"] = y
-    self.__dict__["hold"] = svg
-    self.__dict__["rotate"] = rotate
+  def __init__(self, *args, **kwds):
+    for var in "x", "y", "rotate":
+      if var in kwds:
+        self.__dict__[var] = kwds[var]
+        del kwds[var]
+    Hold.__init__(self, *args, **kwds)
 
   def __repr__(self):
     rotate = ""
     if self.rotate: rotate = "and rotate "
+    ren = "ren"
+    if len(self.children) == 1: ren = ""
 
-    return "<Pin %sat (%g %g) %s>" % (rotate, self.x, self.y, self.hold)
+    return "<Pin %sat %g %g (%d child%s)>" % (rotate, self.x, self.y, len(self.children), ren)
 
   def transform(self, expr):
     """Transform the pin position, moving (and rotating) the drawing (if rotate=True)."""
-    func = cannonical_transformation(expr)
+    func = svg.cannonical_transformation(expr)
 
     oldx, oldy = self.x, self.y
-    self.__dict__["x"], self.__dict__["y"] = func(self.x, self.y)
+    self.x, self.y = func(self.x, self.y)
 
     if self.rotate:
       shiftx, shifty = func(oldx + epsilon, oldy)
       angle = math.atan2(shifty, shiftx)
-
-      self.hold.transform(lambda x, y: (self.x + math.cos(angle)*(x - oldx) - math.sin(angle)*(y - oldy),
-                                        self.y + math.sin(angle)*(x - oldx) + math.cos(angle)*(y - oldy)))
+      trans = lambda x, y: (self.x + math.cos(angle)*(x - oldx) - math.sin(angle)*(y - oldy),
+                            self.y + math.sin(angle)*(x - oldx) + math.cos(angle)*(y - oldy))
 
     else:
-      self.hold.transform(lambda x, y: (x + self.x - oldx, y + self.y - oldy))
+      trans = lambda x, y: (x + self.x - oldx, y + self.y - oldy)
+
+    for child in self.children:
+      child.transform(trans)
 
   def __eq__(self, other):
-    if id(self) == id(other): return True
-    return isinstance(other, Pin) and self.x == other.x and self.y == other.y and self.hold == other.hold and self.rotate == other.rotate
+    return Hold.__eq__(self, other) and self.x == other.x and self.y == other.y and self.rotate == other.rotate
 
-##############################################################################
-
-class BBox:
-  def __init__(self, xmin, xmax, ymin, ymax):
-    self.xmin, self.xmax, self.ymin, self.ymax = xmin, xmax, ymin, ymax
-
-  def __repr__(self):
-    return "<BBox xmin=%g xmax=%g ymin=%g ymax=%g>" % (self.xmin, self.xmax, self.ymin, self.ymax)
-
-  def insert(self, x, y):
-    if self.xmin == None or x < self.xmin: self.xmin = x
-    if self.ymin == None or y < self.ymin: self.ymin = y
-    if self.xmax == None or x > self.xmax: self.xmax = x
-    if self.ymax == None or y > self.ymax: self.ymax = y
-
-  def __add__(self, other):
-    output = BBox(self.xmin, self.xmax, self.ymin, self.ymax)
-    output += other
-    return output
-
-  def __iadd__(self, other):
-    if self.xmin is None: self.xmin = other.xmin
-    elif other.xmin is None: pass
-    else: self.xmin = min(self.xmin, other.xmin)
-
-    if self.xmax is None: self.xmax = other.xmax
-    elif other.xmax is None: pass
-    else: self.xmax = max(self.xmax, other.xmax)
-
-    if self.ymin is None: self.ymin = other.ymin
-    elif other.ymin is None: pass
-    else: self.ymin = min(self.ymin, other.ymin)
-
-    if self.ymax is None: self.ymax = other.ymax
-    elif other.ymax is None: pass
-    else: self.ymax = max(self.ymax, other.ymax)
-
-    return self
-
-  def __eq__(self, other):
-    return self.xmin == other.xmin and self.xmax == other.xmax and self.ymin == other.ymin and self.ymax == other.ymax
-
-  def __ne__(self, other): return not (self == other)
-
-##############################################################################
-
-def cannonical_transformation(expr):
-  """Put transformation function into cannonical form (function of two variables -> 2-tuple)"""
-
-  if expr is None:
-    return lambda x, y: (x, y)
-
-  elif callable(expr):
-
-    # 2 real -> 2 real
-    if expr.func_code.co_argcount == 2:
-      return expr
-
-    # complex -> complex
-    elif expr.func_code.co_argcount == 1:
-      split = lambda z: (z.real, z.imag)
-      output = lambda x, y: split(expr(complex(x, y)))
-      output.func_name = expr.func_name
-      return output
-
-    else:
-      raise TypeError, "Must be a 2 -> 2 real function or a complex -> complex function"
-
-  else:
-    compiled = compile(expr, expr, "eval")
-
-    # 2 real -> 2 real
-    if "x" in compiled.co_names and "y" in compiled.co_names:
-      output = lambda x, y: eval(compiled, math.__dict__, {"x": float(x), "y": float(y)})
-      output.func_name = "x, y -> %s" % expr
-      return output
-
-    # complex -> complex
-    elif "z" in compiled.co_names:
-      split = lambda z: (z.real, z.imag)
-      output = lambda x, y: split(eval(compiled, cmath.__dict__, {"z": complex(x, y)}))
-      output.func_name = "z -> %s" % expr
-      return output
-
-    else:
-      raise TypeError, "Transformation string '%s' must contain real 'x' and 'y' or complex 'z'" % expr
+  def __deepcopy__(self, memo={}):
+    result = Hold.__deepcopy__(self, memo)
+    result.x, result.y, result.rotate = self.x, self.y, self.rotate
+    return result
 
 ##############################################################################
 
@@ -355,6 +226,10 @@ flipx, flipy            if True, reverse the direction of x or y"""
   output = lambda x, y: (xfunc(x), yfunc(y))
 
   output.func_name = "(%g, %g), (%g, %g) -> (%g, %g), (%g, %g)%s%s" % (ix1, ix2, iy1, iy2, ox1, ox2, oy1, oy2, xlogstr, ylogstr)
+
+  output.xmin, output.xmax, output.ymin, output.ymax = xmin, xmax, ymin, ymax
+  output.x, output.y, output.width, output.height = x, y, width, height
+  output.xlogbase, output.ylogbase, output.minusInfinity, output.flipx, output.flipy = xlogbase, ylogbase, minusInfinity, flipx, flipy
   return output
 
 ##############################################################################
@@ -362,7 +237,11 @@ flipx, flipy            if True, reverse the direction of x or y"""
 def rotation(angle, cx=0, cy=0):
   """Creates and returns a coordinate transformation which rotates
   around (cx,cy) by "angle" radians."""
-  return lambda x, y: (cx + math.cos(angle)*(x - cx) - math.sin(angle)*(y - cy), cy + math.sin(angle)*(x - cx) + math.cos(angle)*(y - cy))
+  output = lambda x, y: (cx + math.cos(angle)*(x - cx) - math.sin(angle)*(y - cy), cy + math.sin(angle)*(x - cx) + math.cos(angle)*(y - cy))
+  output.angle = angle
+  output.cx = cx
+  output.cy = cy
+  return output
 
 ##############################################################################
 
