@@ -141,6 +141,7 @@ static int _curve_eval(PyObject *parametric, PyObject *listoftrans, double t, do
   *fy = PyFloat_AsDouble(y);
   Py_DECREF(x);
   Py_DECREF(y);
+
   return 1;
 }
 
@@ -200,16 +201,16 @@ int _curve_subsample(struct sample *left, struct sample *right, int depth, struc
 
 /* the only function which is called from the outside: the interface to Python */
 static PyObject *_curve_curve(PyObject *self, PyObject *args, PyObject *kwds) {
-  const char *errstring = "arguments are: parametric function to plot, list of transformations to apply to each point, low endpoint, high endpoint.  \nkeyword arguments are: random_sampling (True), random_seed (12345), recursion_limit (15), linearity_limit (0.05), discontinuity_limit (5.)";
+  const char *errstring = "arguments are: parametric function to plot, list of transformations to apply to each point, low endpoint, high endpoint.  \nkeyword arguments are: random_sampling (True), random_seed (12345), recursion_limit (50), linearity_limit (0.05), discontinuity_limit (1.)";
 
   PyObject *parametric;
   PyObject *listoftrans;
   double low, high;
   PyObject *random_sampling = Py_True;
   int random_seed = 12345;
-  int recursion_limit = 15;
+  int recursion_limit = 50;
   double linearity_limit = 0.05;
-  double discontinuity_limit = 5.;
+  double discontinuity_limit = 1.;
 
   static char *kwlist[] = {"parametric", "listoftrans", "low", "high", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", NULL};
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOdd|Oiidd", kwlist, &parametric, &listoftrans, &low, &high, &random_sampling, &random_seed, &recursion_limit, &linearity_limit, &discontinuity_limit)) {
@@ -297,10 +298,10 @@ static PyObject *_curve_curve(PyObject *self, PyObject *args, PyObject *kwds) {
     }
     return NULL;
   }
-
+  
   /* prune excess points that are within the linearity bounds */
   struct sample *left = samplelow;
-  int length = 1;  /* count samples after pruning (left stops just before the last one) */
+  int length = 1; /* get the post-pruning length */
   while (left->right != NULL) {
     struct sample *mid = left->right;
     struct sample *right = mid->right;

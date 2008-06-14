@@ -23,6 +23,7 @@
 #include <gdk/gdkcairo.h>
 #include <librsvg-2/librsvg/rsvg.h>
 #include <librsvg-2/librsvg/rsvg-cairo.h>
+#include <time.h>
 
 #ifndef PyMODINIT_FUNC
 #define PyMODINIT_FUNC void
@@ -134,8 +135,15 @@ static PyObject *_viewer_str(PyObject *self, PyObject *args) {
     return NULL;
   }
 
+  /* wait for the window to appear, and don't wait forever */
+  /* if 5 seconds are reached, don't explicitly throw an error, let */
+  /* GDK do that if it needs to */
   g_thread_yield();
-  while (!ready);
+  time_t start = time(NULL);
+  while (!ready) {
+    time_t now = time(NULL);
+    if (difftime(now, start) > 5) break;
+  }
 
   gdk_threads_enter();
   gtk_widget_queue_draw(drawing_area);
