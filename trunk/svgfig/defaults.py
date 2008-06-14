@@ -51,6 +51,8 @@ def transform_circle(func, obj):
   x2, y2 = func(float(obj.cx) + float(obj.r), float(obj.cy))
   obj.cx, obj.cy = x1, y1
   obj.r = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+def bbox_circle(obj):
+  return trans.BBox(obj.cx - obj.r, obj.cx + obj.r, obj.cy - obj.r, obj.cy + obj.r)
 
 ##### clipPath
 ##### color-profile
@@ -98,6 +100,11 @@ inline.append("g")
 def transform_g(func, obj):
   for child in obj.children:
     child.transform(func)
+def bbox_g(obj):
+  output = trans.BBox(None, None, None, None)
+  for child in obj.children:
+    output += child.bbox()
+  return output
 
 ##### glyph
 ##### glyphRef
@@ -112,13 +119,12 @@ def transform_line(func, obj):
   x2, y2 = func(float(obj.x2), float(obj.y2))
   obj.x1, obj.y1 = x1, y1
   obj.x2, obj.y2 = x2, y2
+def bbox_line(obj):
+  return trans.BBox(obj.x1, obj.x2, obj.y1, obj.y2)
 
 ##### linearGradient
 ##### marker
 inline.append("marker")
-def transform_marker(func, obj):
-  for child in obj.children:
-    child.transform(func)
 
 ##### mask
 ##### metadata
@@ -130,6 +136,8 @@ require["path"] = []
 defaults["path"] = {"d": [], "stroke": "black", "fill": "none"}
 def transform_path(func, obj):
   obj.d = pathdata.transform(func, pathdata.parse(obj.d))
+def bbox_path(obj):
+  return pathdata.bbox(pathdata.parse(obj.d))
   
 ##### pattern
 ##### polygon
@@ -144,6 +152,8 @@ def transform_rect(func, obj):
   x2, y2 = func(float(obj.x) + float(obj.width), float(obj.y) + float(obj.height))
   obj.x, obj.y = x1, y1
   obj.width, obj.height = x2 - x1, y2 - y1
+def bbox_rect(obj):
+  return trans.BBox(obj.x, obj.x + obj.width, obj.y, obj.y + obj.height)
 
 ##### script
 ##### set
@@ -159,13 +169,15 @@ defaults["svg"] = {"width": 400, "height": 400, "viewBox": (0, 0, 100, 100),
 def transform_svg(func, obj):
   for child in obj.children:
     child.transform(func)
+def bbox_svg(obj):
+  output = trans.BBox(None, None, None, None)
+  for child in obj.children:
+    output += child.bbox()
+  return output
 
 ##### switch
 ##### symbol
 inline.append("symbol")
-def transform_symbol(func, obj):
-  for child in obj.children:
-    child.transform(func)
 
 ##### text
 signature["text"] = ["x", "y", "stroke", "fill"]
@@ -176,6 +188,12 @@ def transform_text(func, obj):
   for child in obj.children:
     if isinstance(child, (svg.SVG, trans.Hold)):
       child.transform(func)
+def bbox_text(obj):
+  output = trans.BBox(obj.x, obj.x, obj.y, obj.y) # how to calculate text size???
+  for child in obj.children:
+    if isinstance(child, (svg.SVG, trans.Hold)):
+      output += child.bbox()
+  return output
 
 ##### textPath
 ##### title
@@ -184,13 +202,22 @@ def transform_text(func, obj):
 inline.append("tspan")
 def transform_tspan(func, obj):
   for child in obj.children:
-    child.transform(func)
+    if isinstance(child, (svg.SVG, trans.Hold)):
+      child.transform(func)
+def bbox_text(obj):
+  output = trans.BBox(obj.x, obj.x, obj.y, obj.y) # how to calculate text size???
+  for child in obj.children:
+    if isinstance(child, (svg.SVG, trans.Hold)):
+      output += child.bbox()
+  return output
 
 ##### use
 signature["use"] = ["x", "y", "xlink:href"]
 require["use"] = ["x", "y", "xlink:href"]
 def transform_use(func, obj):
   obj.x, obj.y = func(float(obj.x), float(obj.y))
+def bbox_use(obj):
+  return trans.BBox(obj.x, obj.x, obj.y, obj.y)
 
 ##### view
 ##### vkern

@@ -215,6 +215,50 @@ Members: x, y, svg, rotate"""
 
 ##############################################################################
 
+class BBox:
+  def __init__(self, xmin, xmax, ymin, ymax):
+    self.xmin, self.xmax, self.ymin, self.ymax = xmin, xmax, ymin, ymax
+
+  def __repr__(self):
+    return "<BBox xmin=%g xmax=%g ymin=%g ymax=%g>" % (self.xmin, self.xmax, self.ymin, self.ymax)
+
+  def insert(self, x, y):
+    if self.xmin == None or x < self.xmin: self.xmin = x
+    if self.ymin == None or y < self.ymin: self.ymin = y
+    if self.xmax == None or x > self.xmax: self.xmax = x
+    if self.ymax == None or y > self.ymax: self.ymax = y
+
+  def __add__(self, other):
+    output = BBox(self.xmin, self.xmax, self.ymin, self.ymax)
+    output += other
+    return output
+
+  def __iadd__(self, other):
+    if self.xmin is None: self.xmin = other.xmin
+    elif other.xmin is None: pass
+    else: self.xmin = min(self.xmin, other.xmin)
+
+    if self.xmax is None: self.xmax = other.xmax
+    elif other.xmax is None: pass
+    else: self.xmax = max(self.xmax, other.xmax)
+
+    if self.ymin is None: self.ymin = other.ymin
+    elif other.ymin is None: pass
+    else: self.ymin = min(self.ymin, other.ymin)
+
+    if self.ymax is None: self.ymax = other.ymax
+    elif other.ymax is None: pass
+    else: self.ymax = max(self.ymax, other.ymax)
+
+    return self
+
+  def __eq__(self, other):
+    return self.xmin == other.xmin and self.xmax == other.xmax and self.ymin == other.ymin and self.ymax == other.ymax
+
+  def __ne__(self, other): return not (self == other)
+
+##############################################################################
+
 def cannonical_transformation(expr):
   """Put transformation function into cannonical form (function of two variables -> 2-tuple)"""
 
@@ -319,3 +363,6 @@ def rotation(angle, cx=0, cy=0):
   """Creates and returns a coordinate transformation which rotates
   around (cx,cy) by "angle" radians."""
   return lambda x, y: (cx + math.cos(angle)*(x - cx) - math.sin(angle)*(y - cy), cy + math.sin(angle)*(x - cx) + math.cos(angle)*(y - cy))
+
+##############################################################################
+
