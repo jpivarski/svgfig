@@ -1,3 +1,5 @@
+import trans
+
 def poly(data, loop=False):
   output = []
   for x, y in data:
@@ -344,3 +346,106 @@ def transform(func, pathdata):
       output.append((command.capitalize(), RX - CENTERX, RY - CENTERY, angle, large_arc_flag, sweep_flag, X, Y))
 
   return output
+
+##############################################################################
+
+def bbox(pathdata):
+  x, y = None, None
+  output = trans.BBox(None, None, None, None)
+
+  for datum in pathdata:
+    if not isinstance(datum, (tuple, list)):
+      raise TypeError, "Pathdata elements must be lists/tuples"
+
+    command = datum[0]
+    args = datum[1:]
+
+    ######################
+    if command in ("Z", "z"): pass
+
+    ######################
+    elif command in ("H", "h", "V", "v"):
+      num1 = args[0]
+
+      if command == "H" or (command == "h" and x == None): x = num1
+      elif command == "h": x += num1
+      elif command == "V" or (command == "v" and y == None): y = num1
+      elif command == "v": y += num1
+
+      output.insert(x, y)
+
+    ######################
+    elif command in ("M", "m", "L", "l", "T", "t"):
+      num1, num2 = args
+
+      if command.isupper() or x == None or y == None:
+        x, y = num1, num2
+      else:
+        x += num1
+        y += num2
+
+      output.insert(x, y)
+
+    ######################
+    elif command in ("S", "s", "Q", "q"):
+      num1, num2, num3, num4 = args
+
+      if command.isupper() or x == None or y == None:
+        cx, cy = num1, num2
+      else:
+        cx = x + num1
+        cy = y + num2
+
+      if command.isupper() or x == None or y == None:
+        x, y = num3, num4
+      else:
+        x += num3
+        y += num4
+
+      output.insert(x, y)
+
+    ######################
+    elif command in ("C", "c"):
+      num1, num2, num3, num4, num5, num6 = args
+
+      if command.isupper() or x == None or y == None:
+        c1x, c1y = num1, num2
+      else:
+        c1x = x + num1
+        c1y = y + num2
+
+      if command.isupper() or x == None or y == None:
+        c2x, c2y = num3, num4
+      else:
+        c2x = x + num3
+        c2y = y + num4
+
+      if command.isupper() or x == None or y == None:
+        x, y = num5, num6
+      else:
+        x += num5
+        y += num6
+
+      output.insert(x, y)
+
+    ######################
+    elif command in ("A", "a"):
+      num1, num2, angle, large_arc_flag, sweep_flag, num3, num4 = args
+
+      oldx, oldy = x, y
+      OLDX, OLDY = X, Y
+
+      if command.isupper() or x == None or y == None:
+        x, y = num3, num4
+      else:
+        x += num3
+        y += num4
+
+      if x != None and y != None:
+        centerx, centery = (x + oldx)/2., (y + oldy)/2.
+      CENTERX, CENTERY = (X + OLDX)/2., (Y + OLDY)/2.
+
+      output.insert(x, y)
+
+  return output
+  

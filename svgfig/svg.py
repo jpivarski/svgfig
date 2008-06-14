@@ -61,6 +61,13 @@ class SVG:
     if transform_function is not None:
       transform_function(trans.cannonical_transformation(expr), self)
 
+  def bbox(self):
+    bbox_function = defaults.__dict__.get("bbox_%s" % self.tag)
+    if bbox_function is not None:
+      return bbox_function(self)
+    else:
+      return trans.BBox(None, None, None, None)
+
   def evaluate(self):
     for child in self.children:
       if isinstance(child, (SVG, trans.Hold)):
