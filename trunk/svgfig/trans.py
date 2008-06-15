@@ -173,15 +173,15 @@ drawing rotates if rotate=True."""
 
 ##############################################################################
 
-def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=None, ylogbase=None, minusInfinity=-1000, flipx=False, flipy=False):
+def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=None, ylogbase=None, minusInfinityX=-1000, minusInfinityY=-1000, flipx=False, flipy=False):
   """Returns a coordinate transformation from
       (xmin, ymin), (xmax, ymax)
 to
       (x, y), (x + width, y + height)
 
-xlogbase, ylogbase      if a number, transform logarithmically with given base
-minusInfinity           what to return if log(0) or log(negative) is attempted
-flipx, flipy            if True, reverse the direction of x or y"""
+xlogbase, ylogbase                if a number, transform logarithmically with given base
+minusInfinityX, minusInfinityY    what to return if log(0) or log(negative) is attempted
+flipx, flipy                      if True, reverse the direction of x or y"""
 
   if flipx:
     ox1 = x + width
@@ -204,7 +204,7 @@ flipx, flipy            if True, reverse the direction of x or y"""
 
   if ylogbase != None and (iy1 <= 0. or iy2 <= 0.): raise ValueError, "y range incompatible with log scaling: (%g, %g)" % (iy1, iy2)
 
-  def maybelog(t, it1, it2, ot1, ot2, logbase):
+  def maybelog(t, it1, it2, ot1, ot2, logbase, minusInfinity):
     if t <= 0.: return minusInfinity
     else:
       return ot1 + 1.*(math.log(t, logbase) - math.log(it1, logbase))/(math.log(it2, logbase) - math.log(it1, logbase)) * (ot2 - ot1)
@@ -214,13 +214,13 @@ flipx, flipy            if True, reverse the direction of x or y"""
   if xlogbase == None:
     xfunc = lambda x: ox1 + 1.*(x - ix1)/(ix2 - ix1) * (ox2 - ox1)
   else:
-    xfunc = lambda x: maybelog(x, ix1, ix2, ox1, ox2, xlogbase)
+    xfunc = lambda x: maybelog(x, ix1, ix2, ox1, ox2, xlogbase, minusInfinityX)
     xlogstr = " xlog=%g" % xlogbase
 
   if ylogbase == None:
     yfunc = lambda y: oy1 + 1.*(y - iy1)/(iy2 - iy1) * (oy2 - oy1)
   else:
-    yfunc = lambda y: maybelog(y, iy1, iy2, oy1, oy2, ylogbase)
+    yfunc = lambda y: maybelog(y, iy1, iy2, oy1, oy2, ylogbase, minusInfinityY)
     ylogstr = " ylog=%g" % ylogbase
 
   output = lambda x, y: (xfunc(x), yfunc(y))
@@ -229,7 +229,8 @@ flipx, flipy            if True, reverse the direction of x or y"""
 
   output.xmin, output.xmax, output.ymin, output.ymax = xmin, xmax, ymin, ymax
   output.x, output.y, output.width, output.height = x, y, width, height
-  output.xlogbase, output.ylogbase, output.minusInfinity, output.flipx, output.flipy = xlogbase, ylogbase, minusInfinity, flipx, flipy
+  output.xlogbase, output.ylogbase, output.minusInfinityX, output.minusInfinityY = xlogbase, ylogbase, minusInfinityX, minusInfinityY
+  output.flipx, output.flipy = flipx, flipy
   return output
 
 ##############################################################################

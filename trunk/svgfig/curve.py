@@ -9,9 +9,9 @@ class Curve(svg.SVG):
   marks = []
   random_sampling = True
   random_seed = 12345
-  recursion_limit = 50
-  linearity_limit = 0.01
-  discontinuity_limit = 1.
+  recursion_limit = 15
+  linearity_limit = 0.05
+  discontinuity_limit = 5.
   text_offsetx = 0.
   text_offsety = -2.5
   text_attrib = {}
@@ -111,30 +111,23 @@ class Curve(svg.SVG):
     data = _curve.curve(self.f, self.trans, self.low, self.high,
                         self.random_sampling, self.random_seed, self.recursion_limit, self.linearity_limit, self.discontinuity_limit)
 
-    svgdata = []
-    begin, end = 0, 0
+    segments = []
+    last_d = None
     for d in data:
-      end += 1
-      if d == None:
-        segment = data[begin:end-1]
-        begin = end
+      if d is not None:
+        if last_d is None: segments.append([])
+        segments[-1].append(d)
+      last_d = d
 
-        if len(segment) == 1:
-          pass
-        elif self.smooth:
-          svgdata.extend(pathdata.smooth(segment))
-        else:
-          svgdata.extend(pathdata.poly(segment))
-
-    segment = data[begin:end]
-    if len(segment) == 1:
-      pass
-    elif self.smooth:
-      svgdata.extend(pathdata.smooth(segment))
+    output = []
+    if self.smooth:
+      for seg in segments:
+        output.extend(pathdata.smooth(seg))
     else:
-      svgdata.extend(pathdata.poly(segment))
+      for seg in segments:
+        output.extend(pathdata.poly(seg))
 
-    return svgdata
+    return output
 
   def svg(self):
     if self.marks == []:

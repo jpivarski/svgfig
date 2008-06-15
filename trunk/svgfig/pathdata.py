@@ -1,4 +1,4 @@
-import trans
+import defaults
 
 def poly(data, loop=False):
   output = []
@@ -351,7 +351,7 @@ def transform(func, pathdata):
 
 def bbox(pathdata):
   x, y = None, None
-  output = trans.BBox(None, None, None, None)
+  output = defaults.BBox(None, None, None, None)
 
   for datum in pathdata:
     if not isinstance(datum, (tuple, list)):
