@@ -21,7 +21,7 @@ class Curve(svg.SVG):
     self.children = []
     self.trans = []
 
-    self.f, self.low, self.high = svg.cannonical_parametric(expr), low, high
+    self.f, self.__dict__["low"], self.__dict__["high"] = svg.cannonical_parametric(expr), low, high
 
     for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety":
       if var in kwds:
@@ -62,6 +62,8 @@ class Curve(svg.SVG):
         self.add(self.low, kwds["barrow"])
         self.marks[-1][1]["fill"] = self["stroke"]
       del kwds["barrow"]
+
+    self.clean_ends()
 
     # now add the rest of the attributes
     self.attrib.update(kwds)
@@ -129,6 +131,14 @@ class Curve(svg.SVG):
 
     return output
 
+  def _render_text(self, X, Y, angle, text):
+    text_attrib = {"transform": "translate(%g, %g) rotate(%g)" %
+                   (X + self.text_offsetx*math.cos(angle) - self.text_offsety*math.sin(angle),
+                    Y + self.text_offsetx*math.sin(angle) + self.text_offsety*math.cos(angle), 180./math.pi*angle),
+                   "text-anchor": "middle"}
+    text_attrib.update(self.text_attrib)
+    return svg.SVG("text", 0., 0., **text_attrib)(mark)
+
   def svg(self):
     if self.marks == []:
       return svg.SVG("path", self.d(), **self.attrib)
@@ -154,12 +164,7 @@ class Curve(svg.SVG):
           angle = self.angle(t)
 
           if isinstance(mark, basestring):
-            text_attrib = {"transform": "translate(%g, %g) rotate(%g)" %
-                           (X + self.text_offsetx*math.cos(angle) - self.text_offsety*math.sin(angle),
-                            Y + self.text_offsetx*math.sin(angle) + self.text_offsety*math.cos(angle), 180./math.pi*angle),
-                           "text-anchor": "middle"}
-            text_attrib.update(self.text_attrib)
-            mark = svg.SVG("text", 0., 0., **text_attrib)(mark)
+            mark = self._render_text(X, Y, angle, mark)
 
           else:
             mark = trans.transform(lambda x, y: (X + math.cos(angle)*x - math.sin(angle)*y,
@@ -178,7 +183,7 @@ class Curve(svg.SVG):
     return True
   
   def __deepcopy__(self, memo={}):
-    result = self.__class__(self.f, self.low, self.high)
+    result = Curve(self.f, self.low, self.high)
     for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety":
       result.__dict__[var] = eval("self.%s" % var)
     for var in "attrib", "marks", "text_attrib":
@@ -246,42 +251,70 @@ class Curve(svg.SVG):
     if tolerance is None: tolerance = trans.epsilon * abs(self.high - self.low)
     self.wipe(t - tolerance, t + tolerance, matching=matching)
 
-  def clean(self, keep="arrowhead", drop="tick", clearance=1.):
-    hold = {}
-    for item in self.marks:
-      if isinstance(item, (int, long, float)):
-        if self._matches(keep, item):
-          hold[item] = None
+#   def clean(self, keep="arrowhead", drop="tick", clearance=1.):
+#     hold = {}
+#     for item in self.marks:
+#       if isinstance(item, (int, long, float)):
+#         if self._matches(keep, item):
+#           hold[item] = None
 
-      else:
-        pos, mark = item # marks should be (pos, mark) pairs or just pos
-        if self._matches(keep, mark):
-          hold[pos] = mark
+#       else:
+#         pos, mark = item # marks should be (pos, mark) pairs or just pos
+#         if self._matches(keep, mark):
+#           hold[pos] = mark
     
+#     newmarks = []
+#     for item in self.marks:
+#       if isinstance(item, (int, long, float)):
+#         pos, mark = item, None
+#       else:
+#         pos, mark = item
+
+#       okay = True
+#       if self._matches(drop, mark):
+#         for kpos, kmark in hold.items():
+#           x1, y1 = self(pos)
+#           x2, y2 = self(kpos)
+#           if math.sqrt((x1 - x2)**2 + (y1 - y2)**2) < clearance: okay = False
+
+#       if okay: newmarks.append(item)
+
+#     for kpos, kmark in hold.items():
+#       if kmark is None:
+#         newmarks.append(kpos)
+#       else:
+#         newmarks.append((kpos, kmark))
+
+#     self.marks = newmarks
+
+  def clean_ends(self):
+    end1, end2 = None, None
+    for item in self.marks:
+      if not isinstance(item, (int, long, float)):
+        pos, mark = item # marks should be (pos, mark) pairs or just pos
+        if mark not in (glyphs.tick, glyphs.minitick, glyphs.frtick, glyphs.frminitick) and \
+           not isinstance(mark, basestring) and not (isinstance(mark, svg.SVG) and self.tag == "text"):
+          if pos == self.low: end1 = item
+          if pos == self.high: end2 = item
+
     newmarks = []
     for item in self.marks:
       if isinstance(item, (int, long, float)):
-        pos, mark = item, None
+        if (item != self.low and item != self.high) or \
+           (item == self.low and end1 is None) or \
+           (item == self.high and end2 is None):
+          newmarks.append(item)
+
       else:
         pos, mark = item
-
-      okay = True
-      if self._matches(drop, mark):
-        for kpos, kmark in hold.items():
-          x1, y1 = self(pos)
-          x2, y2 = self(kpos)
-          if math.sqrt((x1 - x2)**2 + (y1 - y2)**2) < clearance: okay = False
-
-      if okay: newmarks.append(item)
-
-    for kpos, kmark in hold.items():
-      if kmark is None:
-        newmarks.append(kpos)
-      else:
-        newmarks.append((kpos, kmark))
+        if (mark not in (glyphs.tick, glyphs.minitick, glyphs.frtick, glyphs.frminitick)) or \
+           (pos != self.low and pos != self.high) or \
+           (pos == self.low and end1 is None) or \
+           (pos == self.high and end2 is None):
+          newmarks.append(item)
 
     self.marks = newmarks
-
+        
   def add(self, t, mark, angle=0., dx=0., dy=0.):
     if not isinstance(mark, basestring):
       mark = trans.transform(lambda x, y: (dx + math.cos(angle)*x - math.sin(angle)*y,
@@ -346,6 +379,169 @@ class Curve(svg.SVG):
 
     candidates.sort(closecmp)
     return candidates
+
+##############################################################################
+
+class XAxis(Curve):
+  attrib = {"stroke": "black", "fill": "none"}
+  smooth = False
+  marks = []
+  random_sampling = True
+  random_seed = 12345
+  recursion_limit = 15
+  linearity_limit = 0.05
+  discontinuity_limit = 5.
+  text_offsetx = 0.
+  text_offsety = 2.5 + 3.
+  text_attrib = {}
+  xlogbase = None
+
+  def _reassign_marks(self):
+    if self.xlogbase: return logticks(self.low, self.high)
+    else: return ticks(self.low, self.high)
+
+  def _reassign_f(self):
+    return lambda t: (t, self.y)
+
+  def __init__(self, low, high, y, **kwds):
+    self.__dict__["low"], self.__dict__["high"] = low, high
+    self.y = y
+
+    if "xlogbase" in kwds:
+      self.xlogbase = kwds["xlogbase"]
+      del kwds["xlogbase"]
+
+    if "marks" not in kwds:
+      kwds["marks"] = self._reassign_marks()
+
+    Curve.__init__(self, self._reassign_f(), low, high, **kwds)
+
+  def __repr__(self):
+    specials = []
+    for var in "attrib", "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "xlogbase":
+      if eval("self.%s" % var) != eval("self.__class__.%s" % var):
+        specials.append("%s=%s" % (var, eval("self.%s" % var)))
+    specials = " ".join(specials)
+    if specials != "": specials = " " + specials
+
+    trans = ""
+    lentrans = len(self.trans)
+    if lentrans > 0: trans = " (%d trans)" % lentrans
+
+    marks = ""
+    lenmarks = len(self.marks)
+    if lenmarks == 1: marks = " (1 mark)"
+    elif lenmarks > 1: marks = " (%d marks)" % lenmarks
+
+    return "<XAxis from x=%g to %g at y=%g%s%s%s>" % (self.low, self.high, self.y, specials, trans, marks)
+
+  def _render_text(self, X, Y, angle, text):
+    text_attrib = {"transform": "translate(%g, %g) rotate(%g)" %
+                   (X + self.text_offsetx*math.cos(angle) - self.text_offsety*math.sin(angle),
+                    Y + self.text_offsetx*math.sin(angle) + self.text_offsety*math.cos(angle), 180./math.pi*angle),
+                   "text-anchor": "middle"}
+    text_attrib.update(self.text_attrib)
+    return svg.SVG("text", 0., 0., **text_attrib)(text)
+
+  def __setattr__(self, name, value):
+    self.__dict__[name] = value
+    if name == "xlogbase":
+      self.marks = self._reassign_marks()
+    if name in ("xlogbase", "low", "high"):
+      self.f = self._reassign_f()
+
+  def __deepcopy__(self, memo={}):
+    result = XAxis(self.low, self.high, self.y)
+    for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety", "xlogbase":
+      result.__dict__[var] = eval("self.%s" % var)
+    for var in "attrib", "marks", "text_attrib":
+      result.__dict__[var] = copy.deepcopy(eval("self.%s" % var))
+    result.trans = copy.copy(self.trans)
+
+    memo[id(self)] = result
+    return result
+
+##############################################################################
+
+class YAxis(Curve):
+  attrib = {"stroke": "black", "fill": "none"}
+  smooth = False
+  marks = []
+  random_sampling = True
+  random_seed = 12345
+  recursion_limit = 15
+  linearity_limit = 0.05
+  discontinuity_limit = 5.
+  text_offsetx = -2.5
+  text_offsety = 1.5 # when dominant-baseline works, this hack will no longer be necessary
+  text_attrib = {}
+  ylogbase = None
+
+  def _reassign_marks(self):
+    if self.ylogbase: return logticks(self.low, self.high)
+    else: return ticks(self.low, self.high)
+
+  def _reassign_f(self):
+    return lambda t: (self.x, t)
+
+  def __init__(self, low, high, x, **kwds):
+    self.__dict__["low"], self.__dict__["high"] = low, high
+    self.x = x
+
+    if "ylogbase" in kwds:
+      self.ylogbase = kwds["ylogbase"]
+      del kwds["ylogbase"]
+
+    if "marks" not in kwds:
+      kwds["marks"] = self._reassign_marks()
+
+    Curve.__init__(self, self._reassign_f(), low, high, **kwds)
+
+  def __repr__(self):
+    specials = []
+    for var in "attrib", "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "ylogbase":
+      if eval("self.%s" % var) != eval("self.__class__.%s" % var):
+        specials.append("%s=%s" % (var, eval("self.%s" % var)))
+    specials = " ".join(specials)
+    if specials != "": specials = " " + specials
+
+    trans = ""
+    lentrans = len(self.trans)
+    if lentrans > 0: trans = " (%d trans)" % lentrans
+
+    marks = ""
+    lenmarks = len(self.marks)
+    if lenmarks == 1: marks = " (1 mark)"
+    elif lenmarks > 1: marks = " (%d marks)" % lenmarks
+
+    return "<YAxis from y=%g to %g at x=%g%s%s%s>" % (self.low, self.high, self.x, specials, trans, marks)
+
+  def _render_text(self, X, Y, angle, text):
+    angle += math.pi/2.
+    text_attrib = {"transform": "translate(%g, %g) rotate(%g)" %
+                   (X + self.text_offsetx*math.cos(angle) - self.text_offsety*math.sin(angle),
+                    Y + self.text_offsetx*math.sin(angle) + self.text_offsety*math.cos(angle), 180./math.pi*angle),
+                   "text-anchor": "end"}
+    text_attrib.update(self.text_attrib)
+    return svg.SVG("text", 0., 0., **text_attrib)(text)
+
+  def __setattr__(self, name, value):
+    self.__dict__[name] = value
+    if name == "ylogbase":
+      self.marks = self._reassign_marks()
+    if name in ("ylogbase", "low", "high"):
+      self.f = self._reassign_f()
+
+  def __deepcopy__(self, memo={}):
+    result = YAxis(self.low, self.high, self.x)
+    for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety", "ylogbase":
+      result.__dict__[var] = eval("self.%s" % var)
+    for var in "attrib", "marks", "text_attrib":
+      result.__dict__[var] = copy.deepcopy(eval("self.%s" % var))
+    result.trans = copy.copy(self.trans)
+
+    memo[id(self)] = result
+    return result
 
 ##############################################################################
 
