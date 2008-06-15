@@ -7,8 +7,8 @@ saved = []
 
 ##############################################################################
 
-def newid(prefix=""):
-  return prefix + "".join(random.sample("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 10))
+def newid(prefix="", characters=10):
+  return prefix + "".join(random.sample("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", characters))
 
 ##############################################################################
 
@@ -452,7 +452,7 @@ class SVG:
 
     # recursive function for writing XML
     def subxml(sub, depth=0):
-      if sub.tag is None: sub = sub.svg()
+      if isinstance(sub, SVG) and sub.tag is None: sub = sub.svg()
 
       if isinstance(sub, basestring):
         return [sub]
