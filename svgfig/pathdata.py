@@ -1,5 +1,7 @@
 import defaults
 
+############################### convenient functions for making paths
+
 def poly(data, loop=False):
   output = []
   for x, y in data:
@@ -75,7 +77,7 @@ def smooth(data, loop=False):
 
   return velocity(zip(x, y, vx, vy), loop)
 
-##############################################################################
+############################### pathdata parsers
 
 def parse_whitespace(index, pathdata):
   while index < len(pathdata) and pathdata[index] in (" ", "\t", "\r", "\n", ","): index += 1
@@ -121,7 +123,7 @@ def parse_boolean(index, pathdata):
   else:
     return None, index, pathdata
 
-##############################################################################
+############################### main parsing function (keeps defaults from getting messy)
 
 def parse(pathdata):
   if isinstance(pathdata, (list, tuple)): return pathdata
@@ -232,7 +234,7 @@ def parse(pathdata):
 
   return output
 
-##############################################################################
+############################### transformation function (keeps defaults from getting messy)
 
 def transform(func, pathdata):
   x, y, X, Y = None, None, None, None
@@ -347,7 +349,7 @@ def transform(func, pathdata):
 
   return output
 
-##############################################################################
+############################### bbox function (keeps defaults from getting messy)
 
 def bbox(pathdata):
   x, y = None, None

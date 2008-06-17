@@ -1,9 +1,12 @@
-### default values, may be modified at runtime by importing defaults
+import math, re, os, platform, warnings
 
-import math, os, re, platform
-import pathdata
+version = "SVGFig 2.0.0alpha1"
+version_info = (2, 0, 0, "alpha1")
 
-##############################################################################
+############################### default filenames 
+
+class VersionWarning(UserWarning): pass
+warnings.filterwarnings("default", category=VersionWarning)
 
 if re.search("windows", platform.system(), re.I):
   try:
@@ -13,24 +16,17 @@ if re.search("windows", platform.system(), re.I):
   except:
     directory = os.path.expanduser("~") + os.sep + "Desktop"
 
+def expand_fileName(fileName):
+  if re.search("windows", platform.system(), re.I) and not os.path.isabs(fileName):
+    fileName = defaults.directory + os.sep + fileName
+  return fileName
+
+############################### Defaults for each SVG element type
+
 xml_header = """\
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 """
-
-##############################################################################
-
-# "inline" and "signature" are mutually exclusive (inline wins if there's a conflict, but that's poor design)
-inline = []
-signature = {}
-
-# "require" items and "defaults" keys are mutually exclusive and everything in the signature must fall into one or the other
-require = {}
-defaults = {}
-
-# In general, transformation rules should be good enough to faithfully represent any linear transformation
-# (Since we only have a small set of vertices, we can't do the kind of
-# conformance to arbitrary non-linear transformations that we do for Curves)
 
 ##### a
 ##### altGlyph
@@ -41,25 +37,35 @@ defaults = {}
 ##### animateMotion
 ##### animateTransform
 ##### circle
-signature["circle"] = ["cx", "cy", "r", "stroke", "fill"]
-require["circle"] = ["cx", "cy", "r"]
-defaults["circle"] = {"stroke": "black", "fill": "none"}
-# transform_circle doesn't yet follow the rule given above: it handles translations and rotations, but not skews
-# for that, we'd have to turn it into an ellipse (I suppose it's possible to change the tag inline)
-def transform_circle(func, obj):
-  x1, y1 = func(float(obj.cx), float(obj.cy))
-  x2, y2 = func(float(obj.cx) + float(obj.r), float(obj.cy))
-  obj.cx, obj.cy = x1, y1
-  obj.r = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
-def bbox_circle(obj):
-  return BBox(obj.cx - obj.r, obj.cx + obj.r, obj.cy - obj.r, obj.cy + obj.r)
+signature_circle = ["cx", "cy", "r", "stroke", "fill"]
+require_circle = ["cx", "cy", "r"]
+defaults_circle = {"stroke": "black", "fill": "none"}
+def tonumber_circle(svg):
+  svg.cx, svg.cy, svg.r = tonumber(svg.cx), tonumber(svg.cy), tonumber(svg.r)
+
+def transform_circle(trans, svg):
+  if isnumber(svg.cx) and isnumber(svg.cy):
+    x1, y1 = trans(svg.cx, svg.cy)
+    svg.cx, svg.cy = x1, y1
+    if isnumber(svg.r):
+      x2, y2 = trans(svg.cx + svg.r, svg.cy)
+      svg.r = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+
+def bbox_circle(svg):
+  if isnumber(svg.cx) and isnumber(svg.cy):
+    if isnumber(svg.r):
+      return BBox(svg.cx - svg.r, svg.cx + svg.r, svg.cy - svg.r, svg.cy + svg.r)
+    else:
+      return BBox(svg.cx, svg.cx, svg.cy, svg.cy)
+  else:
+    return BBox(None, None, None, None)
 
 ##### clipPath
 ##### color-profile
 ##### cursor
 ##### definition-src
 ##### defs
-inline.append("defs")
+signature_defs = None
 
 ##### desc
 ##### ellipse
@@ -96,133 +102,189 @@ inline.append("defs")
 ##### font-face-uri
 ##### foreignObject
 ##### g
-inline.append("g")
-def transform_g(func, obj):
-  for child in obj.children:
-    child.transform(func)
-def bbox_g(obj):
-  output = BBox(None, None, None, None)
-  for child in obj.children:
-    output += child.bbox()
-  return output
+signature_g = None
 
 ##### glyph
 ##### glyphRef
 ##### hkern
 ##### image
 ##### line
-signature["line"] = ["x1", "y1", "x2", "y2", "stroke"]
-require["line"] = ["x1", "y1", "x2", "y2"]
-defaults["line"] = {"stroke": "black"}
-def transform_line(func, obj):
-  x1, y1 = func(float(obj.x1), float(obj.y1))
-  x2, y2 = func(float(obj.x2), float(obj.y2))
-  obj.x1, obj.y1 = x1, y1
-  obj.x2, obj.y2 = x2, y2
-def bbox_line(obj):
-  return BBox(obj.x1, obj.x2, obj.y1, obj.y2)
+signature_line = ["x1", "y1", "x2", "y2", "stroke"]
+require_line = ["x1", "y1", "x2", "y2"]
+defaults_line = {"stroke": "black"}
+
+def tonumber_line(svg):
+  svg.x1, svg.y1, svg.x2, svg.y2 = tonumber(svg.x1), tonumber(svg.y1), tonumber(svg.x2), tonumber(svg.y2)
+
+def transform_line(trans, svg):
+  if isnumber(svg.x1) and isnumber(svg.y1):
+    svg.x1, svg.y1 = trans(svg.x1, svg.y1)
+
+  if isnumber(svg.x2) and isnumber(svg.y2):
+    svg.x2, svg.y2 = trans(svg.x2, svg.y2)
+
+def bbox_line(svg):
+  isnumber1 = (isnumber(svg.x1) and isnumber(svg.y1))
+  isnumber2 = (isnumber(svg.x2) and isnumber(svg.y2))
+
+  if isnumber1 and isnumber2: return BBox(svg.x1, svg.x2, svg.y1, svg.y2)
+  elif isnumber1 and not isnumber2: return BBox(svg.x1, svg.x1, svg.y1, svg.y1)
+  elif not isnumber1 and isnumber2: return BBox(svg.x2, svg.x2, svg.y2, svg.y2)
+  else: return BBox(None, None, None, None)
 
 ##### linearGradient
 ##### marker
-inline.append("marker")
+signature_marker = None
 
 ##### mask
 ##### metadata
 ##### missing-glyph
 ##### mpath
 ##### path
-signature["path"] = ["d", "stroke", "fill"]
-require["path"] = []
-defaults["path"] = {"d": [], "stroke": "black", "fill": "none"}
-def transform_path(func, obj):
-  obj.d = pathdata.transform(func, pathdata.parse(obj.d))
-def bbox_path(obj):
-  return pathdata.bbox(pathdata.parse(obj.d))
+signature_path = ["d", "stroke", "fill"]
+require_path = []
+defaults_path = {"d": [], "stroke": "black", "fill": "none"}
+
+def tonumber_path(svg):
+  svg.d = pathdata.parse(svg.d)
+
+def transform_path(trans, svg):
+  svg.d = pathdata.transform(trans, svg.d)
+
+def bbox_path(svg):
+  return pathdata.bbox(pathdata.parse(svg.d))
   
 ##### pattern
 ##### polygon
 ##### polyline
 ##### radialGradient
 ##### rect
-signature["rect"] = ["x", "y", "width", "height", "stroke", "fill"]
-require["rect"] = ["x", "y", "width", "height"]
-defaults["rect"] = {"stroke": "black", "fill": "none"}
-def transform_rect(func, obj):
-  x1, y1 = func(float(obj.x), float(obj.y))
-  x2, y2 = func(float(obj.x) + float(obj.width), float(obj.y) + float(obj.height))
-  obj.x, obj.y = x1, y1
-  obj.width, obj.height = x2 - x1, y2 - y1
-def bbox_rect(obj):
-  return BBox(obj.x, obj.x + obj.width, obj.y, obj.y + obj.height)
+signature_rect = ["x", "y", "width", "height", "stroke", "fill"]
+require_rect = ["x", "y", "width", "height"]
+defaults_rect = {"stroke": "black", "fill": "none"}
+
+def transform_rect(trans, svg):
+  if isnumber(svg.x) and isnumber(svg.y):
+    if isnumber(svg.width) and isnumber(svg.height):
+      x1, y1 = trans(svg.x, svg.y)
+      x2, y2 = trans(svg.x + svg.width, svg.y + svg.height)
+      svg.x, svg.y = x1, y1
+      svg.width, svg.height = x2 - x1, y2 - y1
+    else:
+      svg.x, svg.y = trans(svg.x, svg.y)
+
+def bbox_rect(svg):
+  if isnumber(svg.x) and isnumber(svg.y):
+    if isnumber(svg.width) and isnumber(svg.height):
+      return BBox(svg.x, svg.x + svg.width, svg.y, svg.y + svg.height)
+    else:
+      return BBox(svg.x, svg.x, svg.y, svg.y)
+  else:
+    return BBox(None, None, None, None)
 
 ##### script
 ##### set
 ##### stop
 ##### style
 ##### svg
-signature["svg"] = ["width", "height", "viewBox"]
-defaults["svg"] = {"width": 400, "height": 400, "viewBox": (0, 0, 100, 100),
-                   "style": {"stroke-width": "0.5pt", "font-size": "4px", "text-anchor": "middle"},
-                   "font-family": ["Helvetica", "Arial", "FreeSans", "Sans", "sans", "sans-serif"],
-                   "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "version":"1.1",
-                   }
-def transform_svg(func, obj):
-  for child in obj.children:
-    child.transform(func)
-def bbox_svg(obj):
-  output = BBox(None, None, None, None)
-  for child in obj.children:
-    output += child.bbox()
-  return output
+signature_svg = ["width", "height", "viewBox"]
+require_svg = []
+defaults_svg = {"width": 400, "height": 400, "viewBox": (0, 0, 100, 100),
+                "style": {"stroke-width": "0.5pt", "font-size": "4px", "text-anchor": "middle"},
+                "font-family": ["Helvetica", "Arial", "FreeSans", "Sans", "sans", "sans-serif"],
+                "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "version":"1.1",
+                }
+
+def tonumber_svg(svg):
+  svg.width = tonumber(svg.width)
+  svg.height = tonumber(svg.height)
+  svg.viewBox = tonumberlist(svg.viewBox)
+  svg["style"] = tostringmap(svg["style"])
+  svg["font-family"] = tostringlist(svg["font-family"])
 
 ##### switch
 ##### symbol
-inline.append("symbol")
+signature_symbol = None
 
 ##### text
-signature["text"] = ["x", "y", "stroke", "fill"]
-require["text"] = ["x", "y"]
-defaults["text"] = {"stroke": "none", "fill": "black"}
-def transform_text(func, obj):
-  obj.x, obj.y = func(obj.x, obj.y)
-  for child in obj.children:
-    if callable(getattr(child, "transform", None)):
-      child.transform(func)
-def bbox_text(obj):
-  output = BBox(obj.x, obj.x, obj.y, obj.y) # how to calculate text size???
-  for child in obj.children:
-    if callable(getattr(child, "bbox", None)):
-      output += child.bbox()
-  return output
+signature_text = ["x", "y", "stroke", "fill"]
+require_text = ["x", "y"]
+defaults_text = {"stroke": "none", "fill": "black"}
+
+def tonumber_text(svg):
+  svg.x = tonumber(svg.x)
+  svg.y = tonumber(svg.y)
+
+def transform_text(trans, svg):
+  if isnumber(svg.x) and isnumber(svg.y):
+    svg.x, svg.y = trans(svg.x, svg.y)
+
+def bbox_text(svg):
+  if isnumber(svg.x) and isnumber(svg.y):
+    return BBox(svg.x, svg.x, svg.y, svg.y) # how to calculate text size???
+  else:
+    return BBox(None, None, None, None)
 
 ##### textPath
 ##### title
 ##### tref
 ##### tspan
-inline.append("tspan")
-def transform_tspan(func, obj):
-  for child in obj.children:
-    if callable(getattr(child, "transform", None)):
-      child.transform(func)
-def bbox_text(obj):
-  output = BBox(obj.x, obj.x, obj.y, obj.y) # how to calculate text size???
-  for child in obj.children:
-    if callable(getattr(child, "bbox", None)):
-      output += child.bbox()
-  return output
+signature_tspan = None
 
 ##### use
-signature["use"] = ["x", "y", "xlink:href"]
-require["use"] = ["x", "y", "xlink:href"]
-def transform_use(func, obj):
-  obj.x, obj.y = func(float(obj.x), float(obj.y))
-def bbox_use(obj):
-  return BBox(obj.x, obj.x, obj.y, obj.y)
+signature_use = ["x", "y", "xlink:href"]
+require_use = ["x", "y", "xlink:href"]
+
+def tonumber_use(svg):
+  svg.x = tonumber(svg.x)
+  svg.y = tonumber(svg.y)
+
+def transform_use(trans, svg):
+  if isnumber(svg.x) and isnumber(svg.y):
+    svg.x, svg.y = trans(svg.x, svg.y)
+
+def bbox_use(svg):
+  if isnumber(svg.x) and isnumber(svg.y):
+    return BBox(svg.x, svg.x, svg.y, svg.y)
+  else:
+    return BBox(None, None, None, None)
 
 ##### view
 ##### vkern
 
-##############################################################################
+############################### utility functions for default actions
+
+def tonumber(x):
+  try:
+    return float(x)
+  except ValueError:
+    return x
+
+def tonumberlist(x):
+  if isinstance(x, basestring):
+    try:
+      return tuple(map(float, re.split("[, \t]+", x)))
+    except ValueError:
+      return x
+  return x
+
+def tostringlist(x):
+  if isinstance(x, basestring):
+    return re.split("[, \t]+", x)
+  return x
+
+def tostringmap(x):
+  if isinstance(x, basestring):
+    try:
+      return dict(map(lambda word: word.split(":"), re.split("[; \t]+", x)))
+    except ValueError:
+      return x
+  else:
+    return x
+
+def isnumber(x): return isinstance(x, (int, long, float))
+
+############################### BBox class
 
 class BBox:
   def __init__(self, xmin, xmax, ymin, ymax):
@@ -265,5 +327,3 @@ class BBox:
     return self.xmin == other.xmin and self.xmax == other.xmax and self.ymin == other.ymin and self.ymax == other.ymax
 
   def __ne__(self, other): return not (self == other)
-
-
