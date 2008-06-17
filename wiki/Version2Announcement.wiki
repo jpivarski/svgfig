@@ -7,6 +7,8 @@ In principle, SVGFig is supposed to be general and flexible enough to have a bas
 
 == SVGFig 2.0.0alpha1 ==
 
+To download, click here: [http://svgfig.googlecode.com/files/svgfig-2.0.0alpha1.tgz svgfig-2.0.0alpha1.tgz]
+
 As the name implies, this is not a stable release, but something to show curious onlookers what's happening.  I'll assume that the reader is already familiar with [Introduction SVGFig 1.x].
 
 As briefly as possible, here's what's new:
@@ -20,6 +22,60 @@ As briefly as possible, here's what's new:
   * Some annoying features in 1.x that generated a lot of output accidentally (try typing "for s in svg: print s" in 1.x sometime) have become explicit function calls.
 
 == Tour guide ==
+
+Have a copy of the code in front of you?  Good.  I'll point out the main features.
+
+=== setup.py and the svgfig directory ===
+
+SVGFig has been divided into several files for better organization, and there are now two compiled extension modules, so =setup.py= got a bit more complicated.  When invoked as
+{{{
+% python setup.py install
+}}}
+or
+{{{
+% python setup.py install --home=~
+}}}
+it attempts to compile =_curve.c= (which has no dependencies) and =_viewer.c= (which depends on =gtk+-2.0=, =gthread-2.0=, =cairo=, and =rsvg-2=).  If either of these fails, the installation proceeds, you will just have fewer features.  I highly recommend the viewer, but it's not essential.
+
+=== interactive.py ===
+
+Now that you have installed SVGFig, you will generally invoke it by executing
+{{{
+>>> from svgfig.interactive import *
+}}}
+on the command line.  This loads into the user's namespace only those functions which are useful for interactive plotting.  The others become accessible by their long names, like
+{{{
+>>> svgfig.defaults.xml_header = "<!-- change the default header -->"
+}}}
+
+=== svg.py ===
+
+The SVG class is basically the same as it was in 1.x, with some tweaks.  (That's what I meant when I said that the core shows evidence of convergence.)  There's still a single SVG class which is differentiated into SVG element types by their tag name, e.g. SVG("line"...), SVG("circle"...), SVG("g"...).  The major new thing is that SVGFig knows the difference between a "line" and a "circle".  The first way you can see this is in the constructor:
+{{{
+>>> SVG("line", 0, 0, 10, 30)
+<line x1=0 y1=0 x2=10 y2=30 stroke='black'>
+>>> SVG("circle", 10, 30, 5, fill="yellow")
+<circle cx=10 cy=30 r=5 stroke='black' fill='yellow'>
+}}}
+
+When the SVG tag is a "line", SVGFig looks in =defaults.py= for line's calling signature, which is
+{{{
+>>> defaults.signature_line
+['x1', 'y1', 'x2', 'y2', 'stroke']
+}}}
+(and editable at run-time).  Only the first four arguments are required (see "defaults.require_line"), the rest have default values ("defaults.defaults_line").  In short, you construct SVG elements like you would a Python function from a reasonably well-designed library.  From the signature, SVGFig also knows which are the most important attributes and shows them in order in the string representation.  Other attributes, of which there might be many, are suppressed.
+{{{
+>>> SVG("line", 0, 0, 10, 30, stroke_width=5)
+<line x1=0 y1=0 x2=10 y2=30 stroke='black' (1 other attribute)>
+}}}
+
+
+
+
+
+
+
+
 
 
 
