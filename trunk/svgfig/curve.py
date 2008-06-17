@@ -1,7 +1,7 @@
-import math, cmath, copy, re
-import svg, trans, pathdata, glyphs
+import math, cmath, copy, re, sys, new
+import defaults, svg, trans, pathdata, glyphs
 
-##############################################################################
+############################### generic curve with marks (tick marks, arrows, etc)
 
 class Curve(svg.SVG):
   attrib = {"stroke": "black", "fill": "none"}
@@ -16,81 +16,49 @@ class Curve(svg.SVG):
   text_offsety = -2.5
   text_attrib = {}
 
+  _varlist = ["attrib", "smooth", "marks", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety", "text_attrib"]
+
   def __init__(self, expr, low, high, **kwds):
     self.tag = None
     self.children = []
-    self.trans = []
-
-    self.f, self.__dict__["low"], self.__dict__["high"] = svg.cannonical_parametric(expr), low, high
-
-    for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety":
-      if var in kwds:
-        exec("self.%s = kwds[\"%s\"]" % (var, var))
-        del kwds[var]
+    self.f = svg.cannonical_parametric(expr)
+    self.low = low
+    self.high = high
     
-    if "marks" in kwds:
-      self.marks = copy.deepcopy(kwds["marks"])
-      del kwds["marks"]
-    else:
-      self.marks = copy.deepcopy(self.marks)      
+    for var in self._varlist:
+      if not callable(eval("self.%s" % var)) and var[:1] != "__" and var[-1:] != "__":
+        if var in kwds:
+          self.__dict__[var] = kwds[var]
+          del kwds[var]
+        else:
+          self.__dict__[var] = copy.deepcopy(eval("self.%s" % var))
 
-    self.text_attrib = copy.deepcopy(self.text_attrib)
-    if "text_attrib" in kwds:
-      self.text_attrib.update(kwds["text_attrib"])
-      del kwds["text_attrib"]
-
-    # need to set "stroke" attribute before adding ticks and arrows
-    self.attrib = copy.deepcopy(self.__class__.attrib)
+    # needed to set arrow color
     if "stroke" in kwds:
       self.attrib["stroke"] = kwds["stroke"]
       del kwds["stroke"]
-          
+    
     if "farrow" in kwds:
       if kwds["farrow"] is True:
         self.add(self.high, glyphs.farrowhead)
-        self.marks[-1][1]["fill"] = self["stroke"]
       else:
         self.add(self.high, kwds["farrow"])
-        self.marks[-1][1]["fill"] = self["stroke"]
+      self.marks[-1][1]["fill"] = self["stroke"]
       del kwds["farrow"]
-
+    
     if "barrow" in kwds:
       if kwds["barrow"] is True:
-        self.add(self.low, glyphs.barrowhead)
-        self.marks[-1][1]["fill"] = self["stroke"]
+        self.add(self.high, glyphs.barrowhead)
       else:
-        self.add(self.low, kwds["barrow"])
-        self.marks[-1][1]["fill"] = self["stroke"]
+        self.add(self.high, kwds["barrow"])
+      self.marks[-1][1]["fill"] = self["stroke"]
       del kwds["barrow"]
 
-    self.clean_ends()
+    self.clean_arrows()
 
-    # now add the rest of the attributes
+    # now the rest of the attributes (other than stroke)
     self.attrib.update(kwds)
-
-  def __getattr__(self, name): return self.__dict__[name]
-  def __setattr__(self, name, value): self.__dict__[name] = value
-
-  def __repr__(self):
-    specials = []
-    for var in "attrib", "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit":
-      if eval("self.%s" % var) != eval("self.__class__.%s" % var):
-        specials.append("%s=%s" % (var, eval("self.%s" % var)))
-    specials = " ".join(specials)
-    if specials != "": specials = " " + specials
-
-    trans = ""
-    lentrans = len(self.trans)
-    if lentrans > 0: trans = " (%d trans)" % lentrans
-
-    marks = ""
-    lenmarks = len(self.marks)
-    if lenmarks == 1: marks = " (1 mark)"
-    elif lenmarks > 1: marks = " (%d marks)" % lenmarks
-
-    return "<Curve %s from %g to %g%s%s%s>" % (self.f, self.low, self.high, specials, trans, marks)
-
-  def transform(self, expr): self.trans.append(svg.cannonical_transformation(expr))
+    self.trans = []
 
   def __call__(self, t, transformed=True):
     x, y = self.f(t)
@@ -107,6 +75,115 @@ class Curve(svg.SVG):
 
     delx, dely = xprime - x, yprime - y
     return math.atan2(dely, delx)
+
+  ### pickleability and access issues
+  def __getattr__(self, name): return self.__dict__[name]
+  def __setattr__(self, name, value): self.__dict__[name] = value
+
+  def __getstate__(self):
+    mostdict = copy.copy(self.__dict__)
+    del mostdict["f"]
+    del mostdict["trans"]
+    transcode = map(lambda f: (f.func_code, f.func_name), self.trans)
+    fcode = self.f.func_code, self.f.func_name
+    return (sys.version_info, defaults.version_info, mostdict, transcode, fcode)
+
+  def __setstate__(self, state):
+    self.__dict__ = state[2]
+    self.__dict__["trans"] = []
+
+    for code, name in state[3]:
+      context = globals()
+      if "z" in code.co_names:
+        context.update(cmath.__dict__)
+      else:
+        context.update(math.__dict__)
+      f = new.function(code, context)
+      f.func_name = name
+      self.__dict__["trans"].append(f)
+
+    context = globals()
+    if "z" in state[4][0].co_names:
+      context.update(cmath.__dict__)
+    else:
+      context.update(math.__dict__)
+    self.__dict__["f"] = new.function(state[4][0], context)
+    self.__dict__["f"].func_name = state[4][1]
+
+  def __deepcopy__(self, memo={}):
+    mostdict = copy.copy(self.__dict__)
+    del mostdict["trans"]
+    del mostdict["f"]
+    output = new.instance(self.__class__)
+    output.__dict__ = copy.deepcopy(mostdict, memo)
+    output.__dict__["trans"] = copy.copy(self.trans)
+    output.__dict__["f"] = self.f
+
+    memo[id(self)] = output
+    return output
+
+  ### presentation
+  def __repr__(self):
+    marks = ""
+    if len(self.marks) == 1: marks = " (1 mark)"
+    elif len(self.marks) > 1: marks = " (%d marks)" % len(self.marks)
+
+    trans = ""
+    if len(self.trans) > 0: trans = " (%d trans)" % len(self.trans)
+
+    attrib = ""
+    for var in "stroke", "fill":
+      if var in self.attrib:
+        attrib += " %s=%s" % (var, repr(self.attrib[var]))
+
+    return "<%s %s from %g to %g%s%s%s>" % (self.__class__.__name__, self.f, self.low, self.high, marks, trans, attrib)
+
+  ### transformation is like Delay
+  def transform(self, trans): self.trans.append(svg.cannonical_transformation(trans))
+
+  def bbox(self):
+    self.evaluate()
+    return self._svg.bbox()
+
+  ### construct the SVG path
+  def evaluate(self):
+    obj = new.instance(svg.SVG)
+    obj.__dict__["tag"] = "path"
+    obj.__dict__["attrib"] = copy.deepcopy(self.attrib)
+    obj.__dict__["children"] = copy.deepcopy(self.children)
+    obj.evaluate()
+    obj.attrib["d"] = self.d()
+
+    if self.marks == []:
+      output = obj
+    else:
+      output = svg.SVG("g", obj)
+
+      lowX, lowY = self(self.low)
+      highX, highY = self(self.high)
+
+      for item in self.marks:
+        if isinstance(item, (int, long, float)):
+          t, mark = item, glyphs.tick
+        else:
+          t, mark = item # marks should be (pos, mark) pairs or just pos
+
+        X, Y = self(t)
+        if self.low <= t <= self.high or \
+           math.sqrt((X - lowX)**2 + (Y - lowY)**2) < trans.epsilon or \
+           math.sqrt((X - highX)**2 + (Y - highY)**2) < trans.epsilon:
+
+          angle = self.angle(t)
+
+          if isinstance(mark, basestring):
+            mark = self._render_text(X, Y, angle, mark)
+
+          else:
+            mark = trans.transform(lambda x, y: (X + math.cos(angle)*x - math.sin(angle)*y,
+                                                 Y + math.sin(angle)*x + math.cos(angle)*y), mark)
+          output.append(mark)
+
+    self._svg = output
 
   def d(self):
     import _curve
@@ -139,60 +216,7 @@ class Curve(svg.SVG):
     text_attrib.update(self.text_attrib)
     return svg.SVG("text", 0., 0., **text_attrib)(mark)
 
-  def svg(self):
-    if self.marks == []:
-      return svg.SVG("path", self.d(), **self.attrib)
-    else:
-      output = svg.SVG("g", svg.SVG("path", self.d(), **self.attrib))
-
-      lowX, lowY = self(self.low)
-      highX, highY = self(self.high)
-
-      items = copy.copy(self.marks)
-      items.sort()
-      for item in items:
-        if isinstance(item, (int, long, float)):
-          t, mark = item, glyphs.tick
-        else:
-          t, mark = item # marks should be (pos, mark) pairs or just pos
-
-        X, Y = self(t)
-        if self.low <= t <= self.high or \
-           math.sqrt((X - lowX)**2 + (Y - lowY)**2) < trans.epsilon or \
-           math.sqrt((X - highX)**2 + (Y - highY)**2) < trans.epsilon:
-
-          angle = self.angle(t)
-
-          if isinstance(mark, basestring):
-            mark = self._render_text(X, Y, angle, mark)
-
-          else:
-            mark = trans.transform(lambda x, y: (X + math.cos(angle)*x - math.sin(angle)*y,
-                                                 Y + math.sin(angle)*x + math.cos(angle)*y), mark)
-          output.append(mark)
-
-      return output
-
-  def bbox(self): return self.svg().bbox()
-
-  def __eq__(self, other):
-    if id(self) == id(other): return True
-    if not isinstance(other, Curve): return False
-    for var in "f", "low", "high", "attrib", "smooth", "marks", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety", "text_attrib", "trans":
-      if eval("self.%s" % var) != eval("other.%s" % var): return False
-    return True
-  
-  def __deepcopy__(self, memo={}):
-    result = Curve(self.f, self.low, self.high)
-    for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety":
-      result.__dict__[var] = eval("self.%s" % var)
-    for var in "attrib", "marks", "text_attrib":
-      result.__dict__[var] = copy.deepcopy(eval("self.%s" % var))
-    result.trans = copy.copy(self.trans)
-
-    memo[id(self)] = result
-    return result
-
+  ### lots of functions for adding/removing marks
   def _matches(self, matching, mark):
     if matching is None: return True
 
@@ -251,70 +275,6 @@ class Curve(svg.SVG):
     if tolerance is None: tolerance = trans.epsilon * abs(self.high - self.low)
     self.wipe(t - tolerance, t + tolerance, matching=matching)
 
-#   def clean(self, keep="arrowhead", drop="tick", clearance=1.):
-#     hold = {}
-#     for item in self.marks:
-#       if isinstance(item, (int, long, float)):
-#         if self._matches(keep, item):
-#           hold[item] = None
-
-#       else:
-#         pos, mark = item # marks should be (pos, mark) pairs or just pos
-#         if self._matches(keep, mark):
-#           hold[pos] = mark
-    
-#     newmarks = []
-#     for item in self.marks:
-#       if isinstance(item, (int, long, float)):
-#         pos, mark = item, None
-#       else:
-#         pos, mark = item
-
-#       okay = True
-#       if self._matches(drop, mark):
-#         for kpos, kmark in hold.items():
-#           x1, y1 = self(pos)
-#           x2, y2 = self(kpos)
-#           if math.sqrt((x1 - x2)**2 + (y1 - y2)**2) < clearance: okay = False
-
-#       if okay: newmarks.append(item)
-
-#     for kpos, kmark in hold.items():
-#       if kmark is None:
-#         newmarks.append(kpos)
-#       else:
-#         newmarks.append((kpos, kmark))
-
-#     self.marks = newmarks
-
-  def clean_ends(self):
-    end1, end2 = None, None
-    for item in self.marks:
-      if not isinstance(item, (int, long, float)):
-        pos, mark = item # marks should be (pos, mark) pairs or just pos
-        if mark not in (glyphs.tick, glyphs.minitick, glyphs.frtick, glyphs.frminitick) and \
-           not isinstance(mark, basestring) and not (isinstance(mark, svg.SVG) and self.tag == "text"):
-          if pos == self.low: end1 = item
-          if pos == self.high: end2 = item
-
-    newmarks = []
-    for item in self.marks:
-      if isinstance(item, (int, long, float)):
-        if (item != self.low and item != self.high) or \
-           (item == self.low and end1 is None) or \
-           (item == self.high and end2 is None):
-          newmarks.append(item)
-
-      else:
-        pos, mark = item
-        if (mark not in (glyphs.tick, glyphs.minitick, glyphs.frtick, glyphs.frminitick)) or \
-           (pos != self.low and pos != self.high) or \
-           (pos == self.low and end1 is None) or \
-           (pos == self.high and end2 is None):
-          newmarks.append(item)
-
-    self.marks = newmarks
-        
   def add(self, t, mark, angle=0., dx=0., dy=0.):
     if not isinstance(mark, basestring):
       mark = trans.transform(lambda x, y: (dx + math.cos(angle)*x - math.sin(angle)*y,
@@ -380,60 +340,62 @@ class Curve(svg.SVG):
     candidates.sort(closecmp)
     return candidates
 
-##############################################################################
+  def clean_arrows(self):
+    end1, end2 = None, None
+    for item in self.marks:
+      if not isinstance(item, (int, long, float)):
+        pos, mark = item # marks should be (pos, mark) pairs or just pos
+        if mark not in (glyphs.tick, glyphs.minitick, glyphs.frtick, glyphs.frminitick) and \
+           not isinstance(mark, basestring) and not (isinstance(mark, svg.SVG) and self.tag == "text"):
+          if pos == self.low: end1 = item
+          if pos == self.high: end2 = item
+
+    newmarks = []
+    for item in self.marks:
+      if isinstance(item, (int, long, float)):
+        if (item != self.low and item != self.high) or \
+           (item == self.low and end1 is None) or \
+           (item == self.high and end2 is None):
+          newmarks.append(item)
+
+      else:
+        pos, mark = item
+        if (mark not in (glyphs.tick, glyphs.minitick, glyphs.frtick, glyphs.frminitick)) or \
+           (pos != self.low and pos != self.high) or \
+           (pos == self.low and end1 is None) or \
+           (pos == self.high and end2 is None):
+          newmarks.append(item)
+
+    self.marks = newmarks
+        
+############################### plot axes
 
 class XAxis(Curve):
-  attrib = {"stroke": "black", "fill": "none"}
-  smooth = False
-  marks = []
-  random_sampling = True
-  random_seed = 12345
-  recursion_limit = 15
-  linearity_limit = 0.05
-  discontinuity_limit = 5.
-  text_offsetx = 0.
   text_offsety = 2.5 + 3.
-  text_attrib = {}
   xlogbase = None
 
+  _varlist = Curve._varlist + ["xlogbase"]
+
   def _reassign_marks(self):
-    if self.xlogbase: return logticks(self.low, self.high)
-    else: return ticks(self.low, self.high)
+    if self.xlogbase is not None:
+      return logticks(self.low, self.high)
+    else:
+      return ticks(self.low, self.high)
 
   def _reassign_f(self):
-    return lambda t: (t, self.y)
-
+    output = eval("lambda t: (t, %s)" % repr(self.y))
+    output.func_name = "x-value"
+    return output
+  
   def __init__(self, low, high, y, **kwds):
-    self.__dict__["low"], self.__dict__["high"] = low, high
+    self.__dict__["low"] = low
+    self.__dict__["high"] = high
     self.y = y
-
-    if "xlogbase" in kwds:
-      self.xlogbase = kwds["xlogbase"]
-      del kwds["xlogbase"]
 
     if "marks" not in kwds:
       kwds["marks"] = self._reassign_marks()
 
     Curve.__init__(self, self._reassign_f(), low, high, **kwds)
-
-  def __repr__(self):
-    specials = []
-    for var in "attrib", "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "xlogbase":
-      if eval("self.%s" % var) != eval("self.__class__.%s" % var):
-        specials.append("%s=%s" % (var, eval("self.%s" % var)))
-    specials = " ".join(specials)
-    if specials != "": specials = " " + specials
-
-    trans = ""
-    lentrans = len(self.trans)
-    if lentrans > 0: trans = " (%d trans)" % lentrans
-
-    marks = ""
-    lenmarks = len(self.marks)
-    if lenmarks == 1: marks = " (1 mark)"
-    elif lenmarks > 1: marks = " (%d marks)" % lenmarks
-
-    return "<XAxis from x=%g to %g at y=%g%s%s%s>" % (self.low, self.high, self.y, specials, trans, marks)
 
   def _render_text(self, X, Y, angle, text):
     text_attrib = {"transform": "translate(%g, %g) rotate(%g)" %
@@ -450,71 +412,33 @@ class XAxis(Curve):
     if name in ("xlogbase", "low", "high"):
       self.f = self._reassign_f()
 
-  def __deepcopy__(self, memo={}):
-    result = XAxis(self.low, self.high, self.y)
-    for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety", "xlogbase":
-      result.__dict__[var] = eval("self.%s" % var)
-    for var in "attrib", "marks", "text_attrib":
-      result.__dict__[var] = copy.deepcopy(eval("self.%s" % var))
-    result.trans = copy.copy(self.trans)
-
-    memo[id(self)] = result
-    return result
-
-##############################################################################
-
 class YAxis(Curve):
-  attrib = {"stroke": "black", "fill": "none"}
-  smooth = False
-  marks = []
-  random_sampling = True
-  random_seed = 12345
-  recursion_limit = 15
-  linearity_limit = 0.05
-  discontinuity_limit = 5.
   text_offsetx = -2.5
-  text_offsety = 1.5 # when dominant-baseline works, this hack will no longer be necessary
-  text_attrib = {}
+  text_offsety = 1.5 # when dominant-baseline is implemented everywhere, this hack will no longer be necessary
   ylogbase = None
 
+  _varlist = Curve._varlist + ["ylogbase"]
+
   def _reassign_marks(self):
-    if self.ylogbase: return logticks(self.low, self.high)
-    else: return ticks(self.low, self.high)
+    if self.ylogbase is not None:
+      return logticks(self.low, self.high)
+    else:
+      return ticks(self.low, self.high)
 
   def _reassign_f(self):
-    return lambda t: (self.x, t)
-
-  def __init__(self, low, high, x, **kwds):
-    self.__dict__["low"], self.__dict__["high"] = low, high
-    self.x = x
-
-    if "ylogbase" in kwds:
-      self.ylogbase = kwds["ylogbase"]
-      del kwds["ylogbase"]
+    output = eval("lambda t: (t, %s)" % repr(self.y))
+    output.func_name = "y-value"
+    return output
+  
+  def __init__(self, low, high, y, **kwds):
+    self.__dict__["low"] = low
+    self.__dict__["high"] = high
+    self.y = y
 
     if "marks" not in kwds:
       kwds["marks"] = self._reassign_marks()
 
     Curve.__init__(self, self._reassign_f(), low, high, **kwds)
-
-  def __repr__(self):
-    specials = []
-    for var in "attrib", "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "ylogbase":
-      if eval("self.%s" % var) != eval("self.__class__.%s" % var):
-        specials.append("%s=%s" % (var, eval("self.%s" % var)))
-    specials = " ".join(specials)
-    if specials != "": specials = " " + specials
-
-    trans = ""
-    lentrans = len(self.trans)
-    if lentrans > 0: trans = " (%d trans)" % lentrans
-
-    marks = ""
-    lenmarks = len(self.marks)
-    if lenmarks == 1: marks = " (1 mark)"
-    elif lenmarks > 1: marks = " (%d marks)" % lenmarks
-
-    return "<YAxis from y=%g to %g at x=%g%s%s%s>" % (self.low, self.high, self.x, specials, trans, marks)
 
   def _render_text(self, X, Y, angle, text):
     angle += math.pi/2.
@@ -532,18 +456,7 @@ class YAxis(Curve):
     if name in ("ylogbase", "low", "high"):
       self.f = self._reassign_f()
 
-  def __deepcopy__(self, memo={}):
-    result = YAxis(self.low, self.high, self.x)
-    for var in "smooth", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety", "ylogbase":
-      result.__dict__[var] = eval("self.%s" % var)
-    for var in "attrib", "marks", "text_attrib":
-      result.__dict__[var] = copy.deepcopy(eval("self.%s" % var))
-    result.trans = copy.copy(self.trans)
-
-    memo[id(self)] = result
-    return result
-
-##############################################################################
+############################### functions for making ticks
 
 def format_number(x, format="%g", scale=1.):
   eps = trans.epsilon * abs(scale)
@@ -585,8 +498,6 @@ Unicode characters to make nice minus signs and scientific notation."""
     return uniout
 
   return output
-
-##############################################################################
 
 def ticks(low, high, maximum=None, exactly=None, format=unicode_number):
   if exactly is not None:

@@ -1,3 +1,4 @@
+import math, cmath, copy, new, sys
 import defaults, svg, glyphs, trans, curve
 
 class Fig(trans.Delay):
@@ -13,10 +14,12 @@ class Fig(trans.Delay):
   height = 80.
   clip = False
 
+  _varlist = ["xmin", "xmax", "ymin", "ymax", "xlogbase", "ylogbase", "x", "y", "width", "height", "clip"]
+
   def __init__(self, *args, **kwds):
     trans.Delay.__init__(self, *args, **kwds)
 
-    for var in "x", "y", "width", "height", "clip", "xmin", "xmax", "ymin", "ymax", "xlogbase", "ylogbase":
+    for var in self._varlist:
       if var in kwds:
         self.__dict__[var] = kwds[var]
         del kwds[var]
@@ -33,9 +36,73 @@ class Fig(trans.Delay):
     if self.clip: clip = " clip"
     return "<Fig (%d child%s) xmin=%s xmax=%s ymin=%s ymax=%s%s>" % (len(self.children), ren, self.xmin, self.xmax, self.ymin, self.ymax, clip)
 
-  def transform(self, expr): pass
+  def transform(self, trans):
+    trans = svg.cannonical_transformation(trans)
+    x1, y1 = trans(svg.x, svg.y)
+    x2, y2 = trans(svg.x + svg.width, svg.y + svg.height)
+    svg.x, svg.y = x1, y1
+    svg.width, svg.height = x2 - x1, y2 - y1
 
   def bbox(self): return defaults.BBox(self.x, self.x + self.width, self.y, self.y + self.height)
+
+  def evaluate(self):
+    if self.xmin is not None and self.xmax is not None and \
+       self.ymin is not None and self.ymax is not None:
+      self.trans = trans.window(self.xmin, self.xmax, self.ymin, self.ymax,
+                                x=self.x, y=self.y, width=self.width, height=self.height,
+                                xlogbase=self.xlogbase, ylogbase=self.ylogbase,
+                                minusInfinityX=(self.x - 10.*self.width), minusInfinityY=(self.y - 10.*self.height),
+                                flipy=True)
+    else:
+      self.fit()
+
+    obj = new.instance(svg.SVG)
+    obj.__dict__["tag"] = "g"
+    obj.__dict__["attrib"] = copy.deepcopy(self.attrib)
+    obj.__dict__["children"] = copy.deepcopy(self.children)
+    obj.evaluate()
+    obj.transform(self.trans)
+
+    if self.clip:
+      clipPath = svg.SVG("clipPath", id=svg.newid("clip-"))(svg.SVG("rect", self.x, self.y, self.width, self.height))
+      output["clip-path"] = "url(#%s)" % clipPath["id"]
+      self._svg = svg.SVG("g", clipPath, output)      
+    else:
+      self._svg = obj
+
+  def __getstate__(self):
+    mostdict = copy.copy(self.__dict__)
+    if self.trans is not None:
+      del mostdict["trans"]
+      transcode = self.trans.func_code, self.trans.func_name
+    else:
+      transcode = None
+    return (sys.version_info, defaults.version_info, mostdict, transcode)
+
+  def __setstate__(self, state):
+    self.__dict__ = state[2]
+    self.__dict__["trans"] = []
+    if state[3] is not None:
+      code, name = state[3]
+      context = globals()
+      if "z" in code.co_names:
+        context.update(cmath.__dict__)
+      else:
+        context.update(math.__dict__)
+      self.__dict__["trans"] = new.function(code, context)
+      self.__dict__["trans"].func_name = name
+    else:
+      self.__dict__["trans"] = None
+
+  def __deepcopy__(self, memo={}):
+    mostdict = copy.copy(self.__dict__)
+    del mostdict["trans"]
+    output = new.instance(self.__class__)
+    output.__dict__ = copy.deepcopy(mostdict, memo)
+    output.__dict__["trans"] = self.trans
+
+    memo[id(self)] = output
+    return outpu
 
   def fit(self):
     bbox = defaults.BBox(None, None, None, None)
@@ -53,37 +120,5 @@ class Fig(trans.Delay):
                               minusInfinityX=(self.x - 10.*self.width), minusInfinityY=(self.y - 10.*self.height),
                               flipy=True)
     
-  def evaluate(self):
-    Hold.evaluate(self)
 
-  def svg(self):
-    if self.trans is None or \
-           self.xmin != self.trans[0].xmin or self.xmax != self.trans[0].xmax or self.ymin != self.trans[0].ymin or self.ymax != self.trans[0].ymax or \
-           self.x != self.trans[0].x or self.y != self.trans[0].y or self.width != self.trans[0].width or self.height != self.trans[0].height:
 
-      if self.xmin is not None and self.xmax is not None and \
-         self.ymin is not None and self.ymax is not None:
-        self.trans = trans.window(self.xmin, self.xmax, self.ymin, self.ymax,
-                                  x=self.x, y=self.y, width=self.width, height=self.height,
-                                  xlogbase=self.xlogbase, ylogbase=self.ylogbase,
-                                  minusInfinityX=(self.x - 10.*self.width), minusInfinityY=(self.y - 10.*self.height),
-                                  flipy=True)
-      else:
-        self.fit()
-
-    output = trans.Hold.svg(self)
-    output.transform(self.trans)
-
-    if self.clip:
-      clipPath = svg.SVG("clipPath", id=svg.newid("clip-"))(svg.SVG("rect", self.x, self.y, self.width, self.height))
-      output["clip-path"] = "url(#%s)" % clipPath["id"]
-      return svg.SVG("g", clipPath, output)      
-
-    return output
-
-  def __deepcopy__(self, memo={}):
-    result = Hold.__deepcopy__(self, memo)
-    result.trans = self.trans
-    return result
-
-  

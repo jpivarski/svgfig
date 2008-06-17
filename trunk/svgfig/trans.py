@@ -1,12 +1,176 @@
-import svg, math, copy
+import math, cmath, sys, copy, new, warnings
+import svg, defaults
 
 epsilon = 1e-5
 
-def transform(expr, obj):
-  """Return a copy of obj with transformation expr applied."""
+############################### copy-and-convert versions of main operations
+
+def tonumber(obj):
   obj = copy.deepcopy(obj)
-  obj.transform(expr)
+  obj.tonumber()
   return obj
+
+def transform(trans, obj):
+  obj = copy.deepcopy(obj)
+  obj.transform(trans)
+  return obj
+
+def evaluate(obj):
+  obj = copy.deepcopy(obj)
+  obj.evaluate()
+
+  def recurse(sub):
+    replacements = {}
+    for i, child in enumerate(sub.children):
+      if isinstance(child, svg.SVG) and child.tag is None:
+        replacements[i] = child._svg
+
+    for i, repl in replacements.items():
+      sub.children[i] = repl
+
+    for child in sub.children:
+      if isinstance(sub, svg.SVG):
+        recurse(child)
+
+  if isinstance(obj, svg.SVG) and obj.tag is None:
+    obj = obj._svg
+
+  recurse(obj)
+  return obj
+
+def bbox(obj):
+  obj = copy.deepcopy(obj)
+  return obj.bbox()
+
+############################### groups with special transformation properties
+
+class Freeze(svg.SVG):
+  def __init__(self, *args, **kwds):
+    self.__dict__["tag"] = None
+    self.__dict__["attrib"] = kwds
+    self.__dict__["children"] = list(args)
+
+  def __repr__(self):
+    if len(self.children) == 1:
+      return "<Freeze (1 child)>"
+    else:
+      return "<Freeze (%d children)>" % len(self.children)
+
+  def transform(self, trans): pass
+
+  def evaluate(self):
+    self._svg = new.instance(svg.SVG)
+    self._svg.__dict__ = copy.copy(self.__dict__)
+    self._svg.__dict__["tag"] = "g"
+    self._svg.evaluate()
+
+class Delay(svg.SVG):
+  def __init__(self, *args, **kwds):
+    self.__dict__["tag"] = None
+    self.__dict__["attrib"] = kwds
+    self.__dict__["children"] = list(args)
+    self.__dict__["trans"] = []
+
+  def __repr__(self):
+    if len(self.children) == 1:
+      return "<Delay (1 child) (%d trans)>" % len(self.trans)
+    else:
+      return "<Delay (%d children) (%d trans)>" % (len(self.children), len(self.trans))
+
+  def transform(self, trans):
+    self.trans.append(svg.cannonical_transformation(trans))
+
+  def bbox(self):
+    self.evaluate()
+    return self._svg.bbox()
+
+  def evaluate(self):
+    obj = new.instance(svg.SVG)
+    obj.__dict__["tag"] = "g"
+    obj.__dict__["attrib"] = copy.deepcopy(self.attrib)
+    obj.__dict__["children"] = copy.deepcopy(self.children)
+    obj.evaluate()
+    for trans in self.trans: obj.transform(trans)
+    self._svg = obj
+
+  def __getstate__(self):
+    mostdict = copy.copy(self.__dict__)
+    del mostdict["trans"]
+    transcode = map(lambda f: (f.func_code, f.func_name), self.trans)
+    return (sys.version_info, defaults.version_info, mostdict, transcode)
+
+  def __setstate__(self, state):
+    self.__dict__ = state[2]
+    self.__dict__["trans"] = []
+    for code, name in state[3]:
+      context = globals()
+      if "z" in code.co_names:
+        context.update(cmath.__dict__)
+      else:
+        context.update(math.__dict__)
+      f = new.function(code, context)
+      f.func_name = name
+      self.__dict__["trans"].append(f)
+
+  def __deepcopy__(self, memo={}):
+    mostdict = copy.copy(self.__dict__)
+    del mostdict["trans"]
+    output = new.instance(self.__class__)
+    output.__dict__ = copy.deepcopy(mostdict, memo)
+    output.__dict__["trans"] = copy.copy(self.trans)
+
+    memo[id(self)] = output
+    return output
+
+class Pin(svg.SVG):
+  def __init__(self, x, y, *args, **kwds):
+    self.__dict__["x"] = x
+    self.__dict__["y"] = y
+    if "rotate" in kwds:
+      self.__dict__["rotate"] = kwds["rotate"]
+      del kwds["rotate"]
+    else:
+      self.__dict__["rotate"] = False
+
+    self.__dict__["tag"] = None
+    self.__dict__["attrib"] = kwds
+    self.__dict__["children"] = list(args)
+
+  def __repr__(self):
+    rotate = ""
+    if self.rotate: rotate = "and rotate "
+    ren = "ren"
+    if len(self.children) == 1: ren = ""
+
+    return "<Pin %sat %g %g (%d child%s)>" % (rotate, self.x, self.y, len(self.children), ren)
+
+  def transform(self, trans):
+    trans = svg.cannonical_transformation(trans)
+
+    oldx, oldy = self.x, self.y
+    self.x, self.y = trans(self.x, self.y)
+
+    if self.rotate:
+      shiftx, shifty = trans(oldx + epsilon, oldy)
+      angle = math.atan2(shifty, shiftx)
+      trans = eval("lambda x, y: (%(newx)s + cos(angle)*(x - %(oldx)s) - sin(angle)*(y - %(oldy)s), %(newy)s + sin(angle)*(x - %(oldx)s) + cos(angle)*(y - %(oldy)))" %
+                   {"newx": repr(self.x), "newy": repr(self.y), "oldx": repr(oldx), "oldy": repr(oldy)}, math.__dict__)
+
+    else:
+      trans = eval("lambda x, y: (x + %(newx)s - %(oldx)s, y + %(newy)s - %(oldy)s)" %
+                   {"newx": repr(self.x), "newy": repr(self.y), "oldx": repr(oldx), "oldy": repr(oldy)})
+
+    for child in self.children:
+      if isinstance(child, svg.SVG): child.transform(trans)
+
+  def evaluate(self):
+    obj = new.instance(svg.SVG)
+    obj.__dict__ = copy.copy(self.__dict__)
+    obj.__dict__["tag"] = "g"
+    obj.evaluate()
+    self._svg = obj
+
+############################### operations on transformations
 
 def transformation_angle(expr, x, y, scale=1.):
   func = svg.cannonical_transformation(expr)
@@ -30,159 +194,9 @@ def transformation_jacobian(expr, x, y, scale=1.):
 
   return (1.*(xhatx - X0)/eps, 1.*(xhaty - Y0)/eps), (1.*(yhatx - X0)/eps, 1.*(yhaty - Y0)/eps)
 
-##############################################################################
-
-class Hold(svg.SVG):
-  """Holds SVG objects for special transformation handling."""
-
-  def __init__(self, *args, **kwds):
-    self.tag = None
-    self.attrib = {}
-    self.children = list(args)
-
-  def __repr__(self):
-    if len(self.children) == 1: return "<Hold (1 child)>"
-    else: return "<Hold (%d children)>" % len(self.children)
-
-  def evaluate(self):
-    for child in self.children: child.evaluate()
-
-  def svg(self):
-    output = svg.SVG("g", **self.attrib)
-    for child in self.children: output.append(copy.deepcopy(child))
-    return output
-
-  def __eq__(self, other):
-    if id(self) == id(other): return True
-    return self.__class__ == other.__class__ and self.tag == other.tag and self.children == other.children and self.attrib == other.attrib
-
-  def __deepcopy__(self, memo={}):
-    result = self.__class__(*copy.deepcopy(self.children), **copy.deepcopy(self.attrib))
-    memo[id(self)] = result
-    return result
-
-  def __getattr__(self, name): return self.__dict__[name]
-  def __setattr__(self, name, value): self.__dict__[name] = value
-
-##############################################################################
-
-class Delay(Hold):
-  """Delay SVG objects and accumulates transformations to
-apply to them without applying them right away.  Transformations are
-applied (a) when evaluate() is called, (b) to a copy when svg() is
-called, and (c) to a copy when drawn as XML."""
-
-  def __init__(self, *args, **kwds):
-    Hold.__init__(self, *args, **kwds)
-    self.trans = []
-
-  def __repr__(self):
-    ren = "ren"
-    if len(self.children) == 1: ren = ""
-    return "<Delay (%d child%s) (%d trans)>" % (len(self.children), ren, len(self.trans))
-
-  def transform(self, expr):
-    """Store a transformation for later."""
-    self.trans.append(svg.cannonical_transformation(expr))
-
-  def bbox(self): return self.svg().bbox()
-
-  def evaluate(self):
-    """Apply all transformations."""
-    for t in self.trans:
-      for child in self.children:
-        child.transform(t)
-    self.trans = []
-    Hold.evaluate(self)
-
-  def svg(self):
-    """Return a copy of SVG with transformations applied."""
-    output = Hold.svg(self)
-    for t in self.trans: output.transform(t)
-    return output
-
-  def __eq__(self, other):
-    return Hold.__eq__(self, other) and self.trans == other.trans
-
-  def __deepcopy__(self, memo={}):
-    result = Hold.__deepcopy__(self, memo)
-    result.trans = copy.copy(self.trans)
-    return result
-
-##############################################################################
-
-class Freeze(Hold):
-  """Freeze holds an SVG object and ignores all attempts to transform it."""
-  def __repr__(self):
-    if len(self.children) == 1: return "<Freeze (1 child)>"
-    else: return "<Freeze (%d children)>" % len(self.children)
-
-  def transform(self, expr): pass
-
-##############################################################################
-
-class Pin(Hold):
-  """Pin holds an SVG object and applies transformations to only one
-point, such that the drawing is never distorted, only moved.  The
-drawing rotates if rotate=True."""
-  x = 0.
-  y = 0.
-  rotate = False
-
-  def __init__(self, *args, **kwds):
-    for var in "x", "y", "rotate":
-      if var in kwds:
-        self.__dict__[var] = kwds[var]
-        del kwds[var]
-    Hold.__init__(self, *args, **kwds)
-
-  def __repr__(self):
-    rotate = ""
-    if self.rotate: rotate = "and rotate "
-    ren = "ren"
-    if len(self.children) == 1: ren = ""
-
-    return "<Pin %sat %g %g (%d child%s)>" % (rotate, self.x, self.y, len(self.children), ren)
-
-  def transform(self, expr):
-    """Transform the pin position, moving (and rotating) the drawing (if rotate=True)."""
-    func = svg.cannonical_transformation(expr)
-
-    oldx, oldy = self.x, self.y
-    self.x, self.y = func(self.x, self.y)
-
-    if self.rotate:
-      shiftx, shifty = func(oldx + epsilon, oldy)
-      angle = math.atan2(shifty, shiftx)
-      trans = lambda x, y: (self.x + math.cos(angle)*(x - oldx) - math.sin(angle)*(y - oldy),
-                            self.y + math.sin(angle)*(x - oldx) + math.cos(angle)*(y - oldy))
-
-    else:
-      trans = lambda x, y: (x + self.x - oldx, y + self.y - oldy)
-
-    for child in self.children:
-      child.transform(trans)
-
-  def __eq__(self, other):
-    return Hold.__eq__(self, other) and self.x == other.x and self.y == other.y and self.rotate == other.rotate
-
-  def __deepcopy__(self, memo={}):
-    result = Hold.__deepcopy__(self, memo)
-    result.x, result.y, result.rotate = self.x, self.y, self.rotate
-    return result
-
-##############################################################################
+############################### standard transformations
 
 def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=None, ylogbase=None, minusInfinityX=-1000, minusInfinityY=-1000, flipx=False, flipy=False):
-  """Returns a coordinate transformation from
-      (xmin, ymin), (xmax, ymax)
-to
-      (x, y), (x + width, y + height)
-
-xlogbase, ylogbase                if a number, transform logarithmically with given base
-minusInfinityX, minusInfinityY    what to return if log(0) or log(negative) is attempted
-flipx, flipy                      if True, reverse the direction of x or y"""
-
   if flipx:
     ox1 = x + width
     ox2 = x
@@ -204,45 +218,36 @@ flipx, flipy                      if True, reverse the direction of x or y"""
 
   if ylogbase != None and (iy1 <= 0. or iy2 <= 0.): raise ValueError, "y range incompatible with log scaling: (%g, %g)" % (iy1, iy2)
 
-  def maybelog(t, it1, it2, ot1, ot2, logbase, minusInfinity):
-    if t <= 0.: return minusInfinity
-    else:
-      return ot1 + 1.*(math.log(t, logbase) - math.log(it1, logbase))/(math.log(it2, logbase) - math.log(it1, logbase)) * (ot2 - ot1)
-
   xlogstr, ylogstr = "", ""
 
   if xlogbase == None:
-    xfunc = lambda x: ox1 + 1.*(x - ix1)/(ix2 - ix1) * (ox2 - ox1)
+    xfunc = "%(ox1)s + 1.*(x - %(ix1)s)/(%(ix2)s - %(ix1)s) * (%(ox2)s - %(ox1)s)" % \
+            {"ox1": repr(ox1), "ox2": repr(ox2), "ix1": repr(ix1), "ix2": repr(ix2)}
   else:
-    xfunc = lambda x: maybelog(x, ix1, ix2, ox1, ox2, xlogbase, minusInfinityX)
+    xfunc = "x <= 0 and %(minusInfinityX)s or %(ox1)s + 1.*(log(x, %(logbase)s) - log(%(ix1)s, %(logbase)s))/(log(%(ix2)s, %(logbase)s) - log(%(ix1)s, %(logbase)s)) * (%(ox2)s - %(ox1)s)" % \
+            {"ox1": repr(ox1), "ox2": repr(ox2), "ix1": repr(ix1), "ix2": repr(ix2), "minusInfinityX": repr(minusInfinityX), "logbase": xlogbase}
     xlogstr = " xlog=%g" % xlogbase
 
   if ylogbase == None:
-    yfunc = lambda y: oy1 + 1.*(y - iy1)/(iy2 - iy1) * (oy2 - oy1)
+    yfunc = "%(oy1)s + 1.*(y - %(iy1)s)/(%(iy2)s - %(iy1)s) * (%(oy2)s - %(oy1)s)" % \
+            {"oy1": repr(oy1), "oy2": repr(oy2), "iy1": repr(iy1), "iy2": repr(iy2)}
   else:
-    yfunc = lambda y: maybelog(y, iy1, iy2, oy1, oy2, ylogbase, minusInfinityY)
+    yfunc = "y <= 0 and %(minusInfinityY)s or %(oy1)s + 1.*(log(y, %(logbase)s) - log(%(iy1)s, %(logbase)s))/(log(%(iy2)s, %(logbase)s) - log(%(iy1)s, %(logbase)s)) * (%(oy2)s - %(oy1)s)" % \
+            {"oy1": repr(oy1), "oy2": repr(oy2), "iy1": repr(iy1), "iy2": repr(iy2), "minusInfinityY": repr(minusInfinityY), "logbase": ylogbase}
     ylogstr = " ylog=%g" % ylogbase
 
-  output = lambda x, y: (xfunc(x), yfunc(y))
-
+  output = eval("lambda x,y: (%s, %s)" % (xfunc, yfunc), math.__dict__)
   output.func_name = "(%g, %g), (%g, %g) -> (%g, %g), (%g, %g)%s%s" % (ix1, ix2, iy1, iy2, ox1, ox2, oy1, oy2, xlogstr, ylogstr)
-
-  output.xmin, output.xmax, output.ymin, output.ymax = xmin, xmax, ymin, ymax
-  output.x, output.y, output.width, output.height = x, y, width, height
-  output.xlogbase, output.ylogbase, output.minusInfinityX, output.minusInfinityY = xlogbase, ylogbase, minusInfinityX, minusInfinityY
-  output.flipx, output.flipy = flipx, flipy
   return output
-
-##############################################################################
 
 def rotation(angle, cx=0, cy=0):
-  """Creates and returns a coordinate transformation which rotates
-  around (cx,cy) by "angle" radians."""
-  output = lambda x, y: (cx + math.cos(angle)*(x - cx) - math.sin(angle)*(y - cy), cy + math.sin(angle)*(x - cx) + math.cos(angle)*(y - cy))
-  output.angle = angle
-  output.cx = cx
-  output.cy = cy
+  output = eval("lambda x,y: (%(cx)s + cos(%(angle)s)*(x - %(cx)s) - sin(%(angle)s)*(y - %(cy)s), %(cy)s + sin(%(angle)s)*(x - %(cx)s) + cos(%(angle)s)*(y - %(cy)s))" % \
+                {"cx": repr(cx), "cy": repr(cy), "angle": repr(angle)})
+  output.func_name = "rotation %g around %g %g" % (angle, cx, cy)
   return output
 
-##############################################################################
+
+
+
+
 
