@@ -1,6 +1,8 @@
 #summary Square on the Poincaré disk
 #labels Example
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = Square on the Poincaré disk =
 
 (Okay, so it's not actually a _square_, because the sides are not [http://en.wikipedia.org/wiki/Geodesic geodesics] on the hyperbolic plane.  But to my Euclidean eyes, the middle one looks like a square!)

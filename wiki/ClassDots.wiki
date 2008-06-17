@@ -1,6 +1,8 @@
 #summary Draw SVG symbols at a set of points
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Dots =
 
 Dots draws SVG symbols at a set of points.

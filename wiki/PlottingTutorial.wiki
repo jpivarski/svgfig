@@ -1,6 +1,8 @@
 #summary How to make simple plots with SVGFig
 #labels Featured,Tutorial
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = Plotting Tutorial =
 
 SVGFig allows you to do sophisticated mathematical drawing and offers a lot of control over the output, but sometimes you just want to make a simple plot.  Here are some examples and tips.

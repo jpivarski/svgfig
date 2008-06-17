@@ -1,6 +1,8 @@
 #summary Draw text at a given point in local coordinates
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Text =
 
 Draws at text string at a specified point in local coordinates.

@@ -1,6 +1,8 @@
 #summary General features of all graphics primitives
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 All graphics primatives have the following features:
   # [#SVG_method SVG method]
   # [#Path_method Path method]

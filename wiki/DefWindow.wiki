@@ -1,6 +1,8 @@
 #summary Coordinate transform mapping an "inner coordinate" rectangle to an "outer coordinate" rectangle; may be logarithmic
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = window =
 
 The window function creates a coordinate transformation that maps two

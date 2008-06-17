@@ -1,6 +1,8 @@
 #summary Create a top-level <svg /> object, which defines the aspect ratio for the whole image
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = canvas =
 
 Creates a top-level [ClassSVG SVG] object, allowing the user to

@@ -1,6 +1,8 @@
 #summary Convert text expressions into coordinate transformation functions
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = totrans =
 
 Coordinate transformation functions are Python callables that map a

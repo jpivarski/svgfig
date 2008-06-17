@@ -1,6 +1,8 @@
 #summary Draw error bars at a set of points
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class YErrorBars =
 
 YErrorBars draws y error bars at a set of points.  This is usually used

@@ -1,6 +1,8 @@
 #summary Create SVG paths with transformable coordinates
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Path =
 
 Path represents an SVG path, an arbitrary set of curves and straight

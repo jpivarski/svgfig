@@ -1,6 +1,8 @@
 #summary Convert a "f(t), g(t)" string to a function acceptable for Curve
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = funcRtoR2 =
 
 Converts a "f(t), g(t)" string to a function acceptable for

@@ -1,6 +1,8 @@
 #summary Represent an SVG graphic as a Python object
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class SVG =
 
 Creates a document object model of an SVG image.  This can be a

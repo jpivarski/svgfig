@@ -1,6 +1,8 @@
 #summary Superclass for everything that draws tickmarks
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Ticks =
 
 Ticks is the superclass for everything that draws tickmarks.  By

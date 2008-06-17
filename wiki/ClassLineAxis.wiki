@@ -1,6 +1,8 @@
 #summary Draw an axis along an arbitrary line
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class !LineAxis =
 
 !LineAxis draws an axis along an arbitrary line.  If the coordinate

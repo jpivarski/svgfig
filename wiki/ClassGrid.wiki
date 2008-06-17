@@ -1,6 +1,8 @@
 #summary Draw a grid over a specified region
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Grid =
 
 Grid draws a grid over a specified region using [TickSpecification standard tick specification]

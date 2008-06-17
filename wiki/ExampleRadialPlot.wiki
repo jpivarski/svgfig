@@ -1,6 +1,8 @@
 #summary Constructing a radial (polar) plot
 #labels Example
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 The original motivation for arbitrary coordinate transformations was
 to generalize the process of making different kinds of plots.  Many
 plotting packages have a special function for generating radial plots,

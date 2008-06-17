@@ -1,6 +1,8 @@
 #summary Create an SVG object from a template on disk
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = template =
 
 Loads an SVG image from disk, like [Defload load], but replaces all

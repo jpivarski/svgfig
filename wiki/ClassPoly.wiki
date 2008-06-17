@@ -1,6 +1,8 @@
 #summary Draw a curve specified by a sequence of points.
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Poly =
 
 Poly draws a curve specified by a sequence of points.  The curve may

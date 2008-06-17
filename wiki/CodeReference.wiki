@@ -1,5 +1,7 @@
 #summary One-sentence summary of this page.
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = Reference=
 
 == Table of Contents ==

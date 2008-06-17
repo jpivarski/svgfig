@@ -1,6 +1,8 @@
 #summary Convert a "z(t)" complex string to a function acceptable for Curve
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = funcRtoC =
 
 Converts a "z(t)" string to a function acceptable for

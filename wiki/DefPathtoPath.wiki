@@ -1,6 +1,8 @@
 #summary Convert SVG paths into transformable Paths
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = pathtoPath =
 
 Converts `SVG("path", d="...")` into `Path(d=[...])`.

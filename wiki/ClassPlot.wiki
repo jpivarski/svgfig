@@ -1,6 +1,8 @@
 #summary A Fig with a coordinate axis
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Plot =
 
 Acts like [ClassFig Fig], but draws a coordinate axis.  You also need to supply plot ranges.

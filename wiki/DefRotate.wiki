@@ -1,6 +1,8 @@
 #summary Coordinate transform which rotates around a point
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = rotate =
 
 The rotate function creates a coordinate transformation that rotates

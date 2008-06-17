@@ -1,6 +1,8 @@
 #summary Home page for all documentation
 #labels Featured
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = Tutorials =
 
   * [Introduction Introduction]: how SVGFig basically works

@@ -1,6 +1,8 @@
 #summary Draw functions and parametric curves
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Curve =
 
 Curve draws a Python callable as a path.  Curves are adaptively

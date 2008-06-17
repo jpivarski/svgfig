@@ -1,6 +1,8 @@
 #summary Draw a line between two points
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Line =
 
 Line draws a line between two points, but this line is mutable by

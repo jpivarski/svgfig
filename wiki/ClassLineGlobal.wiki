@@ -1,6 +1,8 @@
 #summary Draw a line between two points, one or both of which in global coordinates
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class !LineGlobal =
 
 !LineGlobal draws a line between two points, one or both of which is in

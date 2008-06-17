@@ -1,6 +1,8 @@
 #summary Represents a set of drawing primitives in a coordinate system
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Fig =
 
 A Fig stores graphics primitive objects and applies a single

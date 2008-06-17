@@ -1,6 +1,8 @@
 #summary Draw a coordinate axis over a specified region
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class Axes =
 
 Axes draws coordinate axes.  The grid will be curved in

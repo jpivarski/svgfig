@@ -1,6 +1,8 @@
 #summary Introduction to SVGFig
 #labels Featured,Tutorial
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 SVGFig is a [http://www.python.org Python] extension module that defines two main classes, [ClassSVG SVG] (_svig_) and [ClassFig Fig] (_fig_).
 
 [ClassSVG SVG] represents an image in [http://www.svg.org/ Scalable Vector Graphics] format, a markup language similar to HTML.  By making Scalable Vector Graphics commands accessible to the Python language, the [ClassSVG SVG] class broadens the user's capabilities in much the same way that dynamically-generated HTML did for webpages.  You can write programs that create images.

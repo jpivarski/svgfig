@@ -1,6 +1,8 @@
 #summary Draw a vertical or a horizontal line
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class VLine =
 
 VLine draws a vertical line.  If the coordinates curve, the line will

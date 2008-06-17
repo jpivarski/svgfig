@@ -1,6 +1,8 @@
 #summary How to install
 #labels Featured,Tutorial
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = How to install =
 
   # Download the latest version of SVGFig from the [http://code.google.com/p/svgfig/downloads/list Downloads tab].

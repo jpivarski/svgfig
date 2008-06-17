@@ -1,6 +1,8 @@
 #summary Create an RGB hex string from three numbers
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = rgb =
 
 Returns a string of the form "#xxyyzz" where xx, yy, and zz are hexadecimal.

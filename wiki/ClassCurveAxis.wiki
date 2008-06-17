@@ -1,6 +1,8 @@
 #summary Draw an axis along a parametric curve
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = class !CurveAxis =
 
 !CurveAxis draws a Python callable as an axis along a parametric curve.

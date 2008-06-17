@@ -1,6 +1,8 @@
 #summary Create new SVG symbol objects from a template of useful shapes
 #labels Reference
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 = make_symbol =
 
 Creates a new instance of an SVG symbol to avoid cross-linking objects.  The user must supply a new identifier.

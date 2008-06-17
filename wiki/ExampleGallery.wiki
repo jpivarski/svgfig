@@ -1,6 +1,8 @@
 #summary Example Gallery
 #labels Featured
 
+_(This page applies only to the 1.x branch of SVGFig.)_
+
 == Search examples ==
 
 [http://code.google.com/p/svgfig/w/list?q=label:Example Click here] to search examples.
