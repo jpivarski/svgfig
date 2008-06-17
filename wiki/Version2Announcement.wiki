@@ -69,15 +69,61 @@ When the SVG tag is a "line", SVGFig looks in =defaults.py= for line's calling s
 <line x1=0 y1=0 x2=10 y2=30 stroke='black' (1 other attribute)>
 }}}
 
+Since some attributes are now more important than others, accessing the signature attributes as though they were member data is feasible:
+{{{
+>>> SVG("line", 0, 0, 10, 30).x2
+10
+}}}
+All attributes, children, sub-children, and attributes of sub-sub-sub-children, can still be accessed with the [http://code.google.com/p/svgfig/wiki/ClassSVG#Tree_indexing tree index] bracket notation introduced in version 1.
 
+For some SVG elements, the children are more important than the attributes, so inline arguments are interpreted as children:
+{{{
+>>> print defaults.signature_g
+None
+>>> SVG("g", SVG("line", 0, 0, 10, 30))
+<g (1 child)>
+}}}
 
+And then there are oddballs that need keyword arguments and children, so "calling" an SVG object like a function adds children inline:
+{{{
+>>> s = SVG("text", 50, 50)("what to say")
+>>> s
+<text 'what to say' x=50 y=50 stroke='none' fill='black'>
+>>> print s.xml()
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
+<svg width="400" height="400" viewBox="0, 0, 100, 100" font-family="Helvetica, Arial, FreeSans, Sans, sans, sans-serif" style="font-size:4px; stroke-width:0.5pt; text-anchor:middle" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+    <text x="50" y="50" stroke="none" fill="black" >what to say</text>
+</svg>
+}}}
 
+SVG elements now know how to transform themselves and calculate their bounding boxes; this functionality is also defined in =defaults.py=:
+{{{
+>>> s = SVG("line", 0, 0, 10, 30)
+>>> s
+<line x1=0 y1=0 x2=10 y2=30 stroke='black'>
+>>> s.transform("y, x")
+>>> s
+<line x1=0.0 y1=0.0 x2=30.0 y2=10.0 stroke='black'>
+>>> s.bbox()
+<BBox xmin=0 xmax=30 ymin=0 ymax=10>
+>>> defaults.transform_line
+<function transform_line at 0xb7d1cd4c>
+>>> defaults.bbox_line
+<function bbox_line at 0xb7d1cd84>
+}}}
 
+The rest of the changes to the SVG class are minor conveniences:
+  * The element type, list of children, and attributes are now called =tag=, =children=, and =attrib= to conform to the convention established by [http://effbot.org/zone/element-index.htm ElementTree].
+  * Iteration over an SVG steps through its list of children, rather than recursively walking over the whole tree, which is more in line with its list-like member functions.  Recursive iteration over the whole tree is accessible through the "walk" function
+  * Printing an SVG element just shows its string representation, as a normal Python user would expect.  To get a very useful print-out of the tree structure, use the "tree" function.
+  * Now you can both save to and load from gzipped SVG, just end the fileName in "svg.gz" or "svgz".
+  * Assuming you have the dependencies and it compiled, you can quickly view any SVG fragment with the "view" method, in addition to "inkview", "inkscape", and "firefox" to see it in different browsers.  The "view" method does not need to write any files.
+  * Subclasses of SVG represent XML preprocessing instructions, comments, and CDATA.  These are inert in Python, but you don't lose this information by working on an image in SVGFig.
+  * This can all be pickled.
 
-
-
-
+== trans.py ==
 
 
 
