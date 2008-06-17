@@ -4,8 +4,6 @@
 
 [http://svgfig.googlecode.com/svn/trunk/ Source tree]
 
-We have decided to simplify the structure of SVGFig in a way that is not backward compatible, 
-
 After releasing SVGFig, we noticed that the structure could be improved, and the benefits that could be gained outweighed the loss of backward compatibility for scripts.  However, I know that it is very important to be able to re-run old scripts, so we split the source tree into two branches, [http://code.google.com/p/svgfig/source/browse/trunk/svgfig/ svgfig] for new developments and [http://code.google.com/p/svgfig/source/browse/trunk/svgfig-1.x svgfig-1.x] for bug-fixes to the old structure.
 
 I've just prepared the first 2.x release, called [http://svgfig.googlecode.com/files/svgfig-2.0.0alpha1.tgz 2.0.0alpha1] to make it absolutely clear that it is neither complete nor guaranteed to be bug-free.  However, if you're curious and/or adventurous, [Version2Announcement take a look] and let me know what you think.  If you have opinions about how it should look or work in the end, now would be an excellent time to join the development team, all you need is a [https://www.google.com/accounts/NewAccount Google/GMail account.]
