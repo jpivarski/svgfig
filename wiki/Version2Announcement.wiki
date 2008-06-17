@@ -1,5 +1,5 @@
 #summary One-page summary of version 2
-#labels Featured
+#labels Featured,Version2
 
 == Why version 2? ==
 
@@ -27,7 +27,7 @@ Have a copy of the code in front of you?  Good.  I'll point out the main feature
 
 === setup.py and the svgfig directory ===
 
-SVGFig has been divided into several files for better organization, and there are now two compiled extension modules, so =setup.py= got a bit more complicated.  When invoked as
+SVGFig has been divided into several files for better organization, and there are now two compiled extension modules, so `setup.py` got a bit more complicated.  When invoked as
 {{{
 % python setup.py install
 }}}
@@ -35,7 +35,7 @@ or
 {{{
 % python setup.py install --home=~
 }}}
-it attempts to compile =_curve.c= (which has no dependencies) and =_viewer.c= (which depends on =gtk+-2.0=, =gthread-2.0=, =cairo=, and =rsvg-2=).  If either of these fails, the installation proceeds, you will just have fewer features.  I highly recommend the viewer, but it's not essential.
+it attempts to compile `_curve.c` (which has no dependencies) and `_viewer.c` (which depends on `gtk+-2.0`, `gthread-2.0`, `cairo`, and `rsvg-2`).  If either of these fails, the installation proceeds, you will just have fewer features.  I highly recommend the viewer, but it's not essential.
 
 === interactive.py ===
 
@@ -58,7 +58,7 @@ The SVG class is basically the same as it was in 1.x, with some tweaks.  (That's
 <circle cx=10 cy=30 r=5 stroke='black' fill='yellow'>
 }}}
 
-When the SVG tag is a "line", SVGFig looks in =defaults.py= for line's calling signature, which is
+When the SVG tag is a "line", SVGFig looks in `defaults.py` for line's calling signature, which is
 {{{
 >>> defaults.signature_line
 ['x1', 'y1', 'x2', 'y2', 'stroke']
@@ -98,7 +98,7 @@ And then there are oddballs that need keyword arguments and children, so "callin
 </svg>
 }}}
 
-SVG elements now know how to transform themselves and calculate their bounding boxes; this functionality is also defined in =defaults.py=:
+SVG elements now know how to transform themselves and calculate their bounding boxes; this functionality is also defined in `defaults.py`:
 {{{
 >>> s = SVG("line", 0, 0, 10, 30)
 >>> s
@@ -115,7 +115,7 @@ SVG elements now know how to transform themselves and calculate their bounding b
 }}}
 
 The rest of the changes to the SVG class are minor conveniences:
-  * The element type, list of children, and attributes are now called =tag=, =children=, and =attrib= to conform to the convention established by [http://effbot.org/zone/element-index.htm ElementTree].
+  * The element type, list of children, and attributes are now called `tag`, `children`, and `attrib` to conform to the convention established by [http://effbot.org/zone/element-index.htm ElementTree].
   * Iteration over an SVG steps through its list of children, rather than recursively walking over the whole tree, which is more in line with its list-like member functions.  Recursive iteration over the whole tree is accessible through the "walk" function
   * Printing an SVG element just shows its string representation, as a normal Python user would expect.  To get a very useful print-out of the tree structure, use the "tree" function.
   * Now you can both save to and load from gzipped SVG, just end the fileName in "svg.gz" or "svgz".
@@ -125,10 +125,4 @@ The rest of the changes to the SVG class are minor conveniences:
 
 == trans.py ==
 
-
-
-
-
-
-
-
+_Coming soon!_

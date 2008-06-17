@@ -1,5 +1,5 @@
 #summary Create SVG paths with transformable coordinates
-#labels Reference
+#labels Reference,Version1
 
 _(This page applies only to the 1.x branch of SVGFig.)_
 

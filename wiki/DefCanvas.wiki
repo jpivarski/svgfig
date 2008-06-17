@@ -1,5 +1,5 @@
 #summary Create a top-level <svg /> object, which defines the aspect ratio for the whole image
-#labels Reference
+#labels Reference,Version1
 
 _(This page applies only to the 1.x branch of SVGFig.)_
 

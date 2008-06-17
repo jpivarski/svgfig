@@ -1,5 +1,5 @@
 #summary Load an SVG image from XML text
-#labels Reference
+#labels Reference,Version1
 
 _(This page applies only to the 1.x branch of SVGFig.)_
 

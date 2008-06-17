@@ -1,5 +1,5 @@
 #summary Draw an arbitrarily-oriented ellipse with a given semimajor axis and semiminor length
-#labels Reference
+#labels Reference,Version1
 
 _(This page applies only to the 1.x branch of SVGFig.)_
 

@@ -1,7 +1,7 @@
 #summary Home page for all documentation
-#labels Featured
+#labels Featured,Version1
 
-_(This page applies only to the 1.x branch of SVGFig.)_
+_(The following applies only to the 1.x branch of SVGFig.  For version 2.x, see [Version2Announcement].)_
 
 = Tutorials =
 

@@ -1,5 +1,5 @@
 #summary SVGFig logo
-#labels Example
+#labels Example,Version1
 
 _(This page applies only to the 1.x branch of SVGFig.)_
 
