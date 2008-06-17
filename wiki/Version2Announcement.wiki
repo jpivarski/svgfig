@@ -1,25 +1,25 @@
 #summary One-page summary of version 2
 #labels Featured
 
-= Why version 2? =
+== Why version 2? ==
 
-In principle, SVGFig is supposed to be general and flexible enough to have a basic core that never changes, like TeX.  If so, then that core needs to be very well designed, and it's hard to assess an idea before it has been at least partially implemented.  I built at least four generations of pre-SVGFigs, tested them on actual analysis projects, and returned to the drawing board after each.  SVGFig 1.x was a great improvement, and represents a nearly-converged core.  Jim B. and I worked with this and brainstormed for a few months, deciding in the end to re-write the core one last time.  From SVGFig 2.0 onward, development should be upward: making interesting and highly-usable tools for specific types of plots, legends, figures, etc.  If you'd like to help define the plotting layer, [mailto:jpivarski@gmail.com send me an e-mail] and get a [https://www.google.com/accounts/NewAccount Google/GMail account] if you don't already have one (for SVN and wiki access).
+In principle, SVGFig is supposed to be general and flexible enough to have a basic core that never changes, like TeX.  If so, then that core needs to be very well designed, and it's hard to assess an idea before it has been at least partially implemented.  I built at least four generations of pre-SVGFigs, tested them on actual analysis projects, and returned to the drawing board after each.  SVGFig 1.x was a great improvement, and represents a nearly-converged core.  Jim B. and I worked with this and brainstormed for a few months, deciding in the end to re-write the core one last time.  From SVGFig 2.0 onward, development should be upward: making interesting and highly-usable tools for specific types of plots, legends, figures, etc.  If you'd like to help define the plotting layer by contributing, [mailto:jpivarski@gmail.com send me an e-mail] and get a [https://www.google.com/accounts/NewAccount Google/GMail account] if you don't already have one (for SVN and wiki access).
 
-= SVGFig 2.0.0alpha1 =
+== SVGFig 2.0.0alpha1 ==
 
-As the name implies, this is not a stable release, but something to introduce curious onlookers about what's happening.  I'll assume that the reader is already familiar with [Introduction SVGFig 1.x].
+As the name implies, this is not a stable release, but something to show curious onlookers what's happening.  I'll assume that the reader is already familiar with [Introduction SVGFig 1.x].
 
 As briefly as possible, here's what's new:
-  * Python now "knows" a little about the SVG it's representing: how to transform it, the best order to read and present attributes from and to the user, and ultimately, it will be able to calculate intersections of paths and basic shapes.
+  * Python now "knows" a little about the SVG it's representing: how to transform it, the best order to read and present attributes from and to the user, and ultimately, it will be able to calculate intersections between paths and basic shapes.
   * Transformation functions now immediately change the objects they are applied to.  Different coordinate systems can be maintained in the same figure by explicitly delaying the evaluation of a subtree, like the "quote" function in Lisp.  This makes it easier to understand what SVGFig is doing, since coordinate systems are deliberately created by the user.
-  * The old SVGFig maintained a distinction between transformable objects (with class names like Path) from plain SVG (created by code like SVG("path", ...)).  This distinction is no longer necessary: everything is an SVG object.  Some of these objects, like [ClassCurve Curve], dynamically generate SVG data on output.
+  * The old SVGFig maintained a distinction between transformable objects (with class names like Path) from plain SVG (created with code like SVG("path", ...)).  This distinction is no longer necessary: everything is an SVG object.  Some of these objects, like [ClassCurve Curve] (now subclasses of SVG), dynamically generate SVG data on output.
   * The adaptive-sampling algorithm used by Curve is now compiled for speed.  I have instructions on my [http://code.google.com/p/pyminuit/ !PyMinuit project page] for compiling on Windows, so it should still be cross-platform.  (That's what held this up before.)
   * Everything is pickleable, so you can save and restore the dynamic objects in addition to the static SVG.
-  * Jim B.'s LaTeX-to-path module will be included in a later alpha version.  This version has a very large LaTeX command name-to-Unicode conversion table.
-  * This version has a viewer that lets you pop open a persistent window and quickly render the SVG objects you're working on.  I find this to be essential for building up a plot and debugging.
+  * Jim B.'s LaTeX-to-path module will be included in a later alpha version.  This is the most asked-for feature.  I have seen it working, so rest assured, it is definitely possible, even on Windows.  This 2.0.0alpha1 version has a very large LaTeX command name-to-Unicode conversion table, which is useful, but not as pretty as real LaTeX.
+  * Includes a viewer that lets you pop open a persistent window and quickly render the SVG objects you're working on.  I find this to be essential for building up a plot and debugging.
   * Some annoying features in 1.x that generated a lot of output accidentally (try typing "for s in svg: print s" in 1.x sometime) have become explicit function calls.
 
-
+== Tour guide ==
 
 
 
