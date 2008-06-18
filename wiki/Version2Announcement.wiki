@@ -119,9 +119,10 @@ The rest of the changes to the SVG class are minor conveniences:
   * Iteration over an SVG steps through its list of children, rather than recursively walking over the whole tree, which is more in line with its list-like member functions.  Recursive iteration over the whole tree is accessible through the "walk" function
   * Printing an SVG element just shows its string representation, as a normal Python user would expect.  To get a very useful print-out of the tree structure, use the "tree" function.
   * Now you can both save to and load from gzipped SVG, just end the fileName in "svg.gz" or "svgz".
-  * Assuming you have the dependencies and it compiled, you can quickly view any SVG fragment with the "view" method, in addition to "inkview", "inkscape", and "firefox" to see it in different browsers.  The "view" method does not need to write any files.
-  * Subclasses of SVG represent XML preprocessing instructions, comments, and CDATA.  These are inert in Python, but you don't lose this information by working on an image in SVGFig.
-  * This can all be pickled.
+  * Saved filenames are appended to a list called `svg.saved` so that you can find them on your hard drive.  Linux users expect everything to appear in their working directory and Windows users expect everything to appear on their desktop, so there are different behaviors on the two systems, and the saved list is a safety net.
+  * Assuming you have the dependencies and it compiled, you can quickly view any SVG fragment with the "view" method, in addition to "inkview", "inkscape", and "firefox" to see it in different browsers.  The "view" method does not need to write any temporary files.
+  * Subclasses of SVG represent XML preprocessing instructions, comments, and CDATA.  They are inert in Python, but at least you don't lose information by working on an image in SVGFig.
+  * Everything can be pickled.
 
 === trans.py ===
 
