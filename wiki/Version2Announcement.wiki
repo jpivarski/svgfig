@@ -122,7 +122,7 @@ The rest of the changes to the SVG class are minor conveniences:
   * Saved filenames are appended to a list called `svg.saved` so that you can find them on your hard drive.  Linux users expect everything to appear in their working directory and Windows users expect everything to appear on their desktop, so there are different behaviors on the two systems, and the saved list is a safety net.
   * Assuming you have the dependencies and it compiled, you can quickly view any SVG fragment with the "view" method, in addition to "inkview", "inkscape", and "firefox" to see it in different browsers.  The "view" method does not need to write any temporary files.
   * Subclasses of SVG represent XML preprocessing instructions, comments, and CDATA.  They are inert in Python, but at least you don't lose information by working on an image in SVGFig.
-  * Everything can be pickled.
+  * Everything can be [http://docs.python.org/lib/module-pickle.html pickled].
 
 === trans.py ===
 
