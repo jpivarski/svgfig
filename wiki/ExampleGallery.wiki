@@ -1,5 +1,5 @@
 #summary Example Gallery
-#labels Featured,Version1
+#labels Version1
 
 _(This page applies only to the 1.x branch of SVGFig.)_
 
