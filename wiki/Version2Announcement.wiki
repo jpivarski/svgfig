@@ -125,11 +125,10 @@ The rest of the changes to the SVG class are minor conveniences:
 
 == trans.py ==
 
-== curve.py and _curve.c ==
+== curve.py and `_`curve.c ==
 
 == glyphs.py, defaults.py, and pathdata.py ==
 
 == plot.py and beyond ==
 
 _(impressive-sounding, isn't it?)_
-
