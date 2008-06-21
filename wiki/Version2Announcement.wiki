@@ -5,9 +5,11 @@
 
 In principle, SVGFig is supposed to be general and flexible enough to have a basic core that never changes, like TeX.  If so, then that core needs to be very well designed, and it's hard to assess an idea before it has been at least partially implemented.  I built at least four generations of pre-SVGFigs, tested them on actual analysis projects, and returned to the drawing board after each.  SVGFig 1.x was a great improvement, and represents a nearly-converged core.  Jim B. and I worked with this and brainstormed for a few months, deciding in the end to re-write the core one last time.  From SVGFig 2.0 onward, development should be upward: making interesting and highly-usable tools for specific types of plots, legends, figures, etc.  If you'd like to help define the plotting layer by contributing, [mailto:jpivarski@gmail.com send me an e-mail] and get a [https://www.google.com/accounts/NewAccount Google/GMail account] if you don't already have one (for SVN and wiki access).
 
-== SVGFig 2.0.0alpha1 ==
+== SVGFig 2.0.0alpha2 ==
 
-To download, click here: [http://svgfig.googlecode.com/files/svgfig-2.0.0alpha1.tgz svgfig-2.0.0alpha1.tgz]
+_(alpha2 has not yet been constructed--- to get a copy of SVGFig in which everything described below works, check out the HEAD of SVN.)_
+
+To download, click here: [http://svgfig.googlecode.com/files/svgfig-2.0.0alpha2.tgz svgfig-2.0.0alpha2.tgz]
 
 As the name implies, this is not a stable release, but something to show curious onlookers what's happening.  I'll assume that the reader is already familiar with [Introduction SVGFig 1.x].
 
@@ -17,7 +19,7 @@ As briefly as possible, here's what's new:
   * The old SVGFig maintained a distinction between transformable objects (with class names like Path) from plain SVG (created with code like SVG("path", ...)).  This distinction is no longer necessary: everything is an SVG object.  Some of these objects, like [ClassCurve Curve] (now subclasses of SVG), dynamically generate SVG data on output.
   * The adaptive-sampling algorithm used by Curve is now compiled for speed.  I have instructions on my [http://code.google.com/p/pyminuit/ !PyMinuit project page] for compiling on Windows, so it should still be cross-platform.  (That's what held this up before.)
   * Everything is pickleable, so you can save and restore the dynamic objects in addition to the static SVG.
-  * Jim B.'s LaTeX-to-path module will be included in a later alpha version.  This is the most asked-for feature.  I have seen it working, so rest assured, it is definitely possible, even on Windows.  This 2.0.0alpha1 version has a very large LaTeX command name-to-Unicode conversion table, which is useful, but not as pretty as real LaTeX.
+  * Jim B.'s LaTeX-to-path module will be included in a later alpha version.  This is the most asked-for feature.  I have seen it working, so rest assured, it is definitely possible, even on Windows.  This 2.0.0alpha2 version has a very large LaTeX command name-to-Unicode conversion table, which is useful, but not as pretty as real LaTeX.
   * Includes a viewer that lets you pop open a persistent window and quickly render the SVG objects you're working on.  I find this to be essential for building up a plot and debugging.
   * Some annoying features in 1.x that generated a lot of output accidentally (try typing "for s in svg: print s" in 1.x sometime) have become explicit function calls.
 
@@ -48,9 +50,9 @@ on the command line.  This loads into the user's namespace only those functions 
 >>> svgfig.defaults.xml_header = "<!-- change the default header -->"
 }}}
 
-=== svg.py ===
+=== The SVG representation ===
 
-The SVG class is basically the same as it was in 1.x, with some tweaks.  (That's what I meant when I said that the core shows evidence of convergence.)  There's still a single SVG class which is differentiated into SVG element types by their tag name, e.g. SVG("line"...), SVG("circle"...), SVG("g"...).  The major new thing is that SVGFig knows the difference between a "line" and a "circle".  The first way you can see this is in the constructor:
+The SVG class (defined in `svg.py`) is basically the same as it was in 1.x, with some tweaks.  (That's what I meant when I said that the core shows evidence of convergence.)  There's still a single SVG class which is differentiated into SVG element types by their tag name, e.g. SVG("line"...), SVG("circle"...), SVG("g"...).  The major new thing is that SVGFig knows the difference between a "line" and a "circle".  The first way you can see this is in the constructor:
 {{{
 >>> SVG("line", 0, 0, 10, 30)
 <line x1=0 y1=0 x2=10 y2=30 stroke='black'>
@@ -124,12 +126,144 @@ The rest of the changes to the SVG class are minor conveniences:
   * Subclasses of SVG represent XML preprocessing instructions, comments, and CDATA.  They are inert in Python, but at least you don't lose information by working on an image in SVGFig.
   * Everything can be [http://docs.python.org/lib/module-pickle.html pickled].
 
-=== trans.py ===
+== Transformation in trans.py ==
 
-=== curve.py and `_`curve.c ===
+One of the main features of SVGFig is that it allows arbitrary non-linear coordinate transformations, to make it easy to create new types of plots.  The `trans` module has some basic utilities for transformation functions, which are simply Python functions from _x,y_ to _x',y'_, and some "quoting" functions for protecting SVG subtrees from transformations.
 
-=== glyphs.py, defaults.py, and pathdata.py ===
+Often, you'll transform SVG objects by calling their `svg.transform()` method.  The SVG element knows how to transform itself because this behavior is defined for each SVG tag in the `defaults`.  But that operation is potentially destructive: the old coordinates have been replaced by new ones.  To instead get a transformed copy of the object, use the unbound `transform()` function:
+{{{
+>>> svg = SVG("line", 0, 0, 1, 1)
+>>> svg2 = transform("x*2, y", svg)
+>>> svg2
+<line x1=0.0 y1=0.0 x2=2.0 y2=1.0 stroke='black'>
+>>> svg
+<line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+}}}
+There are several bound-unbound pairs that work like this: `tonumber`, `transform`, `evaluate`, and `bbox`.  The bound method modifies the object in question and the unbound method makes a modified copy.  (Confusion between in-place operations and operations that return a copy have plagued many systems based on functional languages--- hopefully this solves the problem for SVGFig!)
 
-=== plot.py and beyond ===
+(You can copy objects yourself with `deepcopy`, part of the standard Python library.
+{{{
+>>> import copy
+>>> copy.deepcopy(svg)
+<line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+}}}
+It's important to `deepcopy` objects, rather than simply assigning them to another variable or using the "shallow" `copy` function, because these only make new references to the same Python objects.  That saves memory, but can lead to confusing dependencies, where you change a parameter in one picture, and it changes in the corresponding object in another picture!)
+
+The function was expressed as a string in the example above, but that is simply for convenience--- the string was converted into Python code and used as a Python function like any other.  The format of the string is a 2-tuple representing the output _x'_ and _y'_ values, and it is expressed in _x_ and _y_.  Here are some equivalent ways to rotate 0.1 radians, to give an idea of how this works:
+{{{
+1.
+>>> transform("cos(0.1)*x - sin(0.1)*y, sin(0.1)*x + cos(0.1)*y", SVG("line", 0, 0, 1, 0))
+<line x1=0.0 y1=0.0 x2=0.995004165278 y2=0.0998334166468 stroke='black'>
+
+2.
+>>> import math
+>>> transform(lambda x, y: (math.cos(0.1)*x - math.sin(0.1)*y, math.sin(0.1)*x + math.cos(0.1)*y), SVG("line", 0, 0, 1, 0))
+<line x1=0.0 y1=0.0 x2=0.995004165278 y2=0.0998334166468 stroke='black'>
+
+3.
+>>> def myrot(x,y):
+...     c = math.cos(0.1)
+...     s = math.sin(0.1)
+...     return c*x - s*y, s*x + c*y
+... 
+>>> transform(myrot, SVG("line", 0, 0, 1, 0))
+<line x1=0.0 y1=0.0 x2=0.995004165278 y2=0.0998334166468 stroke='black'>
+
+4.
+>>> transform(rotation(0.1), SVG("line", 0, 0, 1, 0))
+<line x1=0.0 y1=0.0 x2=0.995004165278 y2=0.0998334166468 stroke='black'>
+
+5.
+>>> transform("z*(cos(0.1) + sin(0.1)*1j)", SVG("line", 0, 0, 1, 0))
+<line x1=0.0 y1=0.0 x2=0.995004165278 y2=0.0998334166468 stroke='black'>
+}}}
+
+The first is a string, expressing the product of the rotation matrix with an _(x, y)_ vector, the second is the same thing as an inline lambda expression, and the third is a multi-line user-defined function (which is much more readable!).  The fourth uses a function from the `trans` module which generates rotations (after all, that's a pretty common thing to want to do), and the fifth is a rotation in the complex plane: note that there is only one variable, _z_.  When a function takes only one argument, that argument is interpreted as a complex number, where the real and imaginary components are used in place of _x_ and _y_.
+
+Another handy transformation-generating function is _window()_, which maps rectangular regions to rectangular regions, usually for making plot windows.  In a plot, your coordinates represent quantities like mass or temperature but they need to be transformed into some length unit to be represented on a page.  The `window()` function takes _xmin_, _xmax_, _ymin_, _ymax_ as the bounds of the "inner" coordinate system and maps them to a rectangle in the "outer" coordinate system defined by _x_, _y_, _width_, and _height_.  The different ways of expressing these rectangles, one in terms of ranges and the other in terms of an upper-left corner and a width, has been very helpful for me when I need to keep them straight in making a plot.  It's somewhat natural, since data comes in ranges and SVG plots rectangles in this corner/size convention.
+
+{{{
+>>> window(-1, 1, -1, 1, x=10, y=10, width=80, height=80)
+<function (-1, 1), (-1, 1) -> (10, 90), (10, 90) at 0xb7c68f0c>
+}}}
+
+The `window()` function can also logarithmically transform one or both variables by setting `xlogbase=10` or `ylogbase=2` or whatever.  Since the transformation is defined in terms of the corners, switching to a logarithmic axis doesn't change the visible region.  A nice feature of this transformation is that it doesn't punish the user for trying to logarithmically plot something that becomes zero or negative.  Such divergences are mapped to `minusInfinityX` or `minusInfinityY`, which are set to -1000 by default but can be adjusted to always be "far away," and the right asymptotic behavior can be approximated.
+
+{{{
+>>> window(0.001, 1000, 2, 1024, x=10, y=10, width=80, height=80, xlogbase=10, ylogbase=2)
+<function (0.001, 1000), (2, 1024) -> (10, 90), (10, 90) xlog=10 ylog=2 at 0xb7cd8b54>
+}}}
+
+Finally, as a graphics system developed by computer people, SVG has the annoying feature of increasing the _y_ coordinate downward, rather than up as it should be.  For this reason, you can set `flipy=True` in your `window`.  By default, it's `False` (new in 2.x) to avoid unexpected alternations when `windows` are nested.
+
+== Anti-transformations in trans.py ==
+
+All of this would allow you to build a graphic once: for instance, you could create SVG objects representing your data, using data values as coordinates, transform that to the coordinate system of the page, draw axes for scale, and print out your plot.  But if you want to change a value in the data, you'd either have to reverse the transformation (not recommended, and sometimes not possible) or re-run the script (not interactive, which is a bummer).  Ideally, we want the plot window to be a window to a world which has its own coordinate system, where values are expressed in mass and temperature, etc.  To do that, we borrow an idea from functional programming, in which trees that are not supposed to be executed are "quoted" for delayed evaluation.
+{{{
+>>> svg = Delay(SVG("line", 0, 0, 1, 1))
+>>> svg.tree()
+None                 <Delay (1 child) (0 trans)>
+[0]                  . . <line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+>>> svg.transform(rotation(0.1))
+>>> svg.tree()
+None                 <Delay (1 child) (1 trans)>
+[0]                  . . <line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+>>> print svg.xml()
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="400" height="400" viewBox="0, 0, 100, 100" font-family="Helvetica, Arial, FreeSans, Sans, sans, sans-serif" style="font-size:4px; stroke-width:0.5pt; text-anchor:middle" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+    <g >
+        <line x1="0.0" y1="0.0" x2="0.89517074863119772" y2="1.0948375819248539" stroke="black" />
+    </g>
+</svg>
+}}}
+
+The `Delay` class is a subclass of SVG, and it acts like an SVG group, but it has the special property that transformations are held back until you actually render the SVG (e.g. `view` and `save` also cause an evaluation).  After viewing, the transformations are still delayed
+{{{
+None                 <Delay (1 child) (1 trans)>
+[0]                  . . <line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+}}}
+so you can view your graphic as often as you like without changing its coordinates.  The "1 trans" refers to a single transformation function in the queue: multiple transformations are stored up so that they can all be applied as though they were a single composed function.
+
+The `evaluate()` functions (bound and unbound) force an evaluation of the graphic, even if you don't view it.  A cache of the most recent evaluation is hidden as `_svg` member data:
+{{{
+>>> svg._svg.tree()
+None                 <g (1 child)>
+[0]                  . . <line x1=0.0 y1=0.0 x2=0.895170748631 y2=1.09483758192 stroke='black'>
+}}}
+
+Since the point of all of this was to keep a different coordinate system inside a plot window as out, the plot functions are all descendents of `Delay`.  The first one, `Fig` has already been implemented in 2.0.0alpha2; it's in the `plot` module.  The primary difference between plot objects and `Delay` is that plot objects routinely redefine their transformation function, for instance when the user changes the boundaries.  The `Fig` class is a prototype: it scales whatever you put into it to fill a standard-sized canvas, but it doesn't draw coordinate axes.  It also gives you a quick and easy way to look at any graphic, regardless of how large or small it is.
+
+The simplest anti-transformation is `Freeze`.  Putting objects in a `Freeze` group ensures that they remain in global coordinates, since all transformation functions applied to them are ignored.
+
+More interesting is `Pin`.  Often figures will include sub-drawings whose positions are to be transformed, but not their graphical content.  For example, perhaps the user wants to set smiley-faces at all of his or her data points.  When the data points are transformed to the page, which might involve stretching in the _x_ direction, squashing in the _y_ direction, and certainly a flip so that increasing _y_ is down, the user does not want all the smiles to be so distorted.  (This is not the best example because complicated data markers should be constructed with SVG "symbol" and "use" elements, but it illustrates the problem in general.)  The `Pin` class wraps SVG such that all transformations apply to a single point, and the graphical content is only translated to follow that point.
+
+Here, we take a horizontal line from the origin to (1, 0), pin it at (1, 0), and then rotate the whole thing 90 degrees counter-clockwise.
+{{{
+>>> transform(rotation(math.pi/2.), Pin(1, 0, SVG("line", 0, 0, 1, 0))).tree()
+None                 <Pin at 6.12303e-17 1 (1 child)>
+[0]                  . . <line x1=-1.0 y1=1.0 x2=0.0 y2=1.0 stroke='black'>
+}}}
+The point at (1, 0) has rotated a quarter-turn to (0, 1), as it should, and the line is still horizontal!  It now goes from (-1, 1) to (0, 1), with the same dimensions and orientation as before, but moved along with the pin position.
+
+If you'd like the pinned drawings to rotate with the coordinate transformation, set `rotate=True`.  Here's the same example, where the line was allowed to rotate.  If the transformation were some complicated twisty thing, the drawing inside the `Pin` would not be distorted, only turned.
+{{{
+>>> transform(rotation(math.pi), Pin(1, 0, SVG("line", 0, 0, 1, 0), rotate=True)).tree()
+None                 <Pin and rotate at -1 1.22461e-16 (1 child)>
+[0]                  . . <line x1=0.0 y1=0.0 x2=-1.0 y2=1.22460635382e-16 stroke='black'>
+}}}
+
+To aid your computations, `transformation_angle()` and `transformation_jacobian()` compute the angle at a given point in a transformation and the Jacobian.  The angle is used in cases like the one above, where a transformation might be very complicated, but the rotation at a given point is a single number.  The Jacobian is in a more general sense the derivative of the transformation; it's a matrix of partial derivatives _((dfx/dx, dfy/dx), (dfx/dy, dfy/dy))_ which captures the shear and mirror-flip of the transformation at that point.  SVG can only handle linear transformations, but the Jacobian approximates the full transformation at a point as a linear transformation matrix.  Passing this to small SVG shapes can distort them in a way that looks consistent with the full transformation.  This is fun to apply to small bits of text.
+
+== Arbitrary parametric curves: curve.py ==
+
+_(tomorrow, maybe...)_
+
+== Decorated curves: arrows and coordinate axes ==
+
+=== Random stuff in glyphs.py, defaults.py, and pathdata.py ===
+
+=== How plotting will work ===
 
 _(impressive-sounding, isn't it?)_
