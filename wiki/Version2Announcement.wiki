@@ -303,7 +303,9 @@ But `Curve` has also become a generalized arrow/coordinate axis/whatever with th
 The `add` method adds an SVG object at a given point, and `marks` can be set in the constructor.  The `ticks` function generates a nice set of tick marks for a given axis range.
 {{{
 >>> ticks(0.3, 6.)
-[(1.0, <tick>), (1.0, u'1'), (2.0, <tick>), (2.0, u'2'), (3.0, <tick>), (3.0, u'3'), (4.0, <tick>), (4.0, u'4'), (5.0, <tick>), (5.0, u'5'), (6.0, <tick>), (6.0, u'6'), (0.5, <minitick>), (1.5, <minitick>), (2.5, <minitick>), (3.5, <minitick>), (4.5, <minitick>), (5.5, <minitick>)]
+[(1.0, <tick>), (1.0, u'1'), (2.0, <tick>), (2.0, u'2'), (3.0, <tick>), (3.0, u'3'), (4.0, <tick>), (4.0, u'4'),
+ (5.0, <tick>), (5.0, u'5'), (6.0, <tick>), (6.0, u'6'), (0.5, <minitick>), (1.5, <minitick>), (2.5, <minitick>),
+ (3.5, <minitick>), (4.5, <minitick>), (5.5, <minitick>)]
 }}}
 
 _(gotta go; more later)_
