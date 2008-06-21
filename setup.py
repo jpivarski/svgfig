@@ -42,7 +42,7 @@ viewer_extension = Extension(os.path.join("svgfig", "_viewer"),
                              extra_link_args=viewer_pkgconfig())
 
 setup(name="SVGFig",
-      version="2.0.0alpha1",
+      version="2.0.0alpha2",
       description="SVGFig: Quantitative drawing in Python and SVG",
       author="Jim Pivarski",
       author_email="jpivarski@gmail.com",
