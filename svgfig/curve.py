@@ -1,5 +1,5 @@
 import math, cmath, copy, re, sys, new
-import defaults, svg, trans, pathdata, glyphs
+import defaults, svg, trans, pathdata, glyphs, _curve
 
 ############################### generic curve with marks (tick marks, arrows, etc)
 
@@ -187,7 +187,6 @@ class Curve(svg.SVG):
     self._svg = output
 
   def d(self):
-    import _curve
     data = _curve.curve(self.f, self.trans, self.low, self.high,
                         self.random_sampling, self.random_seed, self.recursion_limit, self.linearity_limit, self.discontinuity_limit)
 
