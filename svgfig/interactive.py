@@ -7,7 +7,7 @@ import defaults, svg, glyphs, trans, pathdata, curve, plot
 
 from svg import SVG, template, load, load_stream, rgb, randomid
 from glyphs import uni
-from trans import transform, transformation_angle, transformation_jacobian, Delay, Freeze, Pin, window, rotation
+from trans import clone, tonumber, transform, evaluate, Delay, Freeze, Pin, window, rotation, transformation_angle, transformation_jacobian
 from pathdata import poly, bezier, velocity, foreback, smooth
 from curve import Curve, format_number, unicode_number, ticks, logticks
 from plot import Fig

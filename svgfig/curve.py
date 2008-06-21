@@ -49,9 +49,9 @@ class Curve(svg.SVG):
     
     if "barrow" in kwds:
       if kwds["barrow"] is True:
-        self.add(self.high, glyphs.barrowhead)
+        self.add(self.low, glyphs.barrowhead)
       else:
-        self.add(self.high, kwds["barrow"])
+        self.add(self.low, kwds["barrow"])
       self.marks[-1][1]["fill"] = self["stroke"]
       del kwds["barrow"]
 
@@ -142,9 +142,7 @@ class Curve(svg.SVG):
   ### transformation is like Delay
   def transform(self, trans): self.trans.append(svg.cannonical_transformation(trans))
 
-  def bbox(self):
-    self.svg()
-    return self._svg.bbox()
+  def bbox(self): return pathdata.bbox(self.d())
 
   ### construct the SVG path
   def svg(self):
@@ -214,7 +212,7 @@ class Curve(svg.SVG):
                     Y + self.text_offsetx*math.sin(angle) + self.text_offsety*math.cos(angle), 180./math.pi*angle),
                    "text-anchor": "middle"}
     text_attrib.update(self.text_attrib)
-    return svg.SVG("text", 0., 0., **text_attrib)(mark)
+    return svg.SVG("text", 0., 0., **text_attrib)(text)
 
   ### lots of functions for adding/removing marks
   def _matches(self, matching, mark):
@@ -368,6 +366,47 @@ class Curve(svg.SVG):
 
     self.marks = newmarks
         
+  ### act like a list
+  def append(self, other): self.marks.append(other)
+  def prepend(self, other): self.marks[0:0] = [other]
+  def insert(self, i, other): self.marks.insert(i, other)
+  def remove(self, other): self.marks.remove(other)
+  def __len__(self): return len(self.marks)
+
+  def extend(self, other):
+    if isinstance(other, SVG):
+      self.marks.extend(other.children)
+    elif isinstance(other, basestring):
+      self.marks.append(other)
+    else:
+      self.marks.extend(other)
+
+  def __add__(self, other):
+    output = copy.deepcopy(self)
+    output += other
+    return output
+
+  def __iadd__(self, other):
+    self.marks.append(other)
+    return self
+
+  def __mul__(self, other):
+    output = copy.deepcopy(self)
+    output *= other
+    return output
+
+  def __rmul__(self, other):
+    return self * other
+
+  def __imul__(self, other):
+    self.marks *= other
+    return self
+
+  def count(self, *args, **kwds): return self.marks.count(*args, **kwds)
+  def index(self, *args, **kwds): return self.marks.index(*args, **kwds)
+  def pop(self, *args, **kwds): return self.marks.pop(*args, **kwds)
+  def reverse(self, *args, **kwds): return self.marks.reverse(*args, **kwds)
+
 ############################### plot axes
 
 class XAxis(Curve):
@@ -605,3 +644,4 @@ def logticks(low, high, base=10., maximum=None, format=unicode_number):
       output.append((m * t, glyphs.minitick))
         
   return output
+
