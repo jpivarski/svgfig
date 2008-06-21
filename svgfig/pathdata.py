@@ -2,80 +2,126 @@ import defaults
 
 ############################### convenient functions for making paths
 
-def poly(data, loop=False):
-  output = []
-  for x, y in data:
-    if output == []: output.append(("M", x, y))
-    else: output.append(("L", x, y))
-  if loop and len(data) > 0:
-    output.append(("Z",))
-  return output
+def poly(*data, **kwds):
+  errstring = "Arguments are: poly((x1,y1), (x2,y2), ..., loop=False)"
+  loop = False
+  if "loop" in kwds:
+    loop = kwds["loop"]
+    del kwds["loop"]
+  if len(kwds) > 0: raise TypeError, errstring
 
-def bezier(data, loop=False):
-  output = []
-  for x, y, c1x, c1y, c2x, c2y in data:
-    if output == []: output.append(("M", x, y))
-    else:
-      output.append(("C", c1x, c1y, c2x, c2y, x, y))
-  if loop and len(data) > 0:
-    output.append(("Z",))
-  return output
+  try:
+    output = []
+    for x, y in data:
+      if output == []: output.append(("M", x, y))
+      else: output.append(("L", x, y))
+    if loop and len(data) > 0:
+      output.append(("Z",))
+    return output
+  except (TypeError, ValueError): raise TypeError, errstring
 
-def velocity(data, loop=False):
-  output = []
-  indexes = range(len(data))
-  if loop and len(data) > 0: indexes.append(0)
+def bezier(*data, **kwds):
+  errstring = "Arguments are: bezier((x,y,c1x,c1y,c2x,c2y), ..., loop=False)"
+  loop = False
+  if "loop" in kwds:
+    loop = kwds["loop"]
+    del kwds["loop"]
+  if len(kwds) > 0: raise TypeError, errstring
 
-  for i in indexes:
-    if output == []: output.append(("M", data[i][0], data[i][1]))
-    else:
+  try:
+    output = []
+    for x, y, c1x, c1y, c2x, c2y in data:
+      if output == []: output.append(("M", x, y))
+      else:
+        output.append(("C", c1x, c1y, c2x, c2y, x, y))
+    if loop and len(data) > 0:
+      output.append(("Z",))
+    return output
+  except (TypeError, ValueError): raise TypeError, errstring
+
+def velocity(*data, **kwds):
+  errstring = "Arguments are: velocity((x,y,vx,vy), ..., loop=False)"
+  loop = False
+  if "loop" in kwds:
+    loop = kwds["loop"]
+    del kwds["loop"]
+  if len(kwds) > 0: raise TypeError, errstring
+
+  try:
+    output = []
+    indexes = range(len(data))
+    if loop and len(data) > 0: indexes.append(0)
+
+    for i in indexes:
+      if output == []: output.append(("M", data[i][0], data[i][1]))
+      else:
+        inext = (i+1) % len(data)
+        iprev = (i-1) % len(data)
+
+        x, y = data[i][0], data[i][1]
+        c1x, c1y = data[iprev][2]/3. + data[iprev][0], data[iprev][3]/3. + data[iprev][1]
+        c2x, c2y = data[i][2]/-3. + x, data[i][3]/-3. + y
+
+        output.append(("C", c1x, c1y, c2x, c2y, x, y))
+
+    if loop and len(data) > 0:
+      output.append(("Z",))
+    return output
+  except (TypeError, ValueError): raise TypeError, errstring
+
+def foreback(*data, **kwds):
+  errstring = "Arguments are: foreback((x,y,vfx,vfy,vbx,vby), ..., loop=False)"
+  loop = False
+  if "loop" in kwds:
+    loop = kwds["loop"]
+    del kwds["loop"]
+  if len(kwds) > 0: raise TypeError, errstring
+
+  try:
+    output = []
+    indexes = range(len(data))
+    if loop and len(data) > 0: indexes.append(0)
+
+    for i in indexes:
+      if output == []: output.append(("M", data[i][0], data[i][1]))
+      else:
+        inext = (i+1) % len(data)
+        iprev = (i-1) % len(data)
+
+        x, y = data[i][0], data[i][1]
+        c1x, c1y = data[iprev][4]/3. + data[iprev][0], data[iprev][5]/3. + data[iprev][1]
+        c2x, c2y = data[i][2]/-3. + x, data[i][3]/-3. + y
+
+        output.append(("C", c1x, c1y, c2x, c2y, x, y))
+
+    if loop and len(data) > 0:
+      output.append(("Z",))
+    return output
+  except (TypeError, ValueError): raise TypeError, errstring
+
+def smooth(*data, **kwds):
+  errstring = "Arguments are: smooth((x1,y1), (x2,y2), ..., loop=False)"
+
+  loop = False
+  if "loop" in kwds:
+    loop = kwds["loop"]
+    del kwds["loop"]
+  if len(kwds) > 0: raise TypeError, errstring
+
+  try:
+    x, y = zip(*data)
+    vx, vy = [0.]*len(data), [0.]*len(data)
+    for i in xrange(len(data)):
       inext = (i+1) % len(data)
       iprev = (i-1) % len(data)
 
-      x, y = data[i][0], data[i][1]
-      c1x, c1y = data[iprev][2]/3. + data[iprev][0], data[iprev][3]/3. + data[iprev][1]
-      c2x, c2y = data[i][2]/-3. + x, data[i][3]/-3. + y
+      vx[i] = (x[inext] - x[iprev])/2.
+      vy[i] = (y[inext] - y[iprev])/2.
+      if not loop and (i == 0 or i == len(data)-1):
+        vx[i], vy[i] = 0., 0.
 
-      output.append(("C", c1x, c1y, c2x, c2y, x, y))
-
-  if loop and len(data) > 0:
-    output.append(("Z",))
-  return output
-
-def foreback(data, loop=False):
-  output = []
-  indexes = range(len(data))
-  if loop and len(data) > 0: indexes.append(0)
-
-  for i in indexes:
-    if output == []: output.append(("M", data[i][0], data[i][1]))
-    else:
-      inext = (i+1) % len(data)
-      iprev = (i-1) % len(data)
-
-      x, y = data[i][0], data[i][1]
-      c1x, c1y = data[iprev][4]/3. + data[iprev][0], data[iprev][5]/3. + data[iprev][1]
-      c2x, c2y = data[i][2]/-3. + x, data[i][3]/-3. + y
-
-      output.append(("C", c1x, c1y, c2x, c2y, x, y))
-
-  if loop and len(data) > 0:
-    output.append(("Z",))
-  return output
-
-def smooth(data, loop=False):
-  x, y = zip(*data)
-  vx, vy = [0.]*len(data), [0.]*len(data)
-  for i in xrange(len(data)):
-    inext = (i+1) % len(data)
-    iprev = (i-1) % len(data)
-
-    vx[i] = (x[inext] - x[iprev])/2.
-    vy[i] = (y[inext] - y[iprev])/2.
-    if not loop and (i == 0 or i == len(data)-1):
-      vx[i], vy[i] = 0., 0.
-
-  return velocity(zip(x, y, vx, vy), loop)
+    return velocity(zip(x, y, vx, vy), loop)
+  except (TypeError, ValueError): raise TypeError, errstring
 
 ############################### pathdata parsers
 

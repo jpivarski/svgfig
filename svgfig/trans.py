@@ -12,30 +12,24 @@ def tonumber(obj):
 
 def transform(trans, obj):
   obj = copy.deepcopy(obj)
-  obj.transform(trans)
+  if callable(trans):
+    obj.transform(trans)
+  else:
+    for t in trans: obj.transform(t)
   return obj
 
 def evaluate(obj):
-  obj = copy.deepcopy(obj)
-  obj.evaluate()
-
-  def recurse(sub):
-    replacements = {}
-    for i, child in enumerate(sub.children):
-      if isinstance(child, svg.SVG) and child.tag is None:
-        replacements[i] = child._svg
-
-    for i, repl in replacements.items():
-      sub.children[i] = repl
-
-    for child in sub.children:
-      if isinstance(sub, svg.SVG):
-        recurse(child)
-
+  obj = copy.copy(obj) # start with a shallow copy
   if isinstance(obj, svg.SVG) and obj.tag is None:
+    obj.svg()
     obj = obj._svg
 
-  recurse(obj)
+  obj.__dict__["attrib"] = copy.deepcopy(obj.__dict__["attrib"])
+
+  replacements = {}
+  for i in xrange(len(obj.children)):
+    obj.children[i] = evaluate(obj.children[i])
+
   return obj
 
 def bbox(obj):
@@ -49,6 +43,7 @@ class Freeze(svg.SVG):
     self.__dict__["tag"] = None
     self.__dict__["attrib"] = kwds
     self.__dict__["children"] = list(args)
+    self.__dict__["_svg"] = None
 
   def __repr__(self):
     if len(self.children) == 1:
@@ -58,17 +53,19 @@ class Freeze(svg.SVG):
 
   def transform(self, trans): pass
 
-  def evaluate(self):
+  def svg(self):
     self._svg = new.instance(svg.SVG)
-    self._svg.__dict__ = copy.copy(self.__dict__)
     self._svg.__dict__["tag"] = "g"
-    self._svg.evaluate()
+    self._svg.__dict__["attrib"] = self.attrib
+    self._svg.__dict__["children"] = self.children
+    self._svg.__dict__["_svg"] = self._svg
 
 class Delay(svg.SVG):
   def __init__(self, *args, **kwds):
     self.__dict__["tag"] = None
     self.__dict__["attrib"] = kwds
     self.__dict__["children"] = list(args)
+    self.__dict__["_svg"] = None
     self.__dict__["trans"] = []
 
   def __repr__(self):
@@ -81,17 +78,18 @@ class Delay(svg.SVG):
     self.trans.append(svg.cannonical_transformation(trans))
 
   def bbox(self):
-    self.evaluate()
+    self.svg()
     return self._svg.bbox()
 
-  def evaluate(self):
-    obj = new.instance(svg.SVG)
-    obj.__dict__["tag"] = "g"
-    obj.__dict__["attrib"] = copy.deepcopy(self.attrib)
-    obj.__dict__["children"] = copy.deepcopy(self.children)
-    obj.evaluate()
-    for trans in self.trans: obj.transform(trans)
-    self._svg = obj
+  def svg(self):
+    self._svg = new.instance(svg.SVG)
+    self._svg.__dict__["tag"] = "g"
+    self._svg.__dict__["attrib"] = self.attrib
+    self._svg.__dict__["_svg"] = self._svg
+
+    self._svg.__dict__["children"] = []
+    for child in self.children:
+      self._svg.__dict__["children"].append(transform(self.trans, child))
 
   def __getstate__(self):
     mostdict = copy.copy(self.__dict__)
@@ -135,6 +133,7 @@ class Pin(svg.SVG):
     self.__dict__["tag"] = None
     self.__dict__["attrib"] = kwds
     self.__dict__["children"] = list(args)
+    self.__dict__["_svg"] = None
 
   def __repr__(self):
     rotate = ""
@@ -162,12 +161,12 @@ class Pin(svg.SVG):
     for child in self.children:
       if isinstance(child, svg.SVG): child.transform(trans)
 
-  def evaluate(self):
-    obj = new.instance(svg.SVG)
-    obj.__dict__ = copy.copy(self.__dict__)
-    obj.__dict__["tag"] = "g"
-    obj.evaluate()
-    self._svg = obj
+  def svg(self):
+    self._svg = new.instance(svg.SVG)
+    self._svg.__dict__["tag"] = "g"
+    self._svg.__dict__["attrib"] = self.attrib
+    self._svg.__dict__["children"] = self.children
+    self._svg.__dict__["_svg"] = self._svg
 
 ############################### operations on transformations
 

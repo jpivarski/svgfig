@@ -45,7 +45,7 @@ class Fig(trans.Delay):
 
   def bbox(self): return defaults.BBox(self.x, self.x + self.width, self.y, self.y + self.height)
 
-  def evaluate(self):
+  def svg(self):
     if self.xmin is not None and self.xmax is not None and \
        self.ymin is not None and self.ymax is not None:
       self.trans = trans.window(self.xmin, self.xmax, self.ymin, self.ymax,
@@ -56,19 +56,19 @@ class Fig(trans.Delay):
     else:
       self.fit()
 
-    obj = new.instance(svg.SVG)
-    obj.__dict__["tag"] = "g"
-    obj.__dict__["attrib"] = copy.deepcopy(self.attrib)
-    obj.__dict__["children"] = copy.deepcopy(self.children)
-    obj.evaluate()
-    obj.transform(self.trans)
+    self._svg = new.instance(svg.SVG)
+    self._svg.__dict__["tag"] = "g"
+    self._svg.__dict__["attrib"] = self.attrib
+    self._svg.__dict__["_svg"] = self._svg
+
+    self._svg.__dict__["children"] = []
+    for child in self.children:
+      self._svg.__dict__["children"].append(trans.transform(self.trans, child))
 
     if self.clip:
-      clipPath = svg.SVG("clipPath", id=svg.newid("clip-"))(svg.SVG("rect", self.x, self.y, self.width, self.height))
-      output["clip-path"] = "url(#%s)" % clipPath["id"]
-      self._svg = svg.SVG("g", clipPath, output)      
-    else:
-      self._svg = obj
+      clipPath = svg.SVG("clipPath", id=svg.randomid("clip-"))(svg.SVG("rect", self.x, self.y, self.width, self.height))
+      self._svg["clip-path"] = "url(#%s)" % clipPath["id"]
+      self._svg = svg.SVG("g", clipPath, self._svg)
 
   def __getstate__(self):
     mostdict = copy.copy(self.__dict__)
@@ -102,7 +102,7 @@ class Fig(trans.Delay):
     output.__dict__["trans"] = self.trans
 
     memo[id(self)] = output
-    return outpu
+    return output
 
   def fit(self):
     bbox = defaults.BBox(None, None, None, None)

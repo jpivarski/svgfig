@@ -19,11 +19,12 @@ class Curve(svg.SVG):
   _varlist = ["attrib", "smooth", "marks", "random_sampling", "random_seed", "recursion_limit", "linearity_limit", "discontinuity_limit", "text_offsetx", "text_offsety", "text_attrib"]
 
   def __init__(self, expr, low, high, **kwds):
-    self.tag = None
-    self.children = []
-    self.f = svg.cannonical_parametric(expr)
-    self.low = low
-    self.high = high
+    self.__dict__["tag"] = None
+    self.__dict__["children"] = []
+    self.__dict__["_svg"] = []
+    self.__dict__["f"] = svg.cannonical_parametric(expr)
+    self.__dict__["low"] = low
+    self.__dict__["high"] = high
     
     for var in self._varlist:
       if not callable(eval("self.%s" % var)) and var[:1] != "__" and var[-1:] != "__":
@@ -57,8 +58,8 @@ class Curve(svg.SVG):
     self.clean_arrows()
 
     # now the rest of the attributes (other than stroke)
-    self.attrib.update(kwds)
-    self.trans = []
+    self.__dict__["attrib"].update(kwds)
+    self.__dict__["trans"] = []
 
   def __call__(self, t, transformed=True):
     x, y = self.f(t)
@@ -142,16 +143,16 @@ class Curve(svg.SVG):
   def transform(self, trans): self.trans.append(svg.cannonical_transformation(trans))
 
   def bbox(self):
-    self.evaluate()
+    self.svg()
     return self._svg.bbox()
 
   ### construct the SVG path
-  def evaluate(self):
+  def svg(self):
     obj = new.instance(svg.SVG)
     obj.__dict__["tag"] = "path"
-    obj.__dict__["attrib"] = copy.deepcopy(self.attrib)
-    obj.__dict__["children"] = copy.deepcopy(self.children)
-    obj.evaluate()
+    obj.__dict__["attrib"] = self.attrib
+    obj.__dict__["children"] = self.children
+    obj.__dict__["_svg"] = obj
     obj.attrib["d"] = self.d()
 
     if self.marks == []:
@@ -201,10 +202,10 @@ class Curve(svg.SVG):
     output = []
     if self.smooth:
       for seg in segments:
-        output.extend(pathdata.smooth(seg))
+        output.extend(pathdata.smooth(*seg))
     else:
       for seg in segments:
-        output.extend(pathdata.poly(seg))
+        output.extend(pathdata.poly(*seg))
 
     return output
 
