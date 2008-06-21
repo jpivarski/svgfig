@@ -5,12 +5,16 @@ epsilon = 1e-5
 
 ############################### copy-and-convert versions of main operations
 
+clone = copy.deepcopy
+
 def tonumber(obj):
   obj = copy.deepcopy(obj)
   obj.tonumber()
   return obj
 
 def transform(trans, obj):
+  trans = svg.cannonical_transformation(trans)
+
   obj = copy.deepcopy(obj)
   if callable(trans):
     obj.transform(trans)
@@ -31,10 +35,6 @@ def evaluate(obj):
     obj.children[i] = evaluate(obj.children[i])
 
   return obj
-
-def bbox(obj):
-  obj = copy.deepcopy(obj)
-  return obj.bbox()
 
 ############################### groups with special transformation properties
 

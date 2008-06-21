@@ -123,6 +123,8 @@ class SVG:
       else:
         raise AttributeError, "Tag '%s' has no signature attrib '%s'" % (self.tag, name)
 
+  def __nonzero__(self): return True
+
   ### support access to deep children with tree indexes
   def _treeindex_descend(self, obj, treeindex):
     if isinstance(treeindex, (list, tuple)):
@@ -376,7 +378,12 @@ class SVG:
 
   def __eq__(self, other):
     if id(self) == id(other): return True
-    return self.__class__ == other.__class__ and self.__dict__ == other.__dict__
+    if self.__class__ != other.__class__: return False
+    selfdict = copy.copy(self.__dict__)
+    otherdict = copy.copy(other.__dict__)
+    del selfdict["_svg"]
+    del otherdict["_svg"]
+    return selfdict == otherdict
 
   def __ne__(self, other): return not (self == other)
 
