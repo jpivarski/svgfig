@@ -1,4 +1,5 @@
 import math, re, os, platform, warnings
+import pathdata
 
 version = "SVGFig 2.0.0alpha1"
 version_info = (2, 0, 0, "alpha1")
@@ -46,10 +47,10 @@ def tonumber_circle(svg):
 def transform_circle(trans, svg):
   if isnumber(svg.cx) and isnumber(svg.cy):
     x1, y1 = trans(svg.cx, svg.cy)
-    svg.cx, svg.cy = x1, y1
     if isnumber(svg.r):
       x2, y2 = trans(svg.cx + svg.r, svg.cy)
       svg.r = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+    svg.cx, svg.cy = x1, y1
 
 def bbox_circle(svg):
   if isnumber(svg.cx) and isnumber(svg.cy):

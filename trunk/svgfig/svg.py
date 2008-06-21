@@ -5,7 +5,7 @@ saved = [] # keep track of all fileNames saved for the user's convenience
 
 ############################### convenient functions for dealing with SVG
 
-def newid(prefix="", characters=10):
+def randomid(prefix="", characters=10):
   return prefix + "".join(random.sample("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", characters))
 
 # This rgb function could be a lot better... something to think about...
@@ -28,6 +28,7 @@ class SVG:
     self.__dict__["tag"] = tag
     self.__dict__["attrib"] = dict(getattr(defaults, "defaults_%s" % tag, {}))
     self.__dict__["children"] = []
+    self.__dict__["_svg"] = self
 
     signature = getattr(defaults, "signature_%s" % tag, None)
 
@@ -62,7 +63,7 @@ class SVG:
     self.children.extend(children)
     return self
 
-  ### recursively tonumber, transform, bbox, and evaluate
+  ### recursively tonumber, transform, bbox, and svg
   def tonumber(self):
     if self.tag is not None:
       tonumber_tag = getattr(defaults, "tonumber_%s" % self.tag, None)
@@ -99,9 +100,7 @@ class SVG:
       if isinstance(child, SVG): output += child.bbox()
     return output
 
-  def evaluate(self):
-    for child in self.children:
-      if isinstance(child, SVG): child.evaluate()
+  def svg(self): self._svg = self
 
   ### signature attributes are accessible as member data
   def __getattr__(self, name):
@@ -311,8 +310,6 @@ class SVG:
     else:
       svg = self
 
-    self.evaluate() # evaluate any dynamic objects
-
     output = [defaults.xml_header] + svg_to_xml(svg, indent) + [u""]
     return unicode(newl.join(output))
 
@@ -463,8 +460,10 @@ class SVG:
 
 # how to convert SVG objects into XML (as a list of lines to be joined later)
 def svg_to_xml(svg, indent, depth=0):
-  # if the tag is None, it's a subclass that was just evaluated
-  if isinstance(svg, SVG) and svg.tag is None: svg = svg._svg
+  # if the tag is None, it's a dynamic object that needs to be turned into _svg
+  if isinstance(svg, SVG) and svg.tag is None:
+    svg.svg()
+    svg = svg._svg  # follow that? good.
 
   if isinstance(svg, basestring):
     return [svg]
@@ -573,6 +572,7 @@ class Instruction(SVG):
     self.__dict__["tag"] = tag
     self.__dict__["attrib"] = {}
     self.__dict__["children"] = []
+    self.__dict__["_svg"] = self
     self.__dict__["text"] = text
 
   def xml(self): return "<?%s %s?>" % (self.tag, self.text)
@@ -591,6 +591,7 @@ class Comment(SVG):
     self.__dict__["tag"] = "comment"
     self.__dict__["attrib"] = {}
     self.__dict__["children"] = []
+    self.__dict__["_svg"] = self
     self.__dict__["text"] = text
   
   def __eq__(self, other): return SVG.__eq__(self, other) and self.text == other.text
@@ -611,6 +612,7 @@ class CDATA(SVG):
     self.__dict__["tag"] = "CDATA"
     self.__dict__["attrib"] = {}
     self.__dict__["children"] = []
+    self.__dict__["_svg"] = self
     self.__dict__["text"] = text
   
   def __eq__(self, other): return SVG.__eq__(self, other) and self.text == other.text
