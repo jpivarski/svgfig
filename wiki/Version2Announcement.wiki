@@ -139,15 +139,14 @@ Often, you'll transform SVG objects by calling their `svg.transform()` method.  
 >>> svg
 <line x1=0 y1=0 x2=1 y2=1 stroke='black'>
 }}}
-There are several bound-unbound pairs that work like this: `tonumber`, `transform`, `evaluate`, and `bbox`.  The bound method modifies the object in question and the unbound method makes a modified copy.  (Confusion between in-place operations and operations that return a copy have plagued many systems based on functional languages--- hopefully this solves the problem for SVGFig!)
+There are several bound-unbound pairs that work like this: `tonumber` (turns SVG strings to numbers whereever possible), `transform` (transforms), and `evaluate` (turns dynamic objects into pure SVG).  The bound method modifies the object in question and the unbound method makes a modified copy.  (Confusion between in-place operations and operations that return a copy have plagued many systems based on functional languages--- hopefully this solves the problem for SVGFig!)
 
-(You can copy objects yourself with `deepcopy`, part of the standard Python library.
+(You can copy objects yourself with `clone`, which is just a reference to the standard Python library `copy.deepcopy`.)
 {{{
->>> import copy
->>> copy.deepcopy(svg)
+>>> clone(svg)
 <line x1=0 y1=0 x2=1 y2=1 stroke='black'>
 }}}
-It's important to `deepcopy` objects, rather than simply assigning them to another variable or using the "shallow" `copy` function, because these only make new references to the same Python objects.  That saves memory, but can lead to confusing dependencies, where you change a parameter in one picture, and it changes in the corresponding object in another picture!)
+It's important to `clone` objects, rather than simply assigning them to another variable or using the "shallow" `copy` function, because these only make new references to the same Python objects.  That saves memory, but can lead to confusing dependencies, where you change a parameter in one picture, and it changes in the corresponding object in another picture!)
 
 The function was expressed as a string in the example above, but that is simply for convenience--- the string was converted into Python code and used as a Python function like any other.  The format of the string is a 2-tuple representing the output _x'_ and _y'_ values, and it is expressed in _x_ and _y_.  Here are some equivalent ways to rotate 0.1 radians, to give an idea of how this works:
 {{{
@@ -283,13 +282,34 @@ To aid your computations, `transformation_angle()` and `transformation_jacobian(
 
 == Optimization and expansion of Curve ==
 
-The [http://code.google.com/p/svgfig/wiki/Introduction#(Almost)_Everything&#x27;s_a_Parametric_Function adaptive-sampling algorithm] introduced in SVGFig 1.x (before that, actually) works as it did before.
+The [http://code.google.com/p/svgfig/wiki/Introduction#(Almost)_Everything's_a_Parametric_Function adaptive-sampling algorithm] introduced in SVGFig 1.x (before that, actually) works as it did before.  It still evaluates the function more often in the curvier regions than the straight ones, and breaks the line where it detects discontinuities.  However, the code that actually generates the path data from a parametric function has been hardened into compiled C code for efficiency.
 
+Also, the `Curve` class has become a subclass of `SVG`, and it does the same kind of lazy evaluation as `Delay`, computing the path on demand when you wish to view it, saving a cached copy of the last evaluation in the `_svg` data member.  Also like `Delay`, it maintains a list of transformation to apply when evaluated.
 
+But `Curve` has also become a generalized arrow/coordinate axis/whatever with the addition of `marks`.  The `marks` member data is a list of SVG elements to draw along the curve at specified positions.
 
+{{{
+>>> from svgfig.interactive import *
+>>> c = Curve("cos(t), sin(t)", 0.3, 6.0)
+>>> for t in 1., 2., 3., 4., 5.:
+...     c.add(t, transform("1.5*x, 1.5*y", glyphs.farrowhead))
+... 
+>>> c2 = Curve("0.7*cos(t), 0.7*sin(t)", 0.3, 6.0, marks=ticks(0.3, 6.0), farrow=True, barrow=True)
+>>> Fig(c, c2).view()
+}}}
+
+[http://svgfig.googlecode.com/svn/wiki/Version2Announcement_arrowmarks.png]
+
+The `add` method adds an SVG object at a given point, and `marks` can be set in the constructor.  The `ticks` function generates a nice set of tick marks for a given axis range.
+{{{
+>>> ticks(0.3, 6.)
+[(1.0, <tick>), (1.0, u'1'), (2.0, <tick>), (2.0, u'2'), (3.0, <tick>), (3.0, u'3'), (4.0, <tick>), (4.0, u'4'), (5.0, <tick>), (5.0, u'5'), (6.0, <tick>), (6.0, u'6'), (0.5, <minitick>), (1.5, <minitick>), (2.5, <minitick>), (3.5, <minitick>), (4.5, <minitick>), (5.5, <minitick>)]
+}}}
+
+_(gotta go; more later)_
 
 === Random stuff in glyphs.py, defaults.py, and pathdata.py ===
 
 === How plotting will work ===
 
-_(impressive-sounding, isn't it?)_
+
