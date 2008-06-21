@@ -5,7 +5,7 @@ from distutils.command.build_ext import build_ext
 import os
 
 extension_features = {
-  "_curve": ">>> Curve(\"x**2\", 0, 1).svg()      (draw arbitrary functions as SVG paths)",
+  "_curve": None,
   "_viewer": ">>> SVG(\"circle\", 30, 50, 10).view()      (pop up a window and look at an SVG fragment)",
   }
 
@@ -14,6 +14,10 @@ class my_build_ext(build_ext):
     try:
       build_ext.build_extension(self, extension)
     except:
+      for ext, feat in extension_features.items():
+        if ext in extension.name and feat is None:
+          raise Exception, "Failed to compile %s" % ext
+
       print "************************************************************************************************"
       print ""
       print "Note: couldn't compile \"%s\", so you will be unable to use this feature:" % extension.name
@@ -46,7 +50,6 @@ setup(name="SVGFig",
       py_modules=[os.path.join("svgfig", "__init__"),
                   os.path.join("svgfig", "interactive"),
                   os.path.join("svgfig", "svg"),
-                  os.path.join("svgfig", "fig"),
                   os.path.join("svgfig", "defaults"),
                   os.path.join("svgfig", "glyphs"),
                   os.path.join("svgfig", "trans"),
