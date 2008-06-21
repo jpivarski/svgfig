@@ -153,8 +153,7 @@ class Pin(svg.SVG):
     if self.rotate:
       shiftx, shifty = trans(oldx + epsilon, oldy)
       angle = math.atan2(shifty, shiftx)
-      trans = eval("lambda x, y: (%(newx)s + cos(angle)*(x - %(oldx)s) - sin(angle)*(y - %(oldy)s), %(newy)s + sin(angle)*(x - %(oldx)s) + cos(angle)*(y - %(oldy)))" %
-                   {"newx": repr(self.x), "newy": repr(self.y), "oldx": repr(oldx), "oldy": repr(oldy)}, math.__dict__)
+      trans = eval("lambda x, y: (%(newx)s + cos(%(angle)s)*(x - %(oldx)s) - sin(%(angle)s)*(y - %(oldy)s), %(newy)s + sin(%(angle)s)*(x - %(oldx)s) + cos(%(angle)s)*(y - %(oldy)s))" % {"newx": repr(self.x), "newy": repr(self.y), "oldx": repr(oldx), "oldy": repr(oldy), "angle": repr(angle)}, math.__dict__)
 
     else:
       trans = eval("lambda x, y: (x + %(newx)s - %(oldx)s, y + %(newy)s - %(oldy)s)" %
@@ -241,8 +240,7 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=Non
   return output
 
 def rotation(angle, cx=0, cy=0):
-  output = eval("lambda x,y: (%(cx)s + cos(%(angle)s)*(x - %(cx)s) - sin(%(angle)s)*(y - %(cy)s), %(cy)s + sin(%(angle)s)*(x - %(cx)s) + cos(%(angle)s)*(y - %(cy)s))" % \
-                {"cx": repr(cx), "cy": repr(cy), "angle": repr(angle)})
+  output = eval("lambda x,y: (%(cx)s + cos(%(angle)s)*(x - %(cx)s) - sin(%(angle)s)*(y - %(cy)s), %(cy)s + sin(%(angle)s)*(x - %(cx)s) + cos(%(angle)s)*(y - %(cy)s))" % {"cx": repr(cx), "cy": repr(cy), "angle": repr(angle)}, math.__dict__)
   output.func_name = "rotation %g around %g %g" % (angle, cx, cy)
   return output
 
