@@ -261,11 +261,12 @@ Here's a little demo of `Pin` that may be more intuitive.
 ...           fill="white")
 >>> fig = SVG("g", SVG("circle", 50, 50, 33), car)
 >>> fig.view()
+
 >>> for angle in 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0:
 ...     fig += transform(rotation(-angle, 50, 50), car)
 ... 
 >>> fig.view()
->>> 
+
 >>> car = Pin(50, 83, car)
 >>> fig = SVG("g", SVG("circle", 50, 50, 33), car)
 >>> for angle in 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0:
@@ -282,7 +283,7 @@ To aid your computations, `transformation_angle()` and `transformation_jacobian(
 
 == Optimization and expansion of Curve ==
 
-
+The [http://code.google.com/p/svgfig/wiki/Introduction#(Almost)_Everything&#x27;s_a_Parametric_Function adaptive-sampling algorithm] introduced in SVGFig 1.x (before that, actually) works as it did before.
 
 
 
