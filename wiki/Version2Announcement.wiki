@@ -254,13 +254,38 @@ None                 <Pin and rotate at -1 1.22461e-16 (1 child)>
 [0]                  . . <line x1=0.0 y1=0.0 x2=-1.0 y2=1.22460635382e-16 stroke='black'>
 }}}
 
+Here's a little demo of `Pin` that may be more intuitive.
+{{{
+>>> car = SVG("path", poly((48, 86), (50, 83), (52, 86)) + \
+...                   poly((47, 86), (53, 86), (53, 90), (47, 90), loop=True), \
+...           fill="white")
+>>> fig = SVG("g", SVG("circle", 50, 50, 33), car)
+>>> fig.view()
+>>> for angle in 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0:
+...     fig += transform(rotation(-angle, 50, 50), car)
+... 
+>>> fig.view()
+>>> 
+>>> car = Pin(50, 83, car)
+>>> fig = SVG("g", SVG("circle", 50, 50, 33), car)
+>>> for angle in 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0:
+...     fig += transform(rotation(-angle, 50, 50), car)
+... 
+>>> fig.view()
+}}}
+
+[http://svgfig.googlecode.com/svn/wiki/Version2Announcement_ferris1.png] [http://svgfig.googlecode.com/svn/wiki/Version2Announcement_ferris2.png] [http://svgfig.googlecode.com/svn/wiki/Version2Announcement_ferris3.png]
+
+(For a discussion of `poly`, used in the definition of this path, see below.)
+
 To aid your computations, `transformation_angle()` and `transformation_jacobian()` compute the angle at a given point in a transformation and the Jacobian.  The angle is used in cases like the one above, where a transformation might be very complicated, but the rotation at a given point is a single number.  The Jacobian is in a more general sense the derivative of the transformation; it's a matrix of partial derivatives _((dfx/dx, dfy/dx), (dfx/dy, dfy/dy))_ which captures the shear and mirror-flip of the transformation at that point.  SVG can only handle linear transformations, but the Jacobian approximates the full transformation at a point as a linear transformation matrix.  Passing this to small SVG shapes can distort them in a way that looks consistent with the full transformation.  This is fun to apply to small bits of text.
 
-== Arbitrary parametric curves: curve.py ==
+== Optimization and expansion of Curve ==
 
-_(tomorrow, maybe...)_
 
-== Decorated curves: arrows and coordinate axes ==
+
+
+
 
 === Random stuff in glyphs.py, defaults.py, and pathdata.py ===
 
