@@ -4,6 +4,8 @@ from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
 import os
 
+import svgfig.defaults
+
 extension_features = {
   "_curve": None,
   "_viewer": ">>> SVG(\"circle\", 30, 50, 10).view()      (pop up a window and look at an SVG fragment)",
@@ -42,7 +44,7 @@ viewer_extension = Extension(os.path.join("svgfig", "_viewer"),
                              extra_link_args=viewer_pkgconfig())
 
 setup(name="SVGFig",
-      version="2.0.0alpha2",
+      version=svgfig.defaults.version,
       description="SVGFig: Quantitative drawing in Python and SVG",
       author="Jim Pivarski",
       author_email="jpivarski@gmail.com",

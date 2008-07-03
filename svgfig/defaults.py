@@ -1,8 +1,8 @@
 import math, re, os, platform, warnings
 import pathdata
 
-version = "SVGFig 2.0.0alpha1"
-version_info = (2, 0, 0, "alpha1")
+version = "SVGFig 2.0.0alpha2"
+version_info = (2, 0, 0, "alpha2")
 
 ############################### default filenames 
 

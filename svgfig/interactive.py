@@ -5,10 +5,9 @@ import defaults, svg, glyphs, trans, pathdata, curve, plot
 # (Though the user can still access them, it intentionally requires more typing)
 # Internal class members are preceeded by an underscore
 
-from svg import SVG, template, load, load_stream, rgb, randomid
-from glyphs import uni
+from svg import SVG, template, load, load_stream, rgb, randomid, shortcut
+from glyphs import latex
 from trans import clone, tonumber, transform, evaluate, Delay, Freeze, Pin, window, rotation, transformation_angle, transformation_jacobian
 from pathdata import poly, bezier, velocity, foreback, smooth
 from curve import Curve, format_number, unicode_number, ticks, logticks
-from plot import Fig
-
+from plot import Fig, Canvas
