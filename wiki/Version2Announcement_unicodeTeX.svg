@@ -1,0 +1,6 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="70" height="10" viewBox="0, 0, 70, 10" font-family="Helvetica, Arial, FreeSans, Sans, sans, sans-serif" style="font-size:4px; stroke-width:0.5pt; text-anchor:middle" version="1.1" xmax="100" xmin="-100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ymax="20" ymin="-20" >
+    <text x="35.0" y="5.0" stroke="none" fill="black" >ℏ → 0 limit ⇒ everything → ∞</text>
+</svg>
