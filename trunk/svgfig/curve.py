@@ -115,6 +115,7 @@ class Curve(svg.SVG):
     mostdict = copy.copy(self.__dict__)
     del mostdict["trans"]
     del mostdict["f"]
+    if "repr" in mostdict: del mostdict["repr"]
     output = new.instance(self.__class__)
     output.__dict__ = copy.deepcopy(mostdict, memo)
     output.__dict__["trans"] = copy.copy(self.trans)
@@ -140,7 +141,7 @@ class Curve(svg.SVG):
     return "<%s %s from %g to %g%s%s%s>" % (self.__class__.__name__, self.f, self.low, self.high, marks, trans, attrib)
 
   ### transformation is like Delay
-  def transform(self, trans): self.trans.append(svg.cannonical_transformation(trans))
+  def transform(self, t): self.trans.append(svg.cannonical_transformation(t))
 
   def bbox(self): return pathdata.bbox(self.d())
 

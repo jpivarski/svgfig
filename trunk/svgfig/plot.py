@@ -1,6 +1,8 @@
 import math, cmath, copy, new, sys
 import defaults, svg, glyphs, trans, curve
 
+############################### class Fig
+
 class Fig(trans.Delay):
   xmin = None
   xmax = None
@@ -12,9 +14,11 @@ class Fig(trans.Delay):
   y = 10.
   width = 80.
   height = 80.
+  flipx = False
+  flipy = False
   clip = False
 
-  _varlist = ["xmin", "xmax", "ymin", "ymax", "xlogbase", "ylogbase", "x", "y", "width", "height", "clip"]
+  _varlist = ["xmin", "xmax", "ymin", "ymax", "xlogbase", "ylogbase", "x", "y", "width", "height", "flipx", "flipy", "clip"]
 
   def __init__(self, *args, **kwds):
     trans.Delay.__init__(self, *args, **kwds)
@@ -36,12 +40,12 @@ class Fig(trans.Delay):
     if self.clip: clip = " clip"
     return "<Fig (%d child%s) xmin=%s xmax=%s ymin=%s ymax=%s%s>" % (len(self.children), ren, self.xmin, self.xmax, self.ymin, self.ymax, clip)
 
-  def transform(self, trans):
-    trans = svg.cannonical_transformation(trans)
-    x1, y1 = trans(svg.x, svg.y)
-    x2, y2 = trans(svg.x + svg.width, svg.y + svg.height)
-    svg.x, svg.y = x1, y1
-    svg.width, svg.height = x2 - x1, y2 - y1
+  def transform(self, t):
+    t = svg.cannonical_transformation(t)
+    x1, y1 = t(self.x, self.y)
+    x2, y2 = t(self.x + self.width, self.y + self.height)
+    self.x, self.y = x1, y1
+    self.width, self.height = x2 - x1, y2 - y1
 
   def bbox(self): return defaults.BBox(self.x, self.x + self.width, self.y, self.y + self.height)
 
@@ -52,7 +56,7 @@ class Fig(trans.Delay):
                                 x=self.x, y=self.y, width=self.width, height=self.height,
                                 xlogbase=self.xlogbase, ylogbase=self.ylogbase,
                                 minusInfinityX=(self.x - 10.*self.width), minusInfinityY=(self.y - 10.*self.height),
-                                flipy=True)
+                                flipx=self.flipx, flipy=self.flipy)
     else:
       self.fit()
 
@@ -97,6 +101,7 @@ class Fig(trans.Delay):
   def __deepcopy__(self, memo={}):
     mostdict = copy.copy(self.__dict__)
     del mostdict["trans"]
+    if "repr" in mostdict: del mostdict["repr"]
     output = new.instance(self.__class__)
     output.__dict__ = copy.deepcopy(mostdict, memo)
     output.__dict__["trans"] = self.trans
@@ -118,7 +123,28 @@ class Fig(trans.Delay):
                               x=self.x, y=self.y, width=self.width, height=self.height,
                               xlogbase=self.xlogbase, ylogbase=self.ylogbase,
                               minusInfinityX=(self.x - 10.*self.width), minusInfinityY=(self.y - 10.*self.height),
-                              flipy=True)
+                              flipx=self.flipx, flipy=self.flipy)
     
+############################### class Canvas
 
+class Canvas(Fig):
+  x = 0.
+  y = 0.
 
+  def __init__(self, width, height, *args, **kwds):
+    Fig.__init__(self, *args, **kwds)
+    self.width = width
+    self.height = height
+    self._tag = "svg"
+
+  def __repr__(self):
+    ren = "ren"
+    if len(self.children) == 1: ren = ""
+    return "<Canvas (%d child%s) width=%g height=%g xmin=%s xmax=%s ymin=%s ymax=%s>" % (len(self.children), ren, self.width, self.height, self.xmin, self.xmax, self.ymin, self.ymax)
+
+  def svg(self):
+    Fig.svg(self)
+    output = self._svg
+    self._svg = svg.SVG("svg", self.width, self.height, [0, 0, self.width, self.height])
+    self._svg.__dict__["children"] = output.children
+    self._svg.__dict__["attrib"].update(output.attrib)

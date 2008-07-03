@@ -14,6 +14,8 @@ def rgb(r, g, b, maximum=1.):
 
 ############################### class SVG
 
+def shortcut(tag): return eval("lambda *args, **kwds: SVG(\"%s\", *args, **kwds)" % tag)
+
 class SVG:
   def _preprocess_attribname(self, name):
     name_colon = re.sub("__", ":", name)
@@ -72,18 +74,18 @@ class SVG:
     for child in self.children:
       if isinstance(child, SVG): child.tonumber()
 
-  def transform(self, trans):
-    trans = cannonical_transformation(trans)
+  def transform(self, t):
+    t = cannonical_transformation(t)
 
     if self.tag is not None:
       tonumber_tag = getattr(defaults, "tonumber_%s" % self.tag, None)
       if tonumber_tag is not None: tonumber_tag(self)
 
       transform_tag = getattr(defaults, "transform_%s" % self.tag, None)
-      if transform_tag is not None: transform_tag(trans, self)
+      if transform_tag is not None: transform_tag(t, self)
 
     for child in self.children:
-      if isinstance(child, SVG): child.transform(trans)
+      if isinstance(child, SVG): child.transform(t)
 
   def bbox(self):
     if self.tag is not None:
@@ -307,10 +309,10 @@ class SVG:
   ### convert to XML, view, and save
   def xml(self, indent=u"    ", newl=u"\n"):
     # need a parent node
-    if self.tag != "svg":
-      svg = SVG("svg")(self)
-    else:
+    if self.tag == "svg" or "_tag" in self.__dict__ and self._tag == "svg":
       svg = self
+    else:
+      svg = SVG("svg")(self)
 
     output = [defaults.xml_header] + svg_to_xml(svg, indent) + [u""]
     return unicode(newl.join(output))
@@ -353,17 +355,14 @@ class SVG:
   def inkview(self, fileName=None, encoding="utf-8"):
     fileName = self._write_tempfile(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkview", ("inkview", fileName))
-    saved.append(fileName)
 
   def inkscape(self, fileName=None, encoding="utf-8"):
     fileName = self._write_tempfile(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "inkscape", ("inkscape", fileName))
-    saved.append(fileName)
 
   def firefox(self, fileName=None, encoding="utf-8"):
     fileName = self._write_tempfile(fileName, encoding)
     os.spawnvp(os.P_NOWAIT, "firefox", ("firefox", fileName))
-    saved.append(fileName)
 
   ### pickleability and value-based equality
   def __getstate__(self):
@@ -390,6 +389,7 @@ class SVG:
   def __deepcopy__(self, memo={}):
     output = new.instance(self.__class__)
     output.__dict__ = copy.deepcopy(self.__dict__, memo)
+    if "repr" in output.__dict__: del output.__dict__["repr"]
     memo[id(self)] = output
     return output
 

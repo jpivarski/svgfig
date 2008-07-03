@@ -13,7 +13,8 @@ def tonumber(obj):
   return obj
 
 def transform(trans, obj):
-  trans = svg.cannonical_transformation(trans)
+  if isinstance(trans, basestring):
+    trans = svg.cannonical_transformation(trans)
 
   obj = copy.deepcopy(obj)
   if callable(trans):
@@ -113,10 +114,10 @@ class Delay(svg.SVG):
   def __deepcopy__(self, memo={}):
     mostdict = copy.copy(self.__dict__)
     del mostdict["trans"]
+    if "repr" in mostdict: del mostdict["repr"]
     output = new.instance(self.__class__)
     output.__dict__ = copy.deepcopy(mostdict, memo)
     output.__dict__["trans"] = copy.copy(self.trans)
-
     memo[id(self)] = output
     return output
 
