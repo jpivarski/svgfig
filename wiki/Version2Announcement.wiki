@@ -7,9 +7,7 @@ In principle, SVGFig is supposed to be general and flexible enough to have a bas
 
 == SVGFig 2.0.0alpha2 ==
 
-_(Writing this documentation has revealed a number of bugs, so 2.0.0alpha1 is known to be broken.  These changes are in the SVN repository, continually updated.  When the documentation is done, I'll release a new snapshot as 2.0.0alpha2.)_
-
-To download, click here: [http://svgfig.googlecode.com/files/svgfig-2.0.0alpha2.tgz svgfig-2.0.0alpha2.tgz] _(doesn't yet exist: don't click!)_
+To download, click here: [http://svgfig.googlecode.com/files/svgfig-2.0.0alpha2.tgz svgfig-2.0.0alpha2.tgz]
 
 As the name implies, this is not a stable release, but something to show curious onlookers what's happening.  I'll assume that the reader is already familiar with [Introduction SVGFig 1.x].
 
