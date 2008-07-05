@@ -1,0 +1,39 @@
+<docs>
+
+<class module="svg" name="SVG">
+<arg name="tag" d="SVG element type" />
+<arg name="child, ..." default="optional" d="list of children" />
+
+hello
+
+<code>
+hey
+</code>
+and then?
+
+<method name="firefox">
+stuff
+</method>
+
+<member name="x">
+wow
+</member>
+
+</class>
+
+<class module="curve" name="Curve">
+
+<method name="bbox" />
+
+<member name="marks" />
+
+<member name="notreally" />
+
+</class>
+
+
+<group name="paths" summary="Functions for constructing paths">
+Some nice functions here
+</group>
+
+</docs>

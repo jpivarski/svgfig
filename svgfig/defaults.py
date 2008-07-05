@@ -17,7 +17,7 @@ if re.search("windows", platform.system(), re.I):
   except:
     directory = os.path.expanduser("~") + os.sep + "Desktop"
 
-def expand_fileName(fileName):
+def _expand_fileName(fileName):
   if re.search("windows", platform.system(), re.I) and not os.path.isabs(fileName):
     fileName = defaults.directory + os.sep + fileName
   return fileName

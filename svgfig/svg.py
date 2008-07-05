@@ -322,7 +322,7 @@ class SVG:
     _viewer.str(self.xml())
 
   def save(self, fileName, encoding="utf-8", compresslevel=None):
-    fileName = defaults.expand_fileName(fileName)
+    fileName = defaults._expand_fileName(fileName)
 
     if compresslevel is not None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
       import gzip
@@ -347,7 +347,7 @@ class SVG:
       fd, fileName = tempfile.mkstemp(".svg", "svgfig-")
       os.close(fd)
     else:
-      fileName = defaults.expand_fileName(fileName)
+      fileName = defaults._expand_fileName(fileName)
 
     self.save(fileName, encoding)
     return fileName
