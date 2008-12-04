@@ -236,7 +236,7 @@ class SVG:
 
             if not isinstance(self.svg, SVG):
                 raise StopIteration
-            if self.depth_limit != None and len(self.ti) >= self.depth_limit:
+            if self.depth_limit is not None and len(self.ti) >= self.depth_limit:
                 raise StopIteration
 
             if "iterators" not in self.__dict__:
@@ -367,7 +367,7 @@ class SVG:
         if len(self.sub) == 0:
             return "%s<%s%s />" % (indent * depth, self.t, attrstr)
 
-        if depth_limit == None or depth_limit > depth:
+        if depth_limit is None or depth_limit > depth:
             substr = []
             for s in self.sub:
                 if isinstance(s, SVG):
@@ -434,7 +434,7 @@ class SVG:
         return output
 
     def interpret_fileName(self, fileName=None):
-        if fileName == None:
+        if fileName is None:
             fileName = _default_fileName
         if re.search("windows", platform.system(), re.I) and not os.path.isabs(fileName):
             fileName = _default_directory + os.sep + fileName
@@ -453,9 +453,9 @@ class SVG:
         """
         fileName = self.interpret_fileName(fileName)
 
-        if compresslevel != None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
+        if compresslevel is not None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
             import gzip
-            if compresslevel == None:
+            if compresslevel is None:
                 f = gzip.GzipFile(fileName, "w")
             else:
                 f = gzip.GzipFile(fileName, "w", compresslevel)
@@ -545,7 +545,7 @@ def canvas(*sub, **attr):
     attributes = dict(_canvas_defaults)
     attributes.update(attr)
 
-    if sub == None or sub == ():
+    if sub is None or sub == ():
         return SVG("svg", **attributes)
     else:
         return SVG("svg", *sub, **attributes)
@@ -555,7 +555,7 @@ def canvas_outline(*sub, **attr):
     so that you know how close your image is to the edges."""
     svg = canvas(*sub, **attr)
     match = re.match("[, \t]*([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]*", svg["viewBox"])
-    if match == None:
+    if match is None:
         raise ValueError, "canvas viewBox is incorrectly formatted"
     x, y, width, height = [float(x) for x in match.groups()]
     svg.prepend(SVG("rect", x=x, y=y, width=width, height=height, stroke="none", fill="cornsilk"))
@@ -613,7 +613,7 @@ def load_stream(stream):
             self.stack.append(s)
 
         def characters(self, ch):
-            if not isinstance(ch, basestring) or self.all_whitespace.match(ch) == None:
+            if not isinstance(ch, basestring) or self.all_whitespace.match(ch) is None:
                 if len(self.stack) > 0:
                     last = self.stack[-1]
                     if len(last.sub) > 0 and isinstance(last.sub[-1], basestring):
@@ -669,7 +669,7 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
 
     if len(vars) == 2:
         g = math.__dict__
-        if globals != None:
+        if globals is not None:
             g.update(globals)
         output = eval("lambda %s, %s: (%s)" % (vars[0], vars[1], expr), g, locals)
         output.func_name = "%s,%s -> %s" % (vars[0], vars[1], expr)
@@ -677,7 +677,7 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
 
     elif len(vars) == 1:
         g = cmath.__dict__
-        if globals != None:
+        if globals is not None:
             g.update(globals)
         output = eval("lambda %s: (%s)" % (vars[0], expr), g, locals)
         split = lambda z: (z.real, z.imag)
@@ -724,10 +724,10 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100,
     ix2 = xmax
     iy2 = ymax
 
-    if xlogbase != None and (ix1 <= 0. or ix2 <= 0.):
+    if xlogbase is not None and (ix1 <= 0. or ix2 <= 0.):
         raise ValueError, "x range incompatible with log scaling: (%g, %g)" % (ix1, ix2)
 
-    if ylogbase != None and (iy1 <= 0. or iy2 <= 0.):
+    if ylogbase is not None and (iy1 <= 0. or iy2 <= 0.):
         raise ValueError, "y range incompatible with log scaling: (%g, %g)" % (iy1, iy2)
 
     def maybelog(t, it1, it2, ot1, ot2, logbase):
@@ -738,13 +738,13 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100,
 
     xlogstr, ylogstr = "", ""
 
-    if xlogbase == None:
+    if xlogbase is None:
         xfunc = lambda x: ox1 + 1.*(x - ix1)/(ix2 - ix1) * (ox2 - ox1)
     else:
         xfunc = lambda x: maybelog(x, ix1, ix2, ox1, ox2, xlogbase)
         xlogstr = " xlog=%g" % xlogbase
 
-    if ylogbase == None:
+    if ylogbase is None:
         yfunc = lambda y: oy1 + 1.*(y - iy1)/(iy2 - iy1) * (oy2 - oy1)
     else:
         yfunc = lambda y: maybelog(y, iy1, iy2, oy1, oy2, ylogbase)
@@ -788,7 +788,7 @@ class Fig:
     """
 
     def __repr__(self):
-        if self.trans == None:
+        if self.trans is None:
             return "<Fig (%d items)>" % len(self.d)
         elif isinstance(self.trans, basestring):
             return "<Fig (%d items) x,y -> %s>" % (len(self.d), self.trans)
@@ -811,7 +811,7 @@ class Fig:
         Coordinate transformations in nested Figs will be composed.
         """
 
-        if trans == None:
+        if trans is None:
             trans = self.trans
         if isinstance(trans, basestring):
             trans = totrans(trans)
@@ -826,16 +826,16 @@ class Fig:
                 if isinstance(strans, basestring):
                     strans = totrans(strans)
 
-                if trans == None:
+                if trans is None:
                     subtrans = strans
-                elif strans == None:
+                elif strans is None:
                     subtrans = trans
                 else:
                     subtrans = lambda x,y: trans(*strans(x, y))
 
                 output.sub += s.SVG(subtrans).sub
 
-            elif s == None:
+            elif s is None:
                 pass
 
             else:
@@ -879,7 +879,7 @@ class Plot:
     """
 
     def __repr__(self):
-        if self.trans == None:
+        if self.trans is None:
             return "<Plot (%d items)>" % len(self.d)
         else:
             return "<Plot (%d items) %s>" % (len(self.d), self.trans.func_name)
@@ -925,7 +925,7 @@ class Plot:
 
     def SVG(self, trans=None):
         """Apply the transformation "trans" and return an SVG object."""
-        if trans == None:
+        if trans is None:
             trans = self.trans
         if isinstance(trans, basestring):
             trans = totrans(trans)
@@ -1080,9 +1080,9 @@ class Frame:
         output.prepend(right.SVG(self.last_window))
         output.prepend(top.SVG(self.last_window))
 
-        if self.xtitle != None:
+        if self.xtitle is not None:
             output.append(SVG("text", self.xtitle, transform="translate(%g, %g)" % ((self.x + self.width/2.), (self.y + self.height + self.text_xtitle_offset)), dominant_baseline="text-before-edge", **self.text_attr))
-        if self.ytitle != None:
+        if self.ytitle is not None:
             output.append(SVG("text", self.ytitle, transform="translate(%g, %g) rotate(-90)" % ((self.x - self.text_ytitle_offset), (self.y + self.height/2.)), **self.text_attr))
         return output
 
@@ -1215,7 +1215,7 @@ class Path:
             command, index, pathdata = self.parse_command(index, pathdata)
             index, pathdata = self.parse_whitespace(index, pathdata)
 
-            if command == None and index == len(pathdata):
+            if command is None and index == len(pathdata):
                 break  # this is the normal way out of the loop
             if command in ("Z", "z"):
                 output.append((command,))
@@ -1224,10 +1224,10 @@ class Path:
             elif command in ("H", "h", "V", "v"):
                 errstring = "Path command \"%s\" requires a number at index %d" % (command, index)
                 num1, index, pathdata = self.parse_number(index, pathdata)
-                if num1 == None:
+                if num1 is None:
                     raise ValueError, errstring
 
-                while num1 != None:
+                while num1 is not None:
                     output.append((command, num1))
                     num1, index, pathdata = self.parse_number(index, pathdata)
 
@@ -1237,11 +1237,11 @@ class Path:
                 num1, index, pathdata = self.parse_number(index, pathdata)
                 num2, index, pathdata = self.parse_number(index, pathdata)
 
-                if num1 == None:
+                if num1 is None:
                     raise ValueError, errstring
 
-                while num1 != None:
-                    if num2 == None:
+                while num1 is not None:
+                    if num2 is None:
                         raise ValueError, errstring
                     output.append((command, num1, num2, False))
 
@@ -1256,11 +1256,11 @@ class Path:
                 num3, index, pathdata = self.parse_number(index, pathdata)
                 num4, index, pathdata = self.parse_number(index, pathdata)
 
-                if num1 == None:
+                if num1 is None:
                     raise ValueError, errstring
 
-                while num1 != None:
-                    if num2 == None or num3 == None or num4 == None:
+                while num1 is not None:
+                    if num2 is None or num3 is None or num4 is None:
                         raise ValueError, errstring
                     output.append((command, num1, num2, False, num3, num4, False))
 
@@ -1279,11 +1279,11 @@ class Path:
                 num5, index, pathdata = self.parse_number(index, pathdata)
                 num6, index, pathdata = self.parse_number(index, pathdata)
 
-                if num1 == None:
+                if num1 is None:
                     raise ValueError, errstring
 
-                while num1 != None:
-                    if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None:
+                while num1 is not None:
+                    if num2 is None or num3 is None or num4 is None or num5 is None or num6 is None:
                         raise ValueError, errstring
 
                     output.append((command, num1, num2, False, num3, num4, False, num5, num6, False))
@@ -1306,11 +1306,11 @@ class Path:
                 num6, index, pathdata = self.parse_number(index, pathdata)
                 num7, index, pathdata = self.parse_number(index, pathdata)
 
-                if num1 == None:
+                if num1 is None:
                     raise ValueError, errstring
 
-                while num1 != None:
-                    if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None or num7 == None:
+                while num1 is not None:
+                    if num2 is None or num3 is None or num4 is None or num5 is None or num6 is None or num7 is None:
                         raise ValueError, errstring
 
                     output.append((command, num1, num2, False, num3, num4, num5, num6, num7, False))
@@ -1347,16 +1347,16 @@ class Path:
             elif command in ("H", "h", "V", "v"):
                 command, num1 = datum
 
-                if command == "H" or (command == "h" and x == None):
+                if command == "H" or (command == "h" and x is None):
                     x = num1
                 elif command == "h":
                     x += num1
-                elif command == "V" or (command == "v" and y == None):
+                elif command == "V" or (command == "v" and y is None):
                     y = num1
                 elif command == "v":
                     y += num1
 
-                if trans == None:
+                if trans is None:
                     X, Y = x, y
                 else:
                     X, Y = trans(x, y)
@@ -1367,8 +1367,8 @@ class Path:
             elif command in ("M", "m", "L", "l", "T", "t"):
                 command, num1, num2, isglobal12 = datum
 
-                if trans == None or isglobal12:
-                    if command.isupper() or X == None or Y == None:
+                if trans is None or isglobal12:
+                    if command.isupper() or X is None or Y is None:
                         X, Y = num1, num2
                     else:
                         X += num1
@@ -1376,7 +1376,7 @@ class Path:
                     x, y = X, Y
 
                 else:
-                    if command.isupper() or x == None or y == None:
+                    if command.isupper() or x is None or y is None:
                         x, y = num1, num2
                     else:
                         x += num1
@@ -1390,23 +1390,23 @@ class Path:
             elif command in ("S", "s", "Q", "q"):
                 command, num1, num2, isglobal12, num3, num4, isglobal34 = datum
 
-                if trans == None or isglobal12:
-                    if command.isupper() or X == None or Y == None:
+                if trans is None or isglobal12:
+                    if command.isupper() or X is None or Y is None:
                         CX, CY = num1, num2
                     else:
                         CX = X + num1
                         CY = Y + num2
 
                 else:
-                    if command.isupper() or x == None or y == None:
+                    if command.isupper() or x is None or y is None:
                         cx, cy = num1, num2
                     else:
                         cx = x + num1
                         cy = y + num2
                     CX, CY = trans(cx, cy)
 
-                if trans == None or isglobal34:
-                    if command.isupper() or X == None or Y == None:
+                if trans is None or isglobal34:
+                    if command.isupper() or X is None or Y is None:
                         X, Y = num3, num4
                     else:
                         X += num3
@@ -1414,7 +1414,7 @@ class Path:
                     x, y = X, Y
 
                 else:
-                    if command.isupper() or x == None or y == None:
+                    if command.isupper() or x is None or y is None:
                         x, y = num3, num4
                     else:
                         x += num3
@@ -1428,38 +1428,38 @@ class Path:
             elif command in ("C", "c"):
                 command, num1, num2, isglobal12, num3, num4, isglobal34, num5, num6, isglobal56 = datum
 
-                if trans == None or isglobal12:
-                    if command.isupper() or X == None or Y == None:
+                if trans is None or isglobal12:
+                    if command.isupper() or X is None or Y is None:
                         C1X, C1Y = num1, num2
                     else:
                         C1X = X + num1
                         C1Y = Y + num2
 
                 else:
-                    if command.isupper() or x == None or y == None:
+                    if command.isupper() or x is None or y is None:
                         c1x, c1y = num1, num2
                     else:
                         c1x = x + num1
                         c1y = y + num2
                     C1X, C1Y = trans(c1x, c1y)
 
-                if trans == None or isglobal34:
-                    if command.isupper() or X == None or Y == None:
+                if trans is None or isglobal34:
+                    if command.isupper() or X is None or Y is None:
                         C2X, C2Y = num3, num4
                     else:
                         C2X = X + num3
                         C2Y = Y + num4
 
                 else:
-                    if command.isupper() or x == None or y == None:
+                    if command.isupper() or x is None or y is None:
                         c2x, c2y = num3, num4
                     else:
                         c2x = x + num3
                         c2y = y + num4
                     C2X, C2Y = trans(c2x, c2y)
 
-                if trans == None or isglobal56:
-                    if command.isupper() or X == None or Y == None:
+                if trans is None or isglobal56:
+                    if command.isupper() or X is None or Y is None:
                         X, Y = num5, num6
                     else:
                         X += num5
@@ -1467,7 +1467,7 @@ class Path:
                     x, y = X, Y
 
                 else:
-                    if command.isupper() or x == None or y == None:
+                    if command.isupper() or x is None or y is None:
                         x, y = num5, num6
                     else:
                         x += num5
@@ -1484,8 +1484,8 @@ class Path:
                 oldx, oldy = x, y
                 OLDX, OLDY = X, Y
 
-                if trans == None or isglobal34:
-                    if command.isupper() or X == None or Y == None:
+                if trans is None or isglobal34:
+                    if command.isupper() or X is None or Y is None:
                         X, Y = num3, num4
                     else:
                         X += num3
@@ -1493,18 +1493,18 @@ class Path:
                     x, y = X, Y
 
                 else:
-                    if command.isupper() or x == None or y == None:
+                    if command.isupper() or x is None or y is None:
                         x, y = num3, num4
                     else:
                         x += num3
                         y += num4
                     X, Y = trans(x, y)
 
-                if x != None and y != None:
+                if x is not None and y is not None:
                     centerx, centery = (x + oldx)/2., (y + oldy)/2.
                 CENTERX, CENTERY = (X + OLDX)/2., (Y + OLDY)/2.
 
-                if trans == None or isglobal12:
+                if trans is None or isglobal12:
                     RX = CENTERX + num1
                     RY = CENTERY + num2
 
@@ -1518,8 +1518,8 @@ class Path:
 
             elif command in (",", "."):
                 command, num1, num2, isglobal12, angle, num3, num4, isglobal34 = datum
-                if trans == None or isglobal34:
-                    if command == "." or X == None or Y == None:
+                if trans is None or isglobal34:
+                    if command == "." or X is None or Y is None:
                         X, Y = num3, num4
                     else:
                         X += num3
@@ -1527,14 +1527,14 @@ class Path:
                         x, y = None, None
 
                 else:
-                    if command == "." or x == None or y == None:
+                    if command == "." or x is None or y is None:
                         x, y = num3, num4
                     else:
                         x += num3
                         y += num4
                     X, Y = trans(x, y)
 
-                if trans == None or isglobal12:
+                if trans is None or isglobal12:
                     RX = X + num1
                     RY = Y + num2
 
@@ -1567,7 +1567,7 @@ def funcRtoC(expr, var="t", globals=None, locals=None):
     locals  default=None    dict of local variables
     """
     g = cmath.__dict__
-    if globals != None:
+    if globals is not None:
         g.update(globals)
     output = eval("lambda %s: (%s)" % (var, expr), g, locals)
     split = lambda z: (z.real, z.imag)
@@ -1586,7 +1586,7 @@ def funcRtoR2(expr, var="t", globals=None, locals=None):
     locals  default=None    dict of local variables
     """
     g = math.__dict__
-    if globals != None:
+    if globals is not None:
         g.update(globals)
     output = eval("lambda %s: (%s)" % (var, expr), g, locals)
     output.func_name = "%s -> %s" % (var, expr)
@@ -1603,7 +1603,7 @@ def funcRtoR(expr, var="x", globals=None, locals=None):
     locals  default=None    dict of local variables
     """
     g = math.__dict__
-    if globals != None:
+    if globals is not None:
         g.update(globals)
     output = eval("lambda %s: (%s, %s)" % (var, var, expr), g, locals)
     output.func_name = "%s -> %s" % (var, expr)
@@ -1643,15 +1643,15 @@ class Curve:
     class Sample:
         def __repr__(self):
             t, x, y, X, Y = self.t, self.x, self.y, self.X, self.Y
-            if t != None:
+            if t is not None:
                 t = "%g" % t
-            if x != None:
+            if x is not None:
                 x = "%g" % x
-            if y != None:
+            if y is not None:
                 y = "%g" % y
-            if X != None:
+            if X is not None:
                 X = "%g" % X
-            if Y != None:
+            if Y is not None:
                 Y = "%g" % Y
             return "<Curve.Sample t=%s x=%s y=%s X=%s Y=%s>" % (t, x, y, X, Y)
 
@@ -1663,7 +1663,7 @@ class Curve:
 
         def evaluate(self, f, trans):
             self.x, self.y = f(self.t)
-            if trans == None:
+            if trans is None:
                 self.X, self.Y = self.x, self.y
             else:
                 self.X, self.Y = trans(self.x, self.y)
@@ -1680,7 +1680,7 @@ class Curve:
         def __len__(self):
             count = 0
             current = self.left
-            while current != None:
+            while current is not None:
                 count += 1
                 current = current.right
             return count
@@ -1691,7 +1691,7 @@ class Curve:
 
         def next(self):
             current = self.current
-            if current == None:
+            if current is None:
                 raise StopIteration
             self.current = self.current.right
             return current
@@ -1719,14 +1719,14 @@ class Curve:
 
             # Prune excess points where the curve is nearly linear
             left = low
-            while left.right != None:
+            while left.right is not None:
                 # increment mid and right
                 mid = left.right
                 right = mid.right
-                if (right != None and
-                    left.X != None and left.Y != None and
-                    mid.X != None and mid.Y != None and
-                    right.X != None and right.Y != None):
+                if (right is not None and
+                    left.X is not None and left.Y is not None and
+                    mid.X is not None and mid.Y is not None and
+                    right.X is not None and right.Y is not None):
                     numer = left.X*(right.Y - mid.Y) + mid.X*(left.Y - right.Y) + right.X*(mid.Y - left.Y)
                     denom = math.sqrt((left.X - right.X)**2 + (left.Y - right.Y)**2)
                     if denom != 0. and abs(numer/denom) < self.linearity_limit:
@@ -1796,8 +1796,8 @@ class Curve:
 
         output = []
         for s in self.last_samples:
-            if s.X != None and s.Y != None:
-                if s.left == None or s.left.Y == None:
+            if s.X is not None and s.Y is not None:
+                if s.left is None or s.left.Y is None:
                     command = "M"
                 else:
                     command = "L"
@@ -1910,7 +1910,7 @@ class Poly:
 
             x, y = self.d[i][0], self.d[i][1]
 
-            if trans == None:
+            if trans is None:
                 X, Y = x, y
             else:
                 X, Y = trans(x, y)
@@ -1929,13 +1929,13 @@ class Poly:
 
             elif mode == "B":
                 c1x, c1y = self.d[i][2], self.d[i][3]
-                if trans == None:
+                if trans is None:
                     C1X, C1Y = c1x, c1y
                 else:
                     C1X, C1Y = trans(c1x, c1y)
 
                 c2x, c2y = self.d[i][4], self.d[i][5]
-                if trans == None:
+                if trans is None:
                     C2X, C2Y = c2x, c2y
                 else:
                     C2X, C2Y = trans(c2x, c2y)
@@ -1949,11 +1949,11 @@ class Poly:
                 c1x, c1y = self.d[iprev][2]/3. + self.d[iprev][0], self.d[iprev][3]/3. + self.d[iprev][1]
                 c2x, c2y = self.d[i][2]/-3. + x, self.d[i][3]/-3. + y
 
-                if trans == None:
+                if trans is None:
                     C1X, C1Y = c1x, c1y
                 else:
                     C1X, C1Y = trans(c1x, c1y)
-                if trans == None:
+                if trans is None:
                     C2X, C2Y = c2x, c2y
                 else:
                     C2X, C2Y = trans(c2x, c2y)
@@ -1967,11 +1967,11 @@ class Poly:
                 c1x, c1y = self.d[iprev][4]/3. + self.d[iprev][0], self.d[iprev][5]/3. + self.d[iprev][1]
                 c2x, c2y = self.d[i][2]/-3. + x, self.d[i][3]/-3. + y
 
-                if trans == None:
+                if trans is None:
                     C1X, C1Y = c1x, c1y
                 else:
                     C1X, C1Y = trans(c1x, c1y)
-                if trans == None:
+                if trans is None:
                     C2X, C2Y = c2x, c2y
                 else:
                     C2X, C2Y = trans(c2x, c2y)
@@ -1985,11 +1985,11 @@ class Poly:
                 c1x, c1y = vx[iprev]/3. + self.d[iprev][0], vy[iprev]/3. + self.d[iprev][1]
                 c2x, c2y = vx[i]/-3. + x, vy[i]/-3. + y
 
-                if trans == None:
+                if trans is None:
                     C1X, C1Y = c1x, c1y
                 else:
                     C1X, C1Y = trans(c1x, c1y)
-                if trans == None:
+                if trans is None:
                     C2X, C2Y = c2x, c2y
                 else:
                     C2X, C2Y = trans(c2x, c2y)
@@ -2032,7 +2032,7 @@ class Text:
             trans = totrans(trans)
 
         X, Y = self.x, self.y
-        if trans != None:
+        if trans is not None:
             X, Y = trans(X, Y)
         return SVG("text", self.d, x=X, y=Y, **self.attr)
 
@@ -2108,7 +2108,7 @@ class Dots:
         self.attr = dict(self.defaults)
         self.attr.update(attr)
 
-        if symbol == None:
+        if symbol is None:
             self.symbol = _circular_dot
         elif isinstance(symbol, SVG):
             self.symbol = symbol
@@ -2126,15 +2126,15 @@ class Dots:
         for p in self.d:
             x, y = p[0], p[1]
 
-            if trans == None:
+            if trans is None:
                 X, Y = x, y
             else:
                 X, Y = trans(x, y)
 
             item = SVG("use", x=X, y=Y, xlink__href=id)
-            if self.width != None:
+            if self.width is not None:
                 item["width"] = self.width
-            if self.height != None:
+            if self.height is not None:
                 item["height"] = self.height
             output.append(item)
 
@@ -2192,11 +2192,11 @@ class Line(Curve):
 
         line = self.Path(trans).SVG()
 
-        if ((self.arrow_start != False and self.arrow_start != None) or
-            (self.arrow_end != False and self.arrow_end != None)):
+        if ((self.arrow_start != False and self.arrow_start is not None) or
+            (self.arrow_end != False and self.arrow_end is not None)):
             defs = SVG("defs")
 
-            if self.arrow_start != False and self.arrow_start != None:
+            if self.arrow_start != False and self.arrow_start is not None:
                 if isinstance(self.arrow_start, SVG):
                     defs.append(self.arrow_start)
                     line.attr["marker-start"] = "url(#%s)" % self.arrow_start["id"]
@@ -2206,7 +2206,7 @@ class Line(Curve):
                 else:
                     raise TypeError, "arrow_start must be False/None or an id string for the new marker"
 
-            if self.arrow_end != False and self.arrow_end != None:
+            if self.arrow_end != False and self.arrow_end is not None:
                 if isinstance(self.arrow_end, SVG):
                     defs.append(self.arrow_end)
                     line.attr["marker-end"] = "url(#%s)" % self.arrow_end["id"]
@@ -2229,7 +2229,7 @@ class Line(Curve):
         self.high = 1.
         self.loop = False
 
-        if trans == None:
+        if trans is None:
             return Path([("M", self.x1, self.y1, not local), ("L", self.x2, self.y2, not local)], **self.attr)
         else:
             return Curve.Path(self, trans, local)
@@ -2288,11 +2288,11 @@ class LineGlobal:
 
         line = SVG("path", d="M%s %s L%s %s" % (X1, Y1, X2, Y2), **self.attr)
 
-        if ((self.arrow_start != False and self.arrow_start != None) or
-            (self.arrow_end != False and self.arrow_end != None)):
+        if ((self.arrow_start != False and self.arrow_start is not None) or
+            (self.arrow_end != False and self.arrow_end is not None)):
             defs = SVG("defs")
 
-            if self.arrow_start != False and self.arrow_start != None:
+            if self.arrow_start != False and self.arrow_start is not None:
                 if isinstance(self.arrow_start, SVG):
                     defs.append(self.arrow_start)
                     line.attr["marker-start"] = "url(#%s)" % self.arrow_start["id"]
@@ -2302,7 +2302,7 @@ class LineGlobal:
                 else:
                     raise TypeError, "arrow_start must be False/None or an id string for the new marker"
 
-            if self.arrow_end != False and self.arrow_end != None:
+            if self.arrow_end != False and self.arrow_end is not None:
                 if isinstance(self.arrow_end, SVG):
                     defs.append(self.arrow_end)
                     line.attr["marker-end"] = "url(#%s)" % self.arrow_end["id"]
@@ -2405,7 +2405,7 @@ class Rect(Curve):
         """Apply the transformation "trans" and return a Path object in
         global coordinates.  If local=True, return a Path in local coordinates
         (which must be transformed again)."""
-        if trans == None:
+        if trans is None:
             return Path([("M", self.x1, self.y1, not local), ("L", self.x2, self.y1, not local), ("L", self.x2, self.y2, not local), ("L", self.x1, self.y2, not local), ("Z",)], **self.attr)
 
         else:
@@ -2623,7 +2623,7 @@ class Ticks:
         """
         if isinstance(trans, basestring):
             trans = totrans(trans)
-        if trans == None:
+        if trans is None:
             f = self.f
         else:
             f = lambda t: trans(*self.f(t))
@@ -2655,11 +2655,11 @@ class Ticks:
         minitickmarks = Path([], **self.attr)
         output = SVG("g")
 
-        if ((self.arrow_start != False and self.arrow_start != None) or
-            (self.arrow_end != False and self.arrow_end != None)):
+        if ((self.arrow_start != False and self.arrow_start is not None) or
+            (self.arrow_end != False and self.arrow_end is not None)):
             defs = SVG("defs")
 
-            if self.arrow_start != False and self.arrow_start != None:
+            if self.arrow_start != False and self.arrow_start is not None:
                 if isinstance(self.arrow_start, SVG):
                     defs.append(self.arrow_start)
                 elif isinstance(self.arrow_start, basestring):
@@ -2667,7 +2667,7 @@ class Ticks:
                 else:
                     raise TypeError, "arrow_start must be False/None or an id string for the new marker"
 
-            if self.arrow_end != False and self.arrow_end != None:
+            if self.arrow_end != False and self.arrow_end is not None:
                 if isinstance(self.arrow_end, SVG):
                     defs.append(self.arrow_end)
                 elif isinstance(self.arrow_end, basestring):
@@ -2728,7 +2728,7 @@ class Ticks:
         Normally only used internally.
         """
 
-        if self.labels == None or self.labels == False:
+        if self.labels is None or self.labels == False:
             format = lambda x: ""
 
         elif self.labels == True:
@@ -2746,7 +2746,7 @@ class Ticks:
         ticks = self.ticks
 
         # Case 1: ticks is None/False
-        if ticks == None or ticks == False:
+        if ticks is None or ticks == False:
             return {}, []
 
         # Case 2: ticks is the number of desired ticks
@@ -2754,14 +2754,14 @@ class Ticks:
             if ticks == True:
                 ticks = -10
 
-            if self.logbase == None:
+            if self.logbase is None:
                 ticks = self.compute_ticks(ticks, format)
             else:
                 ticks = self.compute_logticks(self.logbase, ticks, format)
 
             # Now for the miniticks
             if self.miniticks == True:
-                if self.logbase == None:
+                if self.logbase is None:
                     return ticks, self.compute_miniticks(ticks)
                 else:
                     return ticks, self.compute_logminiticks(self.logbase)
@@ -2772,7 +2772,7 @@ class Ticks:
             elif getattr(self.miniticks, "__iter__", False):
                 return ticks, self.miniticks
 
-            elif self.miniticks == False or self.miniticks == None:
+            elif self.miniticks == False or self.miniticks is None:
                 return ticks, []
 
             else:
@@ -2798,7 +2798,7 @@ class Ticks:
 
             # Now for the miniticks
             if self.miniticks == True:
-                if self.logbase == None:
+                if self.logbase is None:
                     return ticks, self.compute_miniticks(ticks)
                 else:
                     return ticks, self.compute_logminiticks(self.logbase)
@@ -2809,7 +2809,7 @@ class Ticks:
             elif getattr(self.miniticks, "__iter__", False):
                 return ticks, self.miniticks
 
-            elif self.miniticks == False or self.miniticks == None:
+            elif self.miniticks == False or self.miniticks is None:
                 return ticks, []
 
             else:
@@ -2875,7 +2875,7 @@ class Ticks:
                 trial[x] = label
 
             if int(highN)+1 - int(lowN) >= N:
-                if last_trial == None:
+                if last_trial is None:
                     v1, v2 = self.low, self.high
                     return {v1: format(v1), v2: format(v2)}
                 else:
@@ -3085,13 +3085,13 @@ class CurveAxis(Curve, Ticks):
         func = Curve.SVG(self, trans)
         ticks = Ticks.SVG(self, trans) # returns a <g />
 
-        if self.arrow_start != False and self.arrow_start != None:
+        if self.arrow_start != False and self.arrow_start is not None:
             if isinstance(self.arrow_start, basestring):
                 func.attr["marker-start"] = "url(#%s)" % self.arrow_start
             else:
                 func.attr["marker-start"] = "url(#%s)" % self.arrow_start.id
 
-        if self.arrow_end != False and self.arrow_end != None:
+        if self.arrow_end != False and self.arrow_end is not None:
             if isinstance(self.arrow_end, basestring):
                 func.attr["marker-end"] = "url(#%s)" % self.arrow_end
             else:
@@ -3147,12 +3147,12 @@ class LineAxis(Line, Ticks):
         Ticks.__init__(self, None, None, None, ticks, miniticks, labels, logbase, arrow_start, arrow_end, tattr, **attr)
 
     def interpret(self):
-        if self.exclude != None and not (isinstance(self.exclude, (tuple, list)) and len(self.exclude) == 2 and
-                                         isinstance(self.exclude[0], (int, long, float)) and isinstance(self.exclude[1], (int, long, float))):
+        if self.exclude is not None and not (isinstance(self.exclude, (tuple, list)) and len(self.exclude) == 2 and
+                                             isinstance(self.exclude[0], (int, long, float)) and isinstance(self.exclude[1], (int, long, float))):
             raise TypeError, "exclude must either be None or (low, high)"
 
         ticks, miniticks = Ticks.interpret(self)
-        if self.exclude == None:
+        if self.exclude is None:
             return ticks, miniticks
 
         ticks2 = {}
@@ -3173,13 +3173,13 @@ class LineAxis(Line, Ticks):
         self.low = self.start
         self.high = self.end
 
-        if self.arrow_start != False and self.arrow_start != None:
+        if self.arrow_start != False and self.arrow_start is not None:
             if isinstance(self.arrow_start, basestring):
                 line.attr["marker-start"] = "url(#%s)" % self.arrow_start
             else:
                 line.attr["marker-start"] = "url(#%s)" % self.arrow_start.id
 
-        if self.arrow_end != False and self.arrow_end != None:
+        if self.arrow_end != False and self.arrow_end is not None:
             if isinstance(self.arrow_end, basestring):
                 line.attr["marker-end"] = "url(#%s)" % self.arrow_end
             else:
@@ -3374,7 +3374,7 @@ class Axes:
         ymargin = 0.1 * abs(self.xmin - self.xmax)
         yexclude = aty - ymargin, aty + ymargin
 
-        if self.arrows != None and self.arrows != False:
+        if self.arrows is not None and self.arrows != False:
             xarrow_start = self.arrows + ".xstart"
             xarrow_end = self.arrows + ".xend"
             yarrow_start = self.arrows + ".ystart"

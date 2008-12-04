@@ -202,7 +202,7 @@ def parse(pathdata):
         command, index, pathdata = parse_command(index, pathdata)
         index, pathdata = parse_whitespace(index, pathdata)
 
-        if command == None and index == len(pathdata):
+        if command is None and index == len(pathdata):
             break  # this is the normal way out of the loop
         if command in ("Z", "z"):
             output.append((command,))
@@ -211,10 +211,10 @@ def parse(pathdata):
         elif command in ("H", "h", "V", "v"):
             errstring = "Pathdata command \"%s\" requires a number at index %d" % (command, index)
             num1, index, pathdata = parse_number(index, pathdata)
-            if num1 == None:
+            if num1 is None:
                 raise ValueError, errstring
 
-            while num1 != None:
+            while num1 is not None:
                 output.append((command, num1))
                 num1, index, pathdata = parse_number(index, pathdata)
 
@@ -224,11 +224,11 @@ def parse(pathdata):
             num1, index, pathdata = parse_number(index, pathdata)
             num2, index, pathdata = parse_number(index, pathdata)
 
-            if num1 == None:
+            if num1 is None:
                 raise ValueError, errstring
 
-            while num1 != None:
-                if num2 == None:
+            while num1 is not None:
+                if num2 is None:
                     raise ValueError, errstring
                 output.append((command, num1, num2))
 
@@ -243,11 +243,11 @@ def parse(pathdata):
             num3, index, pathdata = parse_number(index, pathdata)
             num4, index, pathdata = parse_number(index, pathdata)
 
-            if num1 == None:
+            if num1 is None:
                 raise ValueError, errstring
 
-            while num1 != None:
-                if num2 == None or num3 == None or num4 == None:
+            while num1 is not None:
+                if num2 is None or num3 is None or num4 is None:
                     raise ValueError, errstring
                 output.append((command, num1, num2, num3, num4))
 
@@ -266,11 +266,11 @@ def parse(pathdata):
             num5, index, pathdata = parse_number(index, pathdata)
             num6, index, pathdata = parse_number(index, pathdata)
 
-            if num1 == None:
+            if num1 is None:
                 raise ValueError, errstring
 
-            while num1 != None:
-                if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None:
+            while num1 is not None:
+                if num2 is None or num3 is None or num4 is None or num5 is None or num6 is None:
                     raise ValueError, errstring
 
                 output.append((command, num1, num2, num3, num4, num5, num6))
@@ -293,11 +293,11 @@ def parse(pathdata):
             num6, index, pathdata = parse_number(index, pathdata)
             num7, index, pathdata = parse_number(index, pathdata)
 
-            if num1 == None:
+            if num1 is None:
                 raise ValueError, errstring
 
-            while num1 != None:
-                if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None or num7 == None:
+            while num1 is not None:
+                if num2 is None or num3 is None or num4 is None or num5 is None or num6 is None or num7 is None:
                     raise ValueError, errstring
 
                 output.append((command, num1, num2, num3, num4, num5, num6, num7))
@@ -333,11 +333,11 @@ def transform(func, pathdata):
         elif command in ("H", "h", "V", "v"):
             num1 = args[0]
 
-            if command == "H" or (command == "h" and x == None):
+            if command == "H" or (command == "h" and x is None):
                 x = num1
             elif command == "h":
                 x += num1
-            elif command == "V" or (command == "v" and y == None):
+            elif command == "V" or (command == "v" and y is None):
                 y = num1
             elif command == "v":
                 y += num1
@@ -349,7 +349,7 @@ def transform(func, pathdata):
         elif command in ("M", "m", "L", "l", "T", "t"):
             num1, num2 = args
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 x, y = num1, num2
             else:
                 x += num1
@@ -362,13 +362,13 @@ def transform(func, pathdata):
         elif command in ("S", "s", "Q", "q"):
             num1, num2, num3, num4 = args
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 cx, cy = num1, num2
             else:
                 cx = x + num1
                 cy = y + num2
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 x, y = num3, num4
             else:
                 x += num3
@@ -382,19 +382,19 @@ def transform(func, pathdata):
         elif command in ("C", "c"):
             num1, num2, num3, num4, num5, num6 = args
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 c1x, c1y = num1, num2
             else:
                 c1x = x + num1
                 c1y = y + num2
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 c2x, c2y = num3, num4
             else:
                 c2x = x + num3
                 c2y = y + num4
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 x, y = num5, num6
             else:
                 x += num5
@@ -412,14 +412,14 @@ def transform(func, pathdata):
             oldx, oldy = x, y
             OLDX, OLDY = X, Y
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 x, y = num3, num4
             else:
                 x += num3
                 y += num4
             X, Y = func(x, y)
 
-            if x != None and y != None:
+            if x is not None and y is not None:
                 centerx, centery = (x + oldx)/2., (y + oldy)/2.
             CENTERX, CENTERY = (X + OLDX)/2., (Y + OLDY)/2.
 
@@ -452,11 +452,11 @@ def bbox(pathdata):
         elif command in ("H", "h", "V", "v"):
             num1 = args[0]
 
-            if command == "H" or (command == "h" and x == None):
+            if command == "H" or (command == "h" and x is None):
                 x = num1
             elif command == "h":
                 x += num1
-            elif command == "V" or (command == "v" and y == None):
+            elif command == "V" or (command == "v" and y is None):
                 y = num1
             elif command == "v":
                 y += num1
@@ -467,7 +467,7 @@ def bbox(pathdata):
         elif command in ("M", "m", "L", "l", "T", "t"):
             num1, num2 = args
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 x, y = num1, num2
             else:
                 x += num1
@@ -479,13 +479,13 @@ def bbox(pathdata):
         elif command in ("S", "s", "Q", "q"):
             num1, num2, num3, num4 = args
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 cx, cy = num1, num2
             else:
                 cx = x + num1
                 cy = y + num2
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 x, y = num3, num4
             else:
                 x += num3
@@ -497,19 +497,19 @@ def bbox(pathdata):
         elif command in ("C", "c"):
             num1, num2, num3, num4, num5, num6 = args
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 c1x, c1y = num1, num2
             else:
                 c1x = x + num1
                 c1y = y + num2
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 c2x, c2y = num3, num4
             else:
                 c2x = x + num3
                 c2y = y + num4
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 x, y = num5, num6
             else:
                 x += num5
@@ -524,13 +524,13 @@ def bbox(pathdata):
             oldx, oldy = x, y
             OLDX, OLDY = X, Y
 
-            if command.isupper() or x == None or y == None:
+            if command.isupper() or x is None or y is None:
                 x, y = num3, num4
             else:
                 x += num3
                 y += num4
 
-            if x != None and y != None:
+            if x is not None and y is not None:
                 centerx, centery = (x + oldx)/2., (y + oldy)/2.
             CENTERX, CENTERY = (X + OLDX)/2., (Y + OLDY)/2.
 

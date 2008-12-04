@@ -301,13 +301,13 @@ class BBox:
         return "<BBox xmin=%g xmax=%g ymin=%g ymax=%g>" % (self.xmin, self.xmax, self.ymin, self.ymax)
 
     def insert(self, x, y):
-        if self.xmin == None or x < self.xmin:
+        if self.xmin is None or x < self.xmin:
             self.xmin = x
-        if self.ymin == None or y < self.ymin:
+        if self.ymin is None or y < self.ymin:
             self.ymin = y
-        if self.xmax == None or x > self.xmax:
+        if self.xmax is None or x > self.xmax:
             self.xmax = x
-        if self.ymax == None or y > self.ymax:
+        if self.ymax is None or y > self.ymax:
             self.ymax = y
 
     def __add__(self, other):
