@@ -418,7 +418,7 @@ class Curve(svg.SVG):
         return len(self.marks)
 
     def extend(self, other):
-        if isinstance(other, SVG):
+        if isinstance(other, svg.SVG):
             self.marks.extend(other.children)
         elif isinstance(other, basestring):
             self.marks.append(other)

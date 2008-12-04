@@ -522,7 +522,6 @@ def bbox(pathdata):
             num1, num2, angle, large_arc_flag, sweep_flag, num3, num4 = args
 
             oldx, oldy = x, y
-            OLDX, OLDY = X, Y
 
             if command.isupper() or x is None or y is None:
                 x, y = num3, num4
@@ -532,7 +531,6 @@ def bbox(pathdata):
 
             if x is not None and y is not None:
                 centerx, centery = (x + oldx)/2., (y + oldy)/2.
-            CENTERX, CENTERY = (X + OLDX)/2., (Y + OLDY)/2.
 
             output.insert(x, y)
 

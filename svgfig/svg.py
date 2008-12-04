@@ -526,7 +526,7 @@ class SVG:
     def itervalues(self, *args, **kwds):
         return self.attrib.itervalues(*args, **kwds)
 
-    def pop(self, *args, **kwds):
+    def pop(self, *args, **kwds): # XXX (different) redefinition of pop method!
         return self.attrib.pop(*args, **kwds)
 
     def popitem(self, *args, **kwds):
