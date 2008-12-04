@@ -6,7 +6,8 @@ version_info = (2, 0, 0, "alpha2")
 
 ############################### default filenames
 
-class VersionWarning(UserWarning): pass
+class VersionWarning(UserWarning):
+    pass
 warnings.filterwarnings("default", category=VersionWarning)
 
 if re.search("windows", platform.system(), re.I):
@@ -128,10 +129,14 @@ def bbox_line(svg):
     isnumber1 = (isnumber(svg.x1) and isnumber(svg.y1))
     isnumber2 = (isnumber(svg.x2) and isnumber(svg.y2))
 
-    if isnumber1 and isnumber2: return BBox(svg.x1, svg.x2, svg.y1, svg.y2)
-    elif isnumber1 and not isnumber2: return BBox(svg.x1, svg.x1, svg.y1, svg.y1)
-    elif not isnumber1 and isnumber2: return BBox(svg.x2, svg.x2, svg.y2, svg.y2)
-    else: return BBox(None, None, None, None)
+    if isnumber1 and isnumber2:
+        return BBox(svg.x1, svg.x2, svg.y1, svg.y2)
+    elif isnumber1 and not isnumber2:
+        return BBox(svg.x1, svg.x1, svg.y1, svg.y1)
+    elif not isnumber1 and isnumber2:
+        return BBox(svg.x2, svg.x2, svg.y2, svg.y2)
+    else:
+        return BBox(None, None, None, None)
 
 ##### linearGradient
 ##### marker
@@ -283,7 +288,8 @@ def tostringmap(x):
     else:
         return x
 
-def isnumber(x): return isinstance(x, (int, long, float))
+def isnumber(x):
+    return isinstance(x, (int, long, float))
 
 ############################### BBox class
 
@@ -295,10 +301,14 @@ class BBox:
         return "<BBox xmin=%g xmax=%g ymin=%g ymax=%g>" % (self.xmin, self.xmax, self.ymin, self.ymax)
 
     def insert(self, x, y):
-        if self.xmin == None or x < self.xmin: self.xmin = x
-        if self.ymin == None or y < self.ymin: self.ymin = y
-        if self.xmax == None or x > self.xmax: self.xmax = x
-        if self.ymax == None or y > self.ymax: self.ymax = y
+        if self.xmin == None or x < self.xmin:
+            self.xmin = x
+        if self.ymin == None or y < self.ymin:
+            self.ymin = y
+        if self.xmax == None or x > self.xmax:
+            self.xmax = x
+        if self.ymax == None or y > self.ymax:
+            self.ymax = y
 
     def __add__(self, other):
         output = BBox(self.xmin, self.xmax, self.ymin, self.ymax)
@@ -306,25 +316,40 @@ class BBox:
         return output
 
     def __iadd__(self, other):
-        if self.xmin is None: self.xmin = other.xmin
-        elif other.xmin is None: pass
-        else: self.xmin = min(self.xmin, other.xmin)
+        if self.xmin is None:
+            self.xmin = other.xmin
+        elif other.xmin is None:
+            pass
+        else:
+            self.xmin = min(self.xmin, other.xmin)
 
-        if self.xmax is None: self.xmax = other.xmax
-        elif other.xmax is None: pass
-        else: self.xmax = max(self.xmax, other.xmax)
+        if self.xmax is None:
+            self.xmax = other.xmax
+        elif other.xmax is None:
+            pass
+        else:
+            self.xmax = max(self.xmax, other.xmax)
 
-        if self.ymin is None: self.ymin = other.ymin
-        elif other.ymin is None: pass
-        else: self.ymin = min(self.ymin, other.ymin)
+        if self.ymin is None:
+            self.ymin = other.ymin
+        elif other.ymin is None:
+            pass
+        else:
+            self.ymin = min(self.ymin, other.ymin)
 
-        if self.ymax is None: self.ymax = other.ymax
-        elif other.ymax is None: pass
-        else: self.ymax = max(self.ymax, other.ymax)
+        if self.ymax is None:
+            self.ymax = other.ymax
+        elif other.ymax is None:
+            pass
+        else:
+            self.ymax = max(self.ymax, other.ymax)
 
         return self
 
     def __eq__(self, other):
-        return self.xmin == other.xmin and self.xmax == other.xmax and self.ymin == other.ymin and self.ymax == other.ymax
+        return (self.xmin == other.xmin and self.xmax == other.xmax and
+                self.ymin == other.ymin and self.ymax == other.ymax)
 
-    def __ne__(self, other): return not (self == other)
+    def __ne__(self, other):
+        return not (self == other)
+

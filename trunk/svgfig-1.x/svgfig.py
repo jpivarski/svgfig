@@ -36,12 +36,15 @@ _default_fileName = "tmp.svg"
 _hacks = {}
 _hacks["inkscape-text-vertical-shift"] = False
 
+
 def rgb(r, g, b, maximum=1.):
     """Create an SVG color string "#xxyyzz" from r, g, and b.
 
     r,g,b = 0 is black and r,g,b = maximum is white.
     """
-    return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)), max(0, min(g*255./maximum, 255)), max(0, min(b*255./maximum, 255)))
+    return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)),
+                              max(0, min(g*255./maximum, 255)),
+                              max(0, min(b*255./maximum, 255)))
 
 def attr_preprocess(attr):
     for name in attr.keys():
@@ -58,6 +61,7 @@ def attr_preprocess(attr):
             name = name_dash
 
     return attr
+
 
 class SVG:
     """A tree representation of an SVG image or image fragment.
@@ -121,7 +125,8 @@ class SVG:
     [1, 0]                       <tspan (1 sub) />
     """
     def __init__(self, *t_sub, **attr):
-        if len(t_sub) == 0: raise TypeError, "SVG element must have a t (SVG type)"
+        if len(t_sub) == 0:
+            raise TypeError, "SVG element must have a t (SVG type)"
 
         # first argument is t (SVG type)
         self.t = t_sub[0]
@@ -137,33 +142,42 @@ class SVG:
         it ends with a number and an attribute if it ends with a string."""
         obj = self
         if isinstance(ti, (list, tuple)):
-            for i in ti[:-1]: obj = obj[i]
+            for i in ti[:-1]:
+                obj = obj[i]
             ti = ti[-1]
 
-        if isinstance(ti, (int, long, slice)): return obj.sub[ti]
-        else: return obj.attr[ti]
+        if isinstance(ti, (int, long, slice)):
+            return obj.sub[ti]
+        else:
+            return obj.attr[ti]
 
     def __setitem__(self, ti, value):
         """Index is a list that descends tree, returning a sub-element if
         it ends with a number and an attribute if it ends with a string."""
         obj = self
         if isinstance(ti, (list, tuple)):
-            for i in ti[:-1]: obj = obj[i]
+            for i in ti[:-1]:
+                obj = obj[i]
             ti = ti[-1]
 
-        if isinstance(ti, (int, long, slice)): obj.sub[ti] = value
-        else: obj.attr[ti] = value
+        if isinstance(ti, (int, long, slice)):
+            obj.sub[ti] = value
+        else:
+            obj.attr[ti] = value
 
     def __delitem__(self, ti):
         """Index is a list that descends tree, returning a sub-element if
         it ends with a number and an attribute if it ends with a string."""
         obj = self
         if isinstance(ti, (list, tuple)):
-            for i in ti[:-1]: obj = obj[i]
+            for i in ti[:-1]:
+                obj = obj[i]
             ti = ti[-1]
 
-        if isinstance(ti, (int, long, slice)): del obj.sub[ti]
-        else: del obj.attr[ti]
+        if isinstance(ti, (int, long, slice)):
+            del obj.sub[ti]
+        else:
+            del obj.attr[ti]
 
     def __contains__(self, value):
         """x in svg == True iff x is an attribute in svg."""
@@ -171,8 +185,10 @@ class SVG:
 
     def __eq__(self, other):
         """x == y iff x represents the same SVG as y."""
-        if id(self) == id(other): return True
-        return isinstance(other, SVG) and self.t == other.t and self.sub == other.sub and self.attr == other.attr
+        if id(self) == id(other):
+            return True
+        return (isinstance(other, SVG) and
+                self.t == other.t and self.sub == other.sub and self.attr == other.attr)
 
     def __ne__(self, other):
         """x != y iff x does not represent the same SVG as y."""
@@ -209,7 +225,8 @@ class SVG:
             self.shown = False
             self.depth_limit = depth_limit
 
-        def __iter__(self): return self
+        def __iter__(self):
+            return self
 
         def next(self):
             if not self.shown:
@@ -217,8 +234,10 @@ class SVG:
                 if self.ti != ():
                     return self.ti, self.svg
 
-            if not isinstance(self.svg, SVG): raise StopIteration
-            if self.depth_limit != None and len(self.ti) >= self.depth_limit: raise StopIteration
+            if not isinstance(self.svg, SVG):
+                raise StopIteration
+            if self.depth_limit != None and len(self.ti) >= self.depth_limit:
+                raise StopIteration
 
             if "iterators" not in self.__dict__:
                 self.iterators = []
@@ -243,7 +262,8 @@ class SVG:
         is a number, stop recursion at that depth."""
         raise NotImplementedError, "Got an algorithm for breadth-first searching a tree without effectively copying the tree?"
 
-    def __iter__(self): return self.depth_first()
+    def __iter__(self):
+        return self.depth_first()
 
     def items(self, sub=True, attr=True, text=True):
         """Get a recursively-generated list of tree-index, sub-element/attribute pairs.
@@ -256,11 +276,15 @@ class SVG:
         for ti, s in self:
             show = False
             if isinstance(ti[-1], (int, long)):
-                if isinstance(s, basestring): show = text
-                else: show = sub
-            else: show = attr
+                if isinstance(s, basestring):
+                    show = text
+                else:
+                    show = sub
+            else:
+                show = attr
 
-            if show: output.append((ti, s))
+            if show:
+                output.append((ti, s))
         return output
 
     def keys(self, sub=True, attr=True, text=True):
@@ -281,7 +305,8 @@ class SVG:
         """
         return [s for ti, s in self.items(sub, attr, text)]
 
-    def __repr__(self): return self.xml(depth_limit=0)
+    def __repr__(self):
+        return self.xml(depth_limit=0)
 
     def __str__(self):
         """Print (actually, return a string of) the tree in a form useful for browsing."""
@@ -297,21 +322,25 @@ class SVG:
         tree_width is the number of characters reserved for printing tree indexes.
         obj_width is the number of characters reserved for printing sub-elements/attributes.
         """
-
         output = []
 
-        line = "%s %s" % (("%%-%ds" % tree_width) % repr(None), ("%%-%ds" % obj_width) % (repr(self))[0:obj_width])
+        line = "%s %s" % (("%%-%ds" % tree_width) % repr(None),
+                          ("%%-%ds" % obj_width) % (repr(self))[0:obj_width])
         output.append(line)
 
         for ti, s in self.depth_first(depth_limit):
             show = False
             if isinstance(ti[-1], (int, long)):
-                if isinstance(s, basestring): show = text
-                else: show = sub
-            else: show = attr
+                if isinstance(s, basestring):
+                    show = text
+                else:
+                    show = sub
+            else:
+                show = attr
 
             if show:
-                line = "%s %s" % (("%%-%ds" % tree_width) % repr(list(ti)), ("%%-%ds" % obj_width) % ("    "*len(ti) + repr(s))[0:obj_width])
+                line = "%s %s" % (("%%-%ds" % tree_width) % repr(list(ti)),
+                                  ("%%-%ds" % obj_width) % ("    "*len(ti) + repr(s))[0:obj_width])
                 output.append(line)
 
         return "\n".join(output)
@@ -326,7 +355,6 @@ class SVG:
 
         print svg.xml()
         """
-
         attrstr = []
         for n, v in self.attr.items():
             if isinstance(v, dict):
@@ -336,7 +364,8 @@ class SVG:
             attrstr.append(" %s=%s" % (n, repr(v)))
         attrstr = "".join(attrstr)
 
-        if len(self.sub) == 0: return "%s<%s%s />" % (indent * depth, self.t, attrstr)
+        if len(self.sub) == 0:
+            return "%s<%s%s />" % (indent * depth, self.t, attrstr)
 
         if depth_limit == None or depth_limit > depth:
             substr = []
@@ -361,8 +390,10 @@ class SVG:
         newl        string used for newlines
         """
 
-        if self.t == "svg": top = self
-        else: top = canvas(self)
+        if self.t == "svg":
+            top = self
+        else:
+            top = canvas(self)
         return """\
     <?xml version="1.0" standalone="no"?>
     <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -390,11 +421,15 @@ class SVG:
             output.append(u">%s%s" % (newl, newl))
 
         for s in self.sub:
-            if isinstance(s, SVG): output.extend(s.__standalone_xml(indent, newl))
-            else: output.append(unicode(s))
+            if isinstance(s, SVG):
+                output.extend(s.__standalone_xml(indent, newl))
+            else:
+                output.append(unicode(s))
 
-        if self.t == "tspan": output.append(u"</%s>" % self.t)
-        else: output.append(u"</%s>%s%s" % (self.t, newl, newl))
+        if self.t == "tspan":
+            output.append(u"</%s>" % self.t)
+        else:
+            output.append(u"</%s>%s%s" % (self.t, newl, newl))
 
         return output
 
@@ -472,10 +507,19 @@ class SVG:
 
 ######################################################################
 
-_canvas_defaults = {"width": "400px", "height": "400px", "viewBox": "0 0 100 100", \
-                   "xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink", "version":"1.1", \
-                   "style": {"stroke":"black", "fill":"none", "stroke-width":"0.5pt", "stroke-linejoin":"round", "text-anchor":"middle"}, \
-                   "font-family": ["Helvetica", "Arial", "FreeSans", "Sans", "sans", "sans-serif"], \
+_canvas_defaults = {"width": "400px",
+                    "height": "400px",
+                    "viewBox": "0 0 100 100",
+                    "xmlns": "http://www.w3.org/2000/svg",
+                    "xmlns:xlink": "http://www.w3.org/1999/xlink",
+                    "version": "1.1",
+                    "style": {"stroke": "black",
+                              "fill": "none",
+                              "stroke-width": "0.5pt",
+                              "stroke-linejoin": "round",
+                              "text-anchor": "middle",
+                             },
+                    "font-family": ["Helvetica", "Arial", "FreeSans", "Sans", "sans", "sans-serif"],
                    }
 
 def canvas(*sub, **attr):
@@ -511,7 +555,8 @@ def canvas_outline(*sub, **attr):
     so that you know how close your image is to the edges."""
     svg = canvas(*sub, **attr)
     match = re.match("[, \t]*([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]*", svg["viewBox"])
-    if match == None: raise ValueError, "canvas viewBox is incorrectly formatted"
+    if match == None:
+        raise ValueError, "canvas viewBox is incorrectly formatted"
     x, y, width, height = [float(x) for x in match.groups()]
     svg.prepend(SVG("rect", x=x, y=y, width=width, height=height, stroke="none", fill="cornsilk"))
     svg.append(SVG("rect", x=x, y=y, width=width, height=height, stroke="black", fill="none"))
@@ -579,7 +624,9 @@ def load_stream(stream):
         def endElement(self, name):
             if len(self.stack) > 0:
                 last = self.stack[-1]
-                if isinstance(last, SVG) and last.t == "style" and "type" in last.attr and last.attr["type"] == "text/css" and len(last.sub) == 1 and isinstance(last.sub[0], basestring):
+                if (isinstance(last, SVG) and last.t == "style" and
+                    "type" in last.attr and last.attr["type"] == "text/css" and
+                    len(last.sub) == 1 and isinstance(last.sub[0], basestring)):
                     last.sub[0] = "<![CDATA[\n" + last.sub[0] + "]]>"
 
             self.output = self.stack.pop()
@@ -622,14 +669,16 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
 
     if len(vars) == 2:
         g = math.__dict__
-        if globals != None: g.update(globals)
+        if globals != None:
+            g.update(globals)
         output = eval("lambda %s, %s: (%s)" % (vars[0], vars[1], expr), g, locals)
         output.func_name = "%s,%s -> %s" % (vars[0], vars[1], expr)
         return output
 
     elif len(vars) == 1:
         g = cmath.__dict__
-        if globals != None: g.update(globals)
+        if globals != None:
+            g.update(globals)
         output = eval("lambda %s: (%s)" % (vars[0], expr), g, locals)
         split = lambda z: (z.real, z.imag)
         output2 = lambda x, y: split(output(x + y*1j))
@@ -639,7 +688,9 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
     else:
         raise TypeError, "vars must have 2 or 1 elements"
 
-def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=None, ylogbase=None, minusInfinity=-1000, flipx=False, flipy=True):
+
+def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100,
+           xlogbase=None, ylogbase=None, minusInfinity=-1000, flipx=False, flipy=True):
     """Creates and returns a coordinate transformation (a function that
     accepts two arguments and returns two values) that transforms from
         (xmin, ymin), (xmax, ymax)
@@ -673,12 +724,15 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=Non
     ix2 = xmax
     iy2 = ymax
 
-    if xlogbase != None and (ix1 <= 0. or ix2 <= 0.): raise ValueError, "x range incompatible with log scaling: (%g, %g)" % (ix1, ix2)
+    if xlogbase != None and (ix1 <= 0. or ix2 <= 0.):
+        raise ValueError, "x range incompatible with log scaling: (%g, %g)" % (ix1, ix2)
 
-    if ylogbase != None and (iy1 <= 0. or iy2 <= 0.): raise ValueError, "y range incompatible with log scaling: (%g, %g)" % (iy1, iy2)
+    if ylogbase != None and (iy1 <= 0. or iy2 <= 0.):
+        raise ValueError, "y range incompatible with log scaling: (%g, %g)" % (iy1, iy2)
 
     def maybelog(t, it1, it2, ot1, ot2, logbase):
-        if t <= 0.: return minusInfinity
+        if t <= 0.:
+            return minusInfinity
         else:
             return ot1 + 1.*(math.log(t, logbase) - math.log(it1, logbase))/(math.log(it2, logbase) - math.log(it1, logbase)) * (ot2 - ot1)
 
@@ -698,14 +752,17 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=Non
 
     output = lambda x, y: (xfunc(x), yfunc(y))
 
-    output.func_name = "(%g, %g), (%g, %g) -> (%g, %g), (%g, %g)%s%s" % (ix1, ix2, iy1, iy2, ox1, ox2, oy1, oy2, xlogstr, ylogstr)
+    output.func_name = "(%g, %g), (%g, %g) -> (%g, %g), (%g, %g)%s%s" % (
+                       ix1, ix2, iy1, iy2, ox1, ox2, oy1, oy2, xlogstr, ylogstr)
     return output
+
 
 def rotate(angle, cx=0, cy=0):
     """Creates and returns a coordinate transformation which rotates
     around (cx,cy) by "angle" degrees."""
     angle *= math.pi/180.
     return lambda x, y: (cx + math.cos(angle)*(x - cx) - math.sin(angle)*(y - cy), cy + math.sin(angle)*(x - cx) + math.cos(angle)*(y - cy))
+
 
 class Fig:
     """Stores graphics primitive objects and applies a single coordinate
@@ -740,7 +797,7 @@ class Fig:
 
     def __init__(self, *d, **kwds):
         self.d = list(d)
-        defaults = {"trans":None}
+        defaults = {"trans": None, }
         defaults.update(kwds)
         kwds = defaults
 
@@ -754,8 +811,10 @@ class Fig:
         Coordinate transformations in nested Figs will be composed.
         """
 
-        if trans == None: trans = self.trans
-        if isinstance(trans, basestring): trans = totrans(trans)
+        if trans == None:
+            trans = self.trans
+        if isinstance(trans, basestring):
+            trans = totrans(trans)
 
         output = SVG("g")
         for s in self.d:
@@ -764,20 +823,26 @@ class Fig:
 
             elif isinstance(s, Fig):
                 strans = s.trans
-                if isinstance(strans, basestring): strans = totrans(strans)
+                if isinstance(strans, basestring):
+                    strans = totrans(strans)
 
-                if trans == None: subtrans = strans
-                elif strans == None: subtrans = trans
-                else: subtrans = lambda x,y: trans(*strans(x, y))
+                if trans == None:
+                    subtrans = strans
+                elif strans == None:
+                    subtrans = trans
+                else:
+                    subtrans = lambda x,y: trans(*strans(x, y))
 
                 output.sub += s.SVG(subtrans).sub
 
-            elif s == None: pass
+            elif s == None:
+                pass
 
             else:
                 output.append(s.SVG(trans))
 
         return output
+
 
 class Plot:
     """Acts like Fig, but draws a coordinate axis. You also need to supply plot ranges.
@@ -822,10 +887,15 @@ class Plot:
     def __init__(self, xmin, xmax, ymin, ymax, *d, **kwds):
         self.xmin, self.xmax, self.ymin, self.ymax = xmin, xmax, ymin, ymax
         self.d = list(d)
-        defaults = {"trans":None, "x":5, "y":5, "width":90, "height":90, "flipx":False, "flipy":True, "minusInfinity":-1000, \
-                    "atx":0, "xticks":-10, "xminiticks":True, "xlabels":True, "xlogbase":None, \
-                    "aty":0, "yticks":-10, "yminiticks":True, "ylabels":True, "ylogbase":None, \
-                    "arrows":None, "text_attr":{}, "axis_attr":{}}
+        defaults = {"trans": None,
+                    "x": 5, "y": 5, "width": 90, "height": 90,
+                    "flipx": False, "flipy": True,
+                    "minusInfinity": -1000,
+                    "atx": 0, "xticks": -10, "xminiticks": True, "xlabels": True, "xlogbase": None,
+                    "aty": 0, "yticks": -10, "yminiticks": True, "ylabels": True, "ylogbase": None,
+                    "arrows": None,
+                    "text_attr": {}, "axis_attr": {},
+                   }
         defaults.update(kwds)
         kwds = defaults
 
@@ -855,22 +925,27 @@ class Plot:
 
     def SVG(self, trans=None):
         """Apply the transformation "trans" and return an SVG object."""
-        if trans == None: trans = self.trans
-        if isinstance(trans, basestring): trans = totrans(trans)
+        if trans == None:
+            trans = self.trans
+        if isinstance(trans, basestring):
+            trans = totrans(trans)
 
-        self.last_window = window(self.xmin, self.xmax, self.ymin, self.ymax, x=self.x, y=self.y, width=self.width, height=self.height, \
-                                  xlogbase=self.xlogbase, ylogbase=self.ylogbase, minusInfinity=self.minusInfinity, flipx=self.flipx, flipy=self.flipy)
+        self.last_window = window(self.xmin, self.xmax, self.ymin, self.ymax,
+                                  x=self.x, y=self.y, width=self.width, height=self.height,
+                                  xlogbase=self.xlogbase, ylogbase=self.ylogbase,
+                                  minusInfinity=self.minusInfinity, flipx=self.flipx, flipy=self.flipy)
 
-        d = [Axes(self.xmin, self.xmax, self.ymin, self.ymax, self.atx, self.aty, \
-                  self.xticks, self.xminiticks, self.xlabels, self.xlogbase, \
-                  self.yticks, self.yminiticks, self.ylabels, self.ylogbase, \
-                  self.arrows, self.text_attr, **self.axis_attr)] \
-            + self.d
+        d = ([Axes(self.xmin, self.xmax, self.ymin, self.ymax, self.atx, self.aty,
+                   self.xticks, self.xminiticks, self.xlabels, self.xlogbase,
+                   self.yticks, self.yminiticks, self.ylabels, self.ylogbase,
+                   self.arrows, self.text_attr, **self.axis_attr)]
+             + self.d)
 
-        return Fig(Fig(*d, **{"trans":trans})).SVG(self.last_window)
+        return Fig(Fig(*d, **{"trans": trans})).SVG(self.last_window)
+
 
 class Frame:
-    text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
+    text_defaults = {"stroke": "none", "fill": "black", "font-size": 5, }
     axis_defaults = {}
 
     tick_length = 1.5
@@ -916,10 +991,14 @@ class Frame:
 
         self.xmin, self.xmax, self.ymin, self.ymax = xmin, xmax, ymin, ymax
         self.d = list(d)
-        defaults = {"x":20, "y":5, "width":75, "height":80, "flipx":False, "flipy":True, "minusInfinity":-1000, \
-                    "xtitle":None, "xticks":-10, "xminiticks":True, "xlabels":True, "x2labels":None, "xlogbase":None, \
-                    "ytitle":None, "yticks":-10, "yminiticks":True, "ylabels":True, "y2labels":None, "ylogbase":None, \
-                    "text_attr":{}, "axis_attr":{}}
+        defaults = {"x": 20, "y": 5, "width": 75, "height": 80,
+                    "flipx": False, "flipy": True, "minusInfinity": -1000,
+                    "xtitle": None, "xticks": -10, "xminiticks": True, "xlabels": True,
+                    "x2labels": None, "xlogbase": None,
+                    "ytitle": None, "yticks": -10, "yminiticks": True, "ylabels": True,
+                    "y2labels": None, "ylogbase": None,
+                    "text_attr": {}, "axis_attr": {},
+                   }
         defaults.update(kwds)
         kwds = defaults
 
@@ -955,13 +1034,19 @@ class Frame:
     def SVG(self):
         """Apply the window transformation and return an SVG object."""
 
-        self.last_window = window(self.xmin, self.xmax, self.ymin, self.ymax, x=self.x, y=self.y, width=self.width, height=self.height, \
-                                  xlogbase=self.xlogbase, ylogbase=self.ylogbase, minusInfinity=self.minusInfinity, flipx=self.flipx, flipy=self.flipy)
+        self.last_window = window(self.xmin, self.xmax, self.ymin, self.ymax,
+                                  x=self.x, y=self.y, width=self.width, height=self.height,
+                                  xlogbase=self.xlogbase, ylogbase=self.ylogbase,
+                                  minusInfinity=self.minusInfinity, flipx=self.flipx, flipy=self.flipy)
 
-        left = YAxis(self.ymin, self.ymax, self.xmin, self.yticks, self.yminiticks, self.ylabels, self.ylogbase, None, None, None, self.text_attr, **self.axis_attr)
-        right = YAxis(self.ymin, self.ymax, self.xmax, self.yticks, self.yminiticks, self.y2labels, self.ylogbase, None, None, None, self.text_attr, **self.axis_attr)
-        bottom = XAxis(self.xmin, self.xmax, self.ymin, self.xticks, self.xminiticks, self.xlabels, self.xlogbase, None, None, None, self.text_attr, **self.axis_attr)
-        top = XAxis(self.xmin, self.xmax, self.ymax, self.xticks, self.xminiticks, self.x2labels, self.xlogbase, None, None, None, self.text_attr, **self.axis_attr)
+        left = YAxis(self.ymin, self.ymax, self.xmin, self.yticks, self.yminiticks, self.ylabels, self.ylogbase,
+                     None, None, None, self.text_attr, **self.axis_attr)
+        right = YAxis(self.ymin, self.ymax, self.xmax, self.yticks, self.yminiticks, self.y2labels, self.ylogbase,
+                      None, None, None, self.text_attr, **self.axis_attr)
+        bottom = XAxis(self.xmin, self.xmax, self.ymin, self.xticks, self.xminiticks, self.xlabels, self.xlogbase,
+                       None, None, None, self.text_attr, **self.axis_attr)
+        top = XAxis(self.xmin, self.xmax, self.ymax, self.xticks, self.xminiticks, self.x2labels, self.xlogbase,
+                    None, None, None, self.text_attr, **self.axis_attr)
 
         left.tick_start = -self.tick_length
         left.tick_end = 0
@@ -1017,6 +1102,7 @@ def pathtoPath(svg):
             attr[str(key)] = value
     return Path(d, **attr)
 
+
 class Path:
     """Path represents an SVG path, an arbitrary set of curves and
     straight segments. Unlike SVG("path", d="..."), Path stores
@@ -1060,22 +1146,26 @@ class Path:
         return "<Path (%d nodes) %s>" % (len(self.d), self.attr)
 
     def __init__(self, d=[], **attr):
-        if isinstance(d, basestring): self.d = self.parse(d)
-        else: self.d = list(d)
+        if isinstance(d, basestring):
+            self.d = self.parse(d)
+        else:
+            self.d = list(d)
 
         self.attr = dict(self.defaults)
         self.attr.update(attr)
 
     def parse_whitespace(self, index, pathdata):
         """Part of Path's text-command parsing algorithm; used internally."""
-        while index < len(pathdata) and pathdata[index] in (" ", "\t", "\r", "\n", ","): index += 1
+        while index < len(pathdata) and pathdata[index] in (" ", "\t", "\r", "\n", ","):
+            index += 1
         return index, pathdata
 
     def parse_command(self, index, pathdata):
         """Part of Path's text-command parsing algorithm; used internally."""
         index, pathdata = self.parse_whitespace(index, pathdata)
 
-        if index >= len(pathdata): return None, index, pathdata
+        if index >= len(pathdata):
+            return None, index, pathdata
         command = pathdata[index]
         if "A" <= command <= "Z" or "a" <= command <= "z":
             index += 1
@@ -1087,7 +1177,8 @@ class Path:
         """Part of Path's text-command parsing algorithm; used internally."""
         index, pathdata = self.parse_whitespace(index, pathdata)
 
-        if index >= len(pathdata): return None, index, pathdata
+        if index >= len(pathdata):
+            return None, index, pathdata
         first_digit = pathdata[index]
 
         if "0" <= first_digit <= "9" or first_digit in ("-", "+", "."):
@@ -1105,7 +1196,8 @@ class Path:
         """Part of Path's text-command parsing algorithm; used internally."""
         index, pathdata = self.parse_whitespace(index, pathdata)
 
-        if index >= len(pathdata): return None, index, pathdata
+        if index >= len(pathdata):
+            return None, index, pathdata
         first_digit = pathdata[index]
 
         if first_digit in ("0", "1"):
@@ -1123,7 +1215,8 @@ class Path:
             command, index, pathdata = self.parse_command(index, pathdata)
             index, pathdata = self.parse_whitespace(index, pathdata)
 
-            if command == None and index == len(pathdata): break  # this is the normal way out of the loop
+            if command == None and index == len(pathdata):
+                break  # this is the normal way out of the loop
             if command in ("Z", "z"):
                 output.append((command,))
 
@@ -1131,7 +1224,8 @@ class Path:
             elif command in ("H", "h", "V", "v"):
                 errstring = "Path command \"%s\" requires a number at index %d" % (command, index)
                 num1, index, pathdata = self.parse_number(index, pathdata)
-                if num1 == None: raise ValueError, errstring
+                if num1 == None:
+                    raise ValueError, errstring
 
                 while num1 != None:
                     output.append((command, num1))
@@ -1143,10 +1237,12 @@ class Path:
                 num1, index, pathdata = self.parse_number(index, pathdata)
                 num2, index, pathdata = self.parse_number(index, pathdata)
 
-                if num1 == None: raise ValueError, errstring
+                if num1 == None:
+                    raise ValueError, errstring
 
                 while num1 != None:
-                    if num2 == None: raise ValueError, errstring
+                    if num2 == None:
+                        raise ValueError, errstring
                     output.append((command, num1, num2, False))
 
                     num1, index, pathdata = self.parse_number(index, pathdata)
@@ -1160,10 +1256,12 @@ class Path:
                 num3, index, pathdata = self.parse_number(index, pathdata)
                 num4, index, pathdata = self.parse_number(index, pathdata)
 
-                if num1 == None: raise ValueError, errstring
+                if num1 == None:
+                    raise ValueError, errstring
 
                 while num1 != None:
-                    if num2 == None or num3 == None or num4 == None: raise ValueError, errstring
+                    if num2 == None or num3 == None or num4 == None:
+                        raise ValueError, errstring
                     output.append((command, num1, num2, False, num3, num4, False))
 
                     num1, index, pathdata = self.parse_number(index, pathdata)
@@ -1181,10 +1279,12 @@ class Path:
                 num5, index, pathdata = self.parse_number(index, pathdata)
                 num6, index, pathdata = self.parse_number(index, pathdata)
 
-                if num1 == None: raise ValueError, errstring
+                if num1 == None:
+                    raise ValueError, errstring
 
                 while num1 != None:
-                    if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None: raise ValueError, errstring
+                    if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None:
+                        raise ValueError, errstring
 
                     output.append((command, num1, num2, False, num3, num4, False, num5, num6, False))
 
@@ -1206,10 +1306,12 @@ class Path:
                 num6, index, pathdata = self.parse_number(index, pathdata)
                 num7, index, pathdata = self.parse_number(index, pathdata)
 
-                if num1 == None: raise ValueError, errstring
+                if num1 == None:
+                    raise ValueError, errstring
 
                 while num1 != None:
-                    if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None or num7 == None: raise ValueError, errstring
+                    if num2 == None or num3 == None or num4 == None or num5 == None or num6 == None or num7 == None:
+                        raise ValueError, errstring
 
                     output.append((command, num1, num2, False, num3, num4, num5, num6, num7, False))
 
@@ -1225,7 +1327,8 @@ class Path:
 
     def SVG(self, trans=None):
         """Apply the transformation "trans" and return an SVG object."""
-        if isinstance(trans, basestring): trans = totrans(trans)
+        if isinstance(trans, basestring):
+            trans = totrans(trans)
 
         x, y, X, Y = None, None, None, None
         output = []
@@ -1244,13 +1347,19 @@ class Path:
             elif command in ("H", "h", "V", "v"):
                 command, num1 = datum
 
-                if command == "H" or (command == "h" and x == None): x = num1
-                elif command == "h": x += num1
-                elif command == "V" or (command == "v" and y == None): y = num1
-                elif command == "v": y += num1
+                if command == "H" or (command == "h" and x == None):
+                    x = num1
+                elif command == "h":
+                    x += num1
+                elif command == "V" or (command == "v" and y == None):
+                    y = num1
+                elif command == "v":
+                    y += num1
 
-                if trans == None: X, Y = x, y
-                else: X, Y = trans(x, y)
+                if trans == None:
+                    X, Y = x, y
+                else:
+                    X, Y = trans(x, y)
 
                 output.append("L%g %g" % (X, Y))
 
@@ -1441,8 +1550,8 @@ class Path:
                 X3, Y3 = X - RX * math.cos(angle*math.pi/180.), Y - RX * math.sin(angle*math.pi/180.)
                 X4, Y4 = X - RY * math.sin(angle*math.pi/180.), Y + RY * math.cos(angle*math.pi/180.)
 
-                output.append("M%g %gA%g %g %g 0 0 %g %gA%g %g %g 0 0 %g %gA%g %g %g 0 0 %g %gA%g %g %g 0 0 %g %g" \
-                              % (X1, Y1, RX, RY, angle, X2, Y2, RX, RY, angle, X3, Y3, RX, RY, angle, X4, Y4, RX, RY, angle, X1, Y1))
+                output.append("M%g %gA%g %g %g 0 0 %g %gA%g %g %g 0 0 %g %gA%g %g %g 0 0 %g %gA%g %g %g 0 0 %g %g" % (
+                              X1, Y1, RX, RY, angle, X2, Y2, RX, RY, angle, X3, Y3, RX, RY, angle, X4, Y4, RX, RY, angle, X1, Y1))
 
         return SVG("path", d="".join(output), **self.attr)
 
@@ -1458,12 +1567,14 @@ def funcRtoC(expr, var="t", globals=None, locals=None):
     locals  default=None    dict of local variables
     """
     g = cmath.__dict__
-    if globals != None: g.update(globals)
+    if globals != None:
+        g.update(globals)
     output = eval("lambda %s: (%s)" % (var, expr), g, locals)
     split = lambda z: (z.real, z.imag)
     output2 = lambda t: split(output(t))
     output2.func_name = "%s -> %s" % (var, expr)
     return output2
+
 
 def funcRtoR2(expr, var="t", globals=None, locals=None):
     """Converts a "f(t), g(t)" string to a function acceptable for Curve.
@@ -1475,10 +1586,12 @@ def funcRtoR2(expr, var="t", globals=None, locals=None):
     locals  default=None    dict of local variables
     """
     g = math.__dict__
-    if globals != None: g.update(globals)
+    if globals != None:
+        g.update(globals)
     output = eval("lambda %s: (%s)" % (var, expr), g, locals)
     output.func_name = "%s -> %s" % (var, expr)
     return output
+
 
 def funcRtoR(expr, var="x", globals=None, locals=None):
     """Converts a "f(x)" string to a function acceptable for Curve.
@@ -1490,10 +1603,12 @@ def funcRtoR(expr, var="x", globals=None, locals=None):
     locals  default=None    dict of local variables
     """
     g = math.__dict__
-    if globals != None: g.update(globals)
+    if globals != None:
+        g.update(globals)
     output = eval("lambda %s: (%s, %s)" % (var, var, expr), g, locals)
     output.func_name = "%s -> %s" % (var, expr)
     return output
+
 
 class Curve:
     """Draws a parametric function as a path.
@@ -1528,16 +1643,23 @@ class Curve:
     class Sample:
         def __repr__(self):
             t, x, y, X, Y = self.t, self.x, self.y, self.X, self.Y
-            if t != None: t = "%g" % t
-            if x != None: x = "%g" % x
-            if y != None: y = "%g" % y
-            if X != None: X = "%g" % X
-            if Y != None: Y = "%g" % Y
+            if t != None:
+                t = "%g" % t
+            if x != None:
+                x = "%g" % x
+            if y != None:
+                y = "%g" % y
+            if X != None:
+                X = "%g" % X
+            if Y != None:
+                Y = "%g" % Y
             return "<Curve.Sample t=%s x=%s y=%s X=%s Y=%s>" % (t, x, y, X, Y)
 
-        def __init__(self, t): self.t = t
+        def __init__(self, t):
+            self.t = t
 
-        def link(self, left, right): self.left, self.right = left, right
+        def link(self, left, right):
+            self.left, self.right = left, right
 
         def evaluate(self, f, trans):
             self.x, self.y = f(self.t)
@@ -1549,9 +1671,11 @@ class Curve:
 
     ### nested class Samples
     class Samples:
-        def __repr__(self): return "<Curve.Samples (%d samples)>" % len(self)
+        def __repr__(self):
+            return "<Curve.Samples (%d samples)>" % len(self)
 
-        def __init__(self, left, right): self.left, self.right = left, right
+        def __init__(self, left, right):
+            self.left, self.right = left, right
 
         def __len__(self):
             count = 0
@@ -1567,7 +1691,8 @@ class Curve:
 
         def next(self):
             current = self.current
-            if current == None: raise StopIteration
+            if current == None:
+                raise StopIteration
             self.current = self.current.right
             return current
     ### end nested class
@@ -1580,7 +1705,8 @@ class Curve:
         sys.setrecursionlimit(self.recursion_limit + 100)
         try:
             # the best way to keep all the information while sampling is to make a linked list
-            if not (self.low < self.high): raise ValueError, "low must be less than high"
+            if not (self.low < self.high):
+                raise ValueError, "low must be less than high"
             low, high = self.Sample(float(self.low)), self.Sample(float(self.high))
             low.link(None, high)
             high.link(low, None)
@@ -1597,7 +1723,10 @@ class Curve:
                 # increment mid and right
                 mid = left.right
                 right = mid.right
-                if right != None and left.X != None and left.Y != None and mid.X != None and mid.Y != None and right.X != None and right.Y != None:
+                if (right != None and
+                    left.X != None and left.Y != None and
+                    mid.X != None and mid.Y != None and
+                    right.X != None and right.Y != None):
                     numer = left.X*(right.Y - mid.Y) + mid.X*(left.Y - right.Y) + right.X*(mid.Y - left.Y)
                     denom = math.sqrt((left.X - right.X)**2 + (left.Y - right.Y)**2)
                     if denom != 0. and abs(numer/denom) < self.linearity_limit:
@@ -1634,7 +1763,10 @@ class Curve:
         denom = math.sqrt((left.X - right.X)**2 + (left.Y - right.Y)**2)
 
         # if we haven't sampled enough or left fails to be close enough to right, or mid fails to be linear enough...
-        if depth < 3 or (denom == 0 and left.t != right.t) or denom > self.discontinuity_limit or (denom != 0. and abs(numer/denom) > self.linearity_limit):
+        if (depth < 3 or
+            (denom == 0 and left.t != right.t) or
+            denom > self.discontinuity_limit or
+            (denom != 0. and abs(numer/denom) > self.linearity_limit)):
 
             # and we haven't sampled too many points
             if depth < self.recursion_limit:
@@ -1655,8 +1787,10 @@ class Curve:
         global coordinates.  If local=True, return a Path in local coordinates
         (which must be transformed again)."""
 
-        if isinstance(trans, basestring): trans = totrans(trans)
-        if isinstance(self.f, basestring): self.f = funcRtoR2(self.f)
+        if isinstance(trans, basestring):
+            trans = totrans(trans)
+        if isinstance(self.f, basestring):
+            self.f = funcRtoR2(self.f)
 
         self.sample(trans)
 
@@ -1668,10 +1802,13 @@ class Curve:
                 else:
                     command = "L"
 
-                if local: output.append((command, s.x, s.y, False))
-                else: output.append((command, s.X, s.Y, True))
+                if local:
+                    output.append((command, s.x, s.y, False))
+                else:
+                    output.append((command, s.X, s.Y, True))
 
-        if self.loop: output.append(("Z",))
+        if self.loop:
+            output.append(("Z",))
         return Path(output, **self.attr)
 
 ######################################################################
@@ -1716,7 +1853,8 @@ class Poly:
     defaults = {}
 
     def __repr__(self):
-        return "<Poly (%d nodes) mode=%s loop=%s %s>" % (len(self.d), self.mode, repr(self.loop), self.attr)
+        return "<Poly (%d nodes) mode=%s loop=%s %s>" % (
+               len(self.d), self.mode, repr(self.loop), self.attr)
 
     def __init__(self, d=[], mode="L", loop=False, **attr):
         self.d = list(d)
@@ -1734,12 +1872,17 @@ class Poly:
         """Apply the transformation "trans" and return a Path object in
         global coordinates.  If local=True, return a Path in local coordinates
         (which must be transformed again)."""
-        if isinstance(trans, basestring): trans = totrans(trans)
+        if isinstance(trans, basestring):
+            trans = totrans(trans)
 
-        if self.mode[0] == "L" or self.mode[0] == "l": mode = "L"
-        elif self.mode[0] == "B" or self.mode[0] == "b": mode = "B"
-        elif self.mode[0] == "V" or self.mode[0] == "v": mode = "V"
-        elif self.mode[0] == "F" or self.mode[0] == "f": mode = "F"
+        if self.mode[0] == "L" or self.mode[0] == "l":
+            mode = "L"
+        elif self.mode[0] == "B" or self.mode[0] == "b":
+            mode = "B"
+        elif self.mode[0] == "V" or self.mode[0] == "v":
+            mode = "V"
+        elif self.mode[0] == "F" or self.mode[0] == "f":
+            mode = "F"
         elif self.mode[0] == "S" or self.mode[0] == "s":
             mode = "S"
 
@@ -1758,7 +1901,8 @@ class Poly:
 
         d = []
         indexes = range(len(self.d))
-        if self.loop and len(self.d) > 0: indexes.append(0)
+        if self.loop and len(self.d) > 0:
+            indexes.append(0)
 
         for i in indexes:
             inext = (i+1) % len(self.d)
@@ -1766,66 +1910,97 @@ class Poly:
 
             x, y = self.d[i][0], self.d[i][1]
 
-            if trans == None: X, Y = x, y
-            else: X, Y = trans(x, y)
+            if trans == None:
+                X, Y = x, y
+            else:
+                X, Y = trans(x, y)
 
             if d == []:
-                if local: d.append(("M", x, y, False))
-                else: d.append(("M", X, Y, True))
+                if local:
+                    d.append(("M", x, y, False))
+                else:
+                    d.append(("M", X, Y, True))
 
             elif mode == "L":
-                if local: d.append(("L", x, y, False))
-                else: d.append(("L", X, Y, True))
+                if local:
+                    d.append(("L", x, y, False))
+                else:
+                    d.append(("L", X, Y, True))
 
             elif mode == "B":
                 c1x, c1y = self.d[i][2], self.d[i][3]
-                if trans == None: C1X, C1Y = c1x, c1y
-                else: C1X, C1Y = trans(c1x, c1y)
+                if trans == None:
+                    C1X, C1Y = c1x, c1y
+                else:
+                    C1X, C1Y = trans(c1x, c1y)
 
                 c2x, c2y = self.d[i][4], self.d[i][5]
-                if trans == None: C2X, C2Y = c2x, c2y
-                else: C2X, C2Y = trans(c2x, c2y)
+                if trans == None:
+                    C2X, C2Y = c2x, c2y
+                else:
+                    C2X, C2Y = trans(c2x, c2y)
 
-                if local: d.append(("C", c1x, c1y, False, c2x, c2y, False, x, y, False))
-                else: d.append(("C", C1X, C1Y, True, C2X, C2Y, True, X, Y, True))
+                if local:
+                    d.append(("C", c1x, c1y, False, c2x, c2y, False, x, y, False))
+                else:
+                    d.append(("C", C1X, C1Y, True, C2X, C2Y, True, X, Y, True))
 
             elif mode == "V":
                 c1x, c1y = self.d[iprev][2]/3. + self.d[iprev][0], self.d[iprev][3]/3. + self.d[iprev][1]
                 c2x, c2y = self.d[i][2]/-3. + x, self.d[i][3]/-3. + y
 
-                if trans == None: C1X, C1Y = c1x, c1y
-                else: C1X, C1Y = trans(c1x, c1y)
-                if trans == None: C2X, C2Y = c2x, c2y
-                else: C2X, C2Y = trans(c2x, c2y)
+                if trans == None:
+                    C1X, C1Y = c1x, c1y
+                else:
+                    C1X, C1Y = trans(c1x, c1y)
+                if trans == None:
+                    C2X, C2Y = c2x, c2y
+                else:
+                    C2X, C2Y = trans(c2x, c2y)
 
-                if local: d.append(("C", c1x, c1y, False, c2x, c2y, False, x, y, False))
-                else: d.append(("C", C1X, C1Y, True, C2X, C2Y, True, X, Y, True))
+                if local:
+                    d.append(("C", c1x, c1y, False, c2x, c2y, False, x, y, False))
+                else:
+                    d.append(("C", C1X, C1Y, True, C2X, C2Y, True, X, Y, True))
 
             elif mode == "F":
                 c1x, c1y = self.d[iprev][4]/3. + self.d[iprev][0], self.d[iprev][5]/3. + self.d[iprev][1]
                 c2x, c2y = self.d[i][2]/-3. + x, self.d[i][3]/-3. + y
 
-                if trans == None: C1X, C1Y = c1x, c1y
-                else: C1X, C1Y = trans(c1x, c1y)
-                if trans == None: C2X, C2Y = c2x, c2y
-                else: C2X, C2Y = trans(c2x, c2y)
+                if trans == None:
+                    C1X, C1Y = c1x, c1y
+                else:
+                    C1X, C1Y = trans(c1x, c1y)
+                if trans == None:
+                    C2X, C2Y = c2x, c2y
+                else:
+                    C2X, C2Y = trans(c2x, c2y)
 
-                if local: d.append(("C", c1x, c1y, False, c2x, c2y, False, x, y, False))
-                else: d.append(("C", C1X, C1Y, True, C2X, C2Y, True, X, Y, True))
+                if local:
+                    d.append(("C", c1x, c1y, False, c2x, c2y, False, x, y, False))
+                else:
+                    d.append(("C", C1X, C1Y, True, C2X, C2Y, True, X, Y, True))
 
             elif mode == "S":
                 c1x, c1y = vx[iprev]/3. + self.d[iprev][0], vy[iprev]/3. + self.d[iprev][1]
                 c2x, c2y = vx[i]/-3. + x, vy[i]/-3. + y
 
-                if trans == None: C1X, C1Y = c1x, c1y
-                else: C1X, C1Y = trans(c1x, c1y)
-                if trans == None: C2X, C2Y = c2x, c2y
-                else: C2X, C2Y = trans(c2x, c2y)
+                if trans == None:
+                    C1X, C1Y = c1x, c1y
+                else:
+                    C1X, C1Y = trans(c1x, c1y)
+                if trans == None:
+                    C2X, C2Y = c2x, c2y
+                else:
+                    C2X, C2Y = trans(c2x, c2y)
 
-                if local: d.append(("C", c1x, c1y, False, c2x, c2y, False, x, y, False))
-                else: d.append(("C", C1X, C1Y, True, C2X, C2Y, True, X, Y, True))
+                if local:
+                    d.append(("C", c1x, c1y, False, c2x, c2y, False, x, y, False))
+                else:
+                    d.append(("C", C1X, C1Y, True, C2X, C2Y, True, X, Y, True))
 
-        if self.loop and len(self.d) > 0: d.append(("Z",))
+        if self.loop and len(self.d) > 0:
+            d.append(("Z",))
 
         return Path(d, **self.attr)
 
@@ -1839,7 +2014,7 @@ class Text:
     attribute=value pairs  keyword list  SVG attributes
     """
 
-    defaults = {"stroke":"none", "fill":"black", "font-size":5}
+    defaults = {"stroke": "none", "fill": "black", "font-size": 5, }
 
     def __repr__(self):
         return "<Text %s at (%g, %g) %s>" % (repr(self.d), self.x, self.y, self.attr)
@@ -1853,11 +2028,14 @@ class Text:
 
     def SVG(self, trans=None):
         """Apply the transformation "trans" and return an SVG object."""
-        if isinstance(trans, basestring): trans = totrans(trans)
+        if isinstance(trans, basestring):
+            trans = totrans(trans)
 
         X, Y = self.x, self.y
-        if trans != None: X, Y = trans(X, Y)
+        if trans != None:
+            X, Y = trans(X, Y)
         return SVG("text", self.d, x=X, y=Y, **self.attr)
+
 
 class TextGlobal:
     """Draws at text string at a specified point in global coordinates.
@@ -1866,7 +2044,7 @@ class TextGlobal:
     d                      required      text/Unicode string
     attribute=value pairs  keyword list  SVG attributes
     """
-    defaults = {"stroke":"none", "fill":"black", "font-size":5}
+    defaults = {"stroke": "none", "fill": "black", "font-size": 5, }
 
     def __repr__(self):
         return "<TextGlobal %s at (%s, %s) %s>" % (repr(self.d), str(self.x), str(self.y), self.attr)
@@ -1884,10 +2062,10 @@ class TextGlobal:
 
 ######################################################################
 
-_symbol_templates = {"dot": SVG("symbol", SVG("circle", cx=0, cy=0, r=1, stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"), \
-                    "box": SVG("symbol", SVG("rect", x1=-1, y1=-1, x2=1, y2=1, stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"), \
-                    "uptri": SVG("symbol", SVG("path", d="M -1 0.866 L 1 0.866 L 0 -0.866 Z", stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"), \
-                    "downtri": SVG("symbol", SVG("path", d="M -1 -0.866 L 1 -0.866 L 0 0.866 Z", stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"), \
+_symbol_templates = {"dot": SVG("symbol", SVG("circle", cx=0, cy=0, r=1, stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"),
+                    "box": SVG("symbol", SVG("rect", x1=-1, y1=-1, x2=1, y2=1, stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"),
+                    "uptri": SVG("symbol", SVG("path", d="M -1 0.866 L 1 0.866 L 0 -0.866 Z", stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"),
+                    "downtri": SVG("symbol", SVG("path", d="M -1 -0.866 L 1 -0.866 L 0 0.866 Z", stroke="none", fill="black"), viewBox="0 0 1 1", overflow="visible"),
                     }
 
 def make_symbol(id, shape="dot", **attr):
@@ -1898,11 +2076,13 @@ def make_symbol(id, shape="dot", **attr):
     attribute=value list  keyword list     modify the SVG attributes of the new symbol
     """
     output = copy.deepcopy(_symbol_templates[shape])
-    for i in output.sub: i.attr.update(attr_preprocess(attr))
+    for i in output.sub:
+        i.attr.update(attr_preprocess(attr))
     output["id"] = id
     return output
 
 _circular_dot = make_symbol("circular_dot")
+
 
 class Dots:
     """Dots draws SVG symbols at a set of points.
@@ -1937,7 +2117,8 @@ class Dots:
 
     def SVG(self, trans=None):
         """Apply the transformation "trans" and return an SVG object."""
-        if isinstance(trans, basestring): trans = totrans(trans)
+        if isinstance(trans, basestring):
+            trans = totrans(trans)
 
         output = SVG("g", SVG("defs", self.symbol))
         id = "#%s" % self.symbol["id"]
@@ -1945,20 +2126,24 @@ class Dots:
         for p in self.d:
             x, y = p[0], p[1]
 
-            if trans == None: X, Y = x, y
-            else: X, Y = trans(x, y)
+            if trans == None:
+                X, Y = x, y
+            else:
+                X, Y = trans(x, y)
 
             item = SVG("use", x=X, y=Y, xlink__href=id)
-            if self.width != None: item["width"] = self.width
-            if self.height != None: item["height"] = self.height
+            if self.width != None:
+                item["width"] = self.width
+            if self.height != None:
+                item["height"] = self.height
             output.append(item)
 
         return output
 
 ######################################################################
 
-_marker_templates = {"arrow_start": SVG("marker", SVG("path", d="M 9 3.6 L 10.5 0 L 0 3.6 L 10.5 7.2 L 9 3.6 Z"), viewBox="0 0 10.5 7.2", refX="9", refY="3.6", markerWidth="10.5", markerHeight="7.2", markerUnits="strokeWidth", orient="auto", stroke="none", fill="black"), \
-                    "arrow_end": SVG("marker", SVG("path", d="M 1.5 3.6 L 0 0 L 10.5 3.6 L 0 7.2 L 1.5 3.6 Z"), viewBox="0 0 10.5 7.2", refX="1.5", refY="3.6", markerWidth="10.5", markerHeight="7.2", markerUnits="strokeWidth", orient="auto", stroke="none", fill="black"), \
+_marker_templates = {"arrow_start": SVG("marker", SVG("path", d="M 9 3.6 L 10.5 0 L 0 3.6 L 10.5 7.2 L 9 3.6 Z"), viewBox="0 0 10.5 7.2", refX="9", refY="3.6", markerWidth="10.5", markerHeight="7.2", markerUnits="strokeWidth", orient="auto", stroke="none", fill="black"),
+                    "arrow_end": SVG("marker", SVG("path", d="M 1.5 3.6 L 0 0 L 10.5 3.6 L 0 7.2 L 1.5 3.6 Z"), viewBox="0 0 10.5 7.2", refX="1.5", refY="3.6", markerWidth="10.5", markerHeight="7.2", markerUnits="strokeWidth", orient="auto", stroke="none", fill="black"),
                     }
 
 def make_marker(id, shape, **attr):
@@ -1969,9 +2154,11 @@ def make_marker(id, shape, **attr):
     attribute=value list   keyword list     modify the SVG attributes of the new marker
     """
     output = copy.deepcopy(_marker_templates[shape])
-    for i in output.sub: i.attr.update(attr_preprocess(attr))
+    for i in output.sub:
+        i.attr.update(attr_preprocess(attr))
     output["id"] = id
     return output
+
 
 class Line(Curve):
     """Draws a line between two points.
@@ -1990,7 +2177,8 @@ class Line(Curve):
     defaults = {}
 
     def __repr__(self):
-        return "<Line (%g, %g) to (%g, %g) %s>" % (self.x1, self.y1, self.x2, self.y2, self.attr)
+        return "<Line (%g, %g) to (%g, %g) %s>" % (
+               self.x1, self.y1, self.x2, self.y2, self.attr)
 
     def __init__(self, x1, y1, x2, y2, arrow_start=None, arrow_end=None, **attr):
         self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
@@ -2004,7 +2192,8 @@ class Line(Curve):
 
         line = self.Path(trans).SVG()
 
-        if (self.arrow_start != False and self.arrow_start != None) or (self.arrow_end != False and self.arrow_end != None):
+        if ((self.arrow_start != False and self.arrow_start != None) or
+            (self.arrow_end != False and self.arrow_end != None)):
             defs = SVG("defs")
 
             if self.arrow_start != False and self.arrow_start != None:
@@ -2045,6 +2234,7 @@ class Line(Curve):
         else:
             return Curve.Path(self, trans, local)
 
+
 class LineGlobal:
     """Draws a line between two points, one or both of which is in
     global coordinates.
@@ -2068,10 +2258,13 @@ class LineGlobal:
 
     def __repr__(self):
         local1, local2 = "", ""
-        if self.local1: local1 = "L"
-        if self.local2: local2 = "L"
+        if self.local1:
+            local1 = "L"
+        if self.local2:
+            local2 = "L"
 
-        return "<LineGlobal %s(%s, %s) to %s(%s, %s) %s>" % (local1, str(self.x1), str(self.y1), local2, str(self.x2), str(self.y2), self.attr)
+        return "<LineGlobal %s(%s, %s) to %s(%s, %s) %s>" % (
+               local1, str(self.x1), str(self.y1), local2, str(self.x2), str(self.y2), self.attr)
 
     def __init__(self, x1, y1, x2, y2, local1=False, local2=False, arrow_start=None, arrow_end=None, **attr):
         self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
@@ -2083,16 +2276,20 @@ class LineGlobal:
 
     def SVG(self, trans=None):
         """Apply the transformation "trans" and return an SVG object."""
-        if isinstance(trans, basestring): trans = totrans(trans)
+        if isinstance(trans, basestring):
+            trans = totrans(trans)
 
         X1, Y1, X2, Y2 = self.x1, self.y1, self.x2, self.y2
 
-        if self.local1: X1, Y1 = trans(X1, Y1)
-        if self.local2: X2, Y2 = trans(X2, Y2)
+        if self.local1:
+            X1, Y1 = trans(X1, Y1)
+        if self.local2:
+            X2, Y2 = trans(X2, Y2)
 
         line = SVG("path", d="M%s %s L%s %s" % (X1, Y1, X2, Y2), **self.attr)
 
-        if (self.arrow_start != False and self.arrow_start != None) or (self.arrow_end != False and self.arrow_end != None):
+        if ((self.arrow_start != False and self.arrow_start != None) or
+            (self.arrow_end != False and self.arrow_end != None)):
             defs = SVG("defs")
 
             if self.arrow_start != False and self.arrow_start != None:
@@ -2118,6 +2315,7 @@ class LineGlobal:
             return SVG("g", defs, line)
 
         return line
+
 
 class VLine(Line):
     """Draws a vertical line.
@@ -2146,6 +2344,7 @@ class VLine(Line):
         self.x1 = self.x
         self.x2 = self.x
         return Line.Path(self, trans, local)
+
 
 class HLine(Line):
     """Draws a horizontal line.
@@ -2189,7 +2388,8 @@ class Rect(Curve):
     defaults = {}
 
     def __repr__(self):
-        return "<Rect (%g, %g), (%g, %g) %s>" % (self.x1, self.y1, self.x2, self.y2, self.attr)
+        return "<Rect (%g, %g), (%g, %g) %s>" % (
+               self.x1, self.y1, self.x2, self.y2, self.attr)
 
     def __init__(self, x1, y1, x2, y2, **attr):
         self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
@@ -2252,7 +2452,8 @@ class Ellipse(Curve):
     defaults = {}
 
     def __repr__(self):
-        return "<Ellipse (%g, %g) a=(%g, %g), b=%g %s>" % (self.x, self.y, self.ax, self.ay, self.b, self.attr)
+        return "<Ellipse (%g, %g) a=(%g, %g), b=%g %s>" % (
+               self.x, self.y, self.ax, self.ay, self.b, self.attr)
 
     def __init__(self, x, y, ax, ay, b, **attr):
         self.x, self.y, self.ax, self.ay, self.b = x, y, ax, ay, b
@@ -2294,10 +2495,13 @@ def unumber(x):
         uniout = unicode(output[:index]) + u"\u00d710"
         saw_nonzero = False
         for n in output[index+1:]:
-            if n == u"+": pass # uniout += u"\u207a"
-            elif n == u"-": uniout += u"\u207b"
+            if n == u"+":
+                pass # uniout += u"\u207a"
+            elif n == u"-":
+                uniout += u"\u207b"
             elif n == u"0":
-                if saw_nonzero: uniout += u"\u2070"
+                if saw_nonzero:
+                    uniout += u"\u2070"
             elif n == u"1":
                 saw_nonzero = True
                 uniout += u"\u00b9"
@@ -2309,13 +2513,17 @@ def unumber(x):
                 uniout += u"\u00b3"
             elif u"4" <= n <= u"9":
                 saw_nonzero = True
-                if saw_nonzero: uniout += eval("u\"\\u%x\"" % (0x2070 + ord(n) - ord(u"0")))
-            else: uniout += n
+                if saw_nonzero:
+                    uniout += eval("u\"\\u%x\"" % (0x2070 + ord(n) - ord(u"0")))
+            else:
+                uniout += n
 
-        if uniout[:2] == u"1\u00d7": uniout = uniout[2:]
+        if uniout[:2] == u"1\u00d7":
+            uniout = uniout[2:]
         return uniout
 
     return output
+
 
 class Ticks:
     """Superclass for all graphics primatives that draw ticks,
@@ -2376,8 +2584,8 @@ class Ticks:
         * Python callable: function that converts numbers to strings
         * False or None: no labels
     """
-    defaults = {"stroke-width":"0.25pt"}
-    text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
+    defaults = {"stroke-width": "0.25pt", }
+    text_defaults = {"stroke": "none", "fill": "black", "font-size": 5, }
     tick_start = -1.5
     tick_end = 1.5
     minitick_start = -0.75
@@ -2386,9 +2594,11 @@ class Ticks:
     text_angle = 0.
 
     def __repr__(self):
-        return "<Ticks %s from %s to %s ticks=%s labels=%s %s>" % (self.f, self.low, self.high, str(self.ticks), str(self.labels), self.attr)
+        return "<Ticks %s from %s to %s ticks=%s labels=%s %s>" % (
+               self.f, self.low, self.high, str(self.ticks), str(self.labels), self.attr)
 
-    def __init__(self, f, low, high, ticks=-10, miniticks=True, labels=True, logbase=None, arrow_start=None, arrow_end=None, text_attr={}, **attr):
+    def __init__(self, f, low, high, ticks=-10, miniticks=True, labels=True, logbase=None,
+                 arrow_start=None, arrow_end=None, text_attr={}, **attr):
         self.f = f
         self.low = low
         self.high = high
@@ -2411,7 +2621,8 @@ class Ticks:
 
         Normally only used internally.
         """
-        if isinstance(trans, basestring): trans = totrans(trans)
+        if isinstance(trans, basestring):
+            trans = totrans(trans)
         if trans == None:
             f = self.f
         else:
@@ -2424,8 +2635,10 @@ class Ticks:
         xhatx, xhaty = (Xprime - X)/eps, (Yprime - Y)/eps
 
         norm = math.sqrt(xhatx**2 + xhaty**2)
-        if norm != 0: xhatx, xhaty = xhatx/norm, xhaty/norm
-        else: xhatx, xhaty = 1., 0.
+        if norm != 0:
+            xhatx, xhaty = xhatx/norm, xhaty/norm
+        else:
+            xhatx, xhaty = 1., 0.
 
         angle = math.atan2(xhaty, xhatx) + math.pi/2.
         yhatx, yhaty = math.cos(angle), math.sin(angle)
@@ -2434,14 +2647,16 @@ class Ticks:
 
     def SVG(self, trans=None):
         """Apply the transformation "trans" and return an SVG object."""
-        if isinstance(trans, basestring): trans = totrans(trans)
+        if isinstance(trans, basestring):
+            trans = totrans(trans)
 
         self.last_ticks, self.last_miniticks = self.interpret()
         tickmarks = Path([], **self.attr)
         minitickmarks = Path([], **self.attr)
         output = SVG("g")
 
-        if (self.arrow_start != False and self.arrow_start != None) or (self.arrow_end != False and self.arrow_end != None):
+        if ((self.arrow_start != False and self.arrow_start != None) or
+            (self.arrow_end != False and self.arrow_end != None)):
             defs = SVG("defs")
 
             if self.arrow_start != False and self.arrow_start != None:
@@ -2467,7 +2682,8 @@ class Ticks:
         for t, label in self.last_ticks.items():
             (X, Y), (xhatx, xhaty), (yhatx, yhaty), angle = self.orient_tickmark(t, trans)
 
-            if (not self.arrow_start or abs(t - self.low) > eps) and (not self.arrow_end or abs(t - self.high) > eps):
+            if ((not self.arrow_start or abs(t - self.low) > eps) and
+                (not self.arrow_end or abs(t - self.high) > eps)):
                 tickmarks.d.append(("M", X - yhatx*self.tick_start, Y - yhaty*self.tick_start, True))
                 tickmarks.d.append(("L", X - yhatx*self.tick_end, Y - yhaty*self.tick_end, True))
 
@@ -2496,7 +2712,8 @@ class Ticks:
             if not skip:
                 (X, Y), (xhatx, xhaty), (yhatx, yhaty), angle = self.orient_tickmark(t, trans)
 
-            if (not self.arrow_start or abs(t - self.low) > eps) and (not self.arrow_end or abs(t - self.high) > eps):
+            if ((not self.arrow_start or abs(t - self.low) > eps) and
+                (not self.arrow_end or abs(t - self.high) > eps)):
                 minitickmarks.d.append(("M", X - yhatx*self.minitick_start, Y - yhaty*self.minitick_start, True))
                 minitickmarks.d.append(("L", X - yhatx*self.minitick_end, Y - yhaty*self.minitick_end, True))
 
@@ -2529,11 +2746,13 @@ class Ticks:
         ticks = self.ticks
 
         # Case 1: ticks is None/False
-        if ticks == None or ticks == False: return {}, []
+        if ticks == None or ticks == False:
+            return {}, []
 
         # Case 2: ticks is the number of desired ticks
         elif isinstance(ticks, (int, long)):
-            if ticks == True: ticks = -10
+            if ticks == True:
+                ticks = -10
 
             if self.logbase == None:
                 ticks = self.compute_ticks(ticks, format)
@@ -2574,7 +2793,8 @@ class Ticks:
                 ticks = output
 
             # Case 4: ticks is a dict
-            else: pass
+            else:
+                pass
 
             # Now for the miniticks
             if self.miniticks == True:
@@ -2603,8 +2823,10 @@ class Ticks:
 
         Normally only used internally.
         """
-        if self.low >= self.high: raise ValueError, "low must be less than high"
-        if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
+        if self.low >= self.high:
+            raise ValueError, "low must be less than high"
+        if N == 1:
+            raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
 
         eps = _epsilon * (self.high - self.low)
 
@@ -2612,8 +2834,10 @@ class Ticks:
             output = {}
             x = self.low
             for i in xrange(N):
-                if format == unumber and abs(x) < eps: label = u"0"
-                else: label = format(x)
+                if format == unumber and abs(x) < eps:
+                    label = u"0"
+                else:
+                    label = format(x)
                 output[x] = label
                 x += (self.high - self.low)/(N-1.)
             return output
@@ -2625,11 +2849,14 @@ class Ticks:
         lowN = math.ceil(1.*self.low / granularity)
         highN = math.floor(1.*self.high / granularity)
 
-        while (lowN > highN):
+        while lowN > highN:
             countermod3 = counter % 3
-            if countermod3 == 0: granularity *= 0.5
-            elif countermod3 == 1: granularity *= 0.4
-            else: granularity *= 0.5
+            if countermod3 == 0:
+                granularity *= 0.5
+            elif countermod3 == 1:
+                granularity *= 0.4
+            else:
+                granularity *= 0.5
             counter += 1
             lowN = math.ceil(1.*self.low / granularity)
             highN = math.floor(1.*self.high / granularity)
@@ -2641,8 +2868,10 @@ class Ticks:
             trial = {}
             for n in range(int(lowN), int(highN)+1):
                 x = n * granularity
-                if format == unumber and abs(x) < eps: label = u"0"
-                else: label = format(x)
+                if format == unumber and abs(x) < eps:
+                    label = u"0"
+                else:
+                    label = format(x)
                 trial[x] = label
 
             if int(highN)+1 - int(lowN) >= N:
@@ -2652,8 +2881,10 @@ class Ticks:
                 else:
                     low_in_ticks, high_in_ticks = False, False
                     for t in last_trial.keys():
-                        if 1.*abs(t - self.low)/last_granularity < _epsilon: low_in_ticks = True
-                        if 1.*abs(t - self.high)/last_granularity < _epsilon: high_in_ticks = True
+                        if 1.*abs(t - self.low)/last_granularity < _epsilon:
+                            low_in_ticks = True
+                        if 1.*abs(t - self.high)/last_granularity < _epsilon:
+                            high_in_ticks = True
 
                     lowN = 1.*self.low / last_granularity
                     highN = 1.*self.high / last_granularity
@@ -2667,9 +2898,12 @@ class Ticks:
             last_trial = trial
 
             countermod3 = counter % 3
-            if countermod3 == 0: granularity *= 0.5
-            elif countermod3 == 1: granularity *= 0.4
-            else: granularity *= 0.5
+            if countermod3 == 0:
+                granularity *= 0.5
+            elif countermod3 == 1:
+                granularity *= 0.4
+            else:
+                granularity *= 0.5
             counter += 1
             lowN = math.ceil(1.*self.low / granularity)
             highN = math.floor(1.*self.high / granularity)
@@ -2691,7 +2925,8 @@ class Ticks:
 
         Normally only used internally.
         """
-        if len(original_ticks) < 2: original_ticks = ticks(self.low, self.high)
+        if len(original_ticks) < 2:
+            original_ticks = ticks(self.low, self.high)
         original_ticks = original_ticks.keys()
         original_ticks.sort()
 
@@ -2710,8 +2945,10 @@ class Ticks:
             if x >= self.low:
                 already_in_ticks = False
                 for t in original_ticks:
-                    if abs(x-t) < _epsilon * (self.high - self.low): already_in_ticks = True
-                if not already_in_ticks: output.append(x)
+                    if abs(x-t) < _epsilon * (self.high - self.low):
+                        already_in_ticks = True
+                if not already_in_ticks:
+                    output.append(x)
             x += spacing
         return output
 
@@ -2720,8 +2957,10 @@ class Ticks:
 
         Normally only used internally.
         """
-        if self.low >= self.high: raise ValueError, "low must be less than high"
-        if N == 1: raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
+        if self.low >= self.high:
+            raise ValueError, "low must be less than high"
+        if N == 1:
+            raise ValueError, "N can be 0 or >1 to specify the exact number of ticks or negative to specify a maximum"
 
         eps = _epsilon * (self.high - self.low)
 
@@ -2729,8 +2968,10 @@ class Ticks:
             output = {}
             x = self.low
             for i in xrange(N):
-                if format == unumber and abs(x) < eps: label = u"0"
-                else: label = format(x)
+                if format == unumber and abs(x) < eps:
+                    label = u"0"
+                else:
+                    label = format(x)
                 output[x] = label
                 x += (self.high - self.low)/(N-1.)
             return output
@@ -2743,7 +2984,8 @@ class Ticks:
         for n in range(int(lowN), int(highN)+1):
             x = base**n
             label = format(x)
-            if self.low <= x <= self.high: output[x] = label
+            if self.low <= x <= self.high:
+                output[x] = label
 
         for i in range(1, len(output)):
             keys = output.keys()
@@ -2761,7 +3003,8 @@ class Ticks:
             lowest = min(output2)
 
             for k in output:
-                if k < lowest: output2[k] = output[k]
+                if k < lowest:
+                    output2[k] = output[k]
             output = output2
 
         return output
@@ -2771,7 +3014,8 @@ class Ticks:
 
         Normally only used internally.
         """
-        if self.low >= self.high: raise ValueError, "low must be less than high"
+        if self.low >= self.high:
+            raise ValueError, "low must be less than high"
 
         lowN = math.floor(math.log(self.low, base))
         highN = math.ceil(math.log(self.high, base))
@@ -2779,13 +3023,17 @@ class Ticks:
         num_ticks = 0
         for n in range(int(lowN), int(highN)+1):
             x = base**n
-            if self.low <= x <= self.high: num_ticks += 1
+            if self.low <= x <= self.high:
+                num_ticks += 1
             for m in range(2, int(math.ceil(base))):
                 minix = m * x
-                if self.low <= minix <= self.high: output.append(minix)
+                if self.low <= minix <= self.high:
+                    output.append(minix)
 
-        if num_ticks <= 2: return []
-        else: return output
+        if num_ticks <= 2:
+            return []
+        else:
+            return output
 
 ######################################################################
 
@@ -2818,13 +3066,15 @@ class CurveAxis(Curve, Ticks):
     text_attr              default={}       SVG attributes for the text labels
     attribute=value pairs  keyword list     SVG attributes
     """
-    defaults = {"stroke-width":"0.25pt"}
-    text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
+    defaults = {"stroke-width": "0.25pt", }
+    text_defaults = {"stroke": "none", "fill": "black", "font-size": 5, }
 
     def __repr__(self):
-        return "<CurveAxis %s [%s, %s] ticks=%s labels=%s %s>" % (self.f, self.low, self.high, str(self.ticks), str(self.labels), self.attr)
+        return "<CurveAxis %s [%s, %s] ticks=%s labels=%s %s>" % (
+               self.f, self.low, self.high, str(self.ticks), str(self.labels), self.attr)
 
-    def __init__(self, f, low, high, ticks=-10, miniticks=True, labels=True, logbase=None, arrow_start=None, arrow_end=None, text_attr={}, **attr):
+    def __init__(self, f, low, high, ticks=-10, miniticks=True, labels=True, logbase=None,
+                 arrow_start=None, arrow_end=None, text_attr={}, **attr):
         tattr = dict(self.text_defaults)
         tattr.update(text_attr)
         Curve.__init__(self, f, low, high)
@@ -2849,6 +3099,7 @@ class CurveAxis(Curve, Ticks):
 
         ticks.append(func)
         return ticks
+
 
 class LineAxis(Line, Ticks):
     """Draws an axis with tick marks along a line.
@@ -2878,13 +3129,15 @@ class LineAxis(Line, Ticks):
     text_attr               default={}      SVG attributes for the text labels
     attribute=value pairs   keyword list    SVG attributes
     """
-    defaults = {"stroke-width":"0.25pt"}
-    text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
+    defaults = {"stroke-width": "0.25pt", }
+    text_defaults = {"stroke": "none", "fill": "black", "font-size": 5, }
 
     def __repr__(self):
-        return "<LineAxis (%g, %g) to (%g, %g) ticks=%s labels=%s %s>" % (self.x1, self.y1, self.x2, self.y2, str(self.ticks), str(self.labels), self.attr)
+        return "<LineAxis (%g, %g) to (%g, %g) ticks=%s labels=%s %s>" % (
+               self.x1, self.y1, self.x2, self.y2, str(self.ticks), str(self.labels), self.attr)
 
-    def __init__(self, x1, y1, x2, y2, start=0., end=1., ticks=-10, miniticks=True, labels=True, logbase=None, arrow_start=None, arrow_end=None, exclude=None, text_attr={}, **attr):
+    def __init__(self, x1, y1, x2, y2, start=0., end=1., ticks=-10, miniticks=True, labels=True,
+                 logbase=None, arrow_start=None, arrow_end=None, exclude=None, text_attr={}, **attr):
         self.start = start
         self.end = end
         self.exclude = exclude
@@ -2894,12 +3147,13 @@ class LineAxis(Line, Ticks):
         Ticks.__init__(self, None, None, None, ticks, miniticks, labels, logbase, arrow_start, arrow_end, tattr, **attr)
 
     def interpret(self):
-        if self.exclude != None and not (isinstance(self.exclude, (tuple, list)) and len(self.exclude) == 2 and \
+        if self.exclude != None and not (isinstance(self.exclude, (tuple, list)) and len(self.exclude) == 2 and
                                          isinstance(self.exclude[0], (int, long, float)) and isinstance(self.exclude[1], (int, long, float))):
             raise TypeError, "exclude must either be None or (low, high)"
 
         ticks, miniticks = Ticks.interpret(self)
-        if self.exclude == None: return ticks, miniticks
+        if self.exclude == None:
+            return ticks, miniticks
 
         ticks2 = {}
         for loc, label in ticks.items():
@@ -2935,6 +3189,7 @@ class LineAxis(Line, Ticks):
         ticks.append(line)
         return ticks
 
+
 class XAxis(LineAxis):
     """Draws an x axis with tick marks.
 
@@ -2967,15 +3222,17 @@ class XAxis(LineAxis):
     The exclude option is provided for Axes to keep text from overlapping
     where the axes cross. Normal users are not likely to need it.
     """
-    defaults = {"stroke-width":"0.25pt"}
-    text_defaults = {"stroke":"none", "fill":"black", "font-size":5, "dominant-baseline":"text-before-edge"}
+    defaults = {"stroke-width": "0.25pt", }
+    text_defaults = {"stroke": "none", "fill": "black", "font-size": 5, "dominant-baseline": "text-before-edge", }
     text_start = -1.
     text_angle = 0.
 
     def __repr__(self):
-        return "<XAxis (%g, %g) at y=%g ticks=%s labels=%s %s>" % (self.xmin, self.xmax, self.aty, str(self.ticks), str(self.labels), self.attr)
+        return "<XAxis (%g, %g) at y=%g ticks=%s labels=%s %s>" % (
+               self.xmin, self.xmax, self.aty, str(self.ticks), str(self.labels), self.attr)
 
-    def __init__(self, xmin, xmax, aty=0, ticks=-10, miniticks=True, labels=True, logbase=None, arrow_start=None, arrow_end=None, exclude=None, text_attr={}, **attr):
+    def __init__(self, xmin, xmax, aty=0, ticks=-10, miniticks=True, labels=True, logbase=None,
+                 arrow_start=None, arrow_end=None, exclude=None, text_attr={}, **attr):
         self.aty = aty
         tattr = dict(self.text_defaults)
         tattr.update(text_attr)
@@ -2986,6 +3243,7 @@ class XAxis(LineAxis):
         self.y1 = self.aty
         self.y2 = self.aty
         return LineAxis.SVG(self, trans)
+
 
 class YAxis(LineAxis):
     """Draws a y axis with tick marks.
@@ -3019,15 +3277,17 @@ class YAxis(LineAxis):
     The exclude option is provided for Axes to keep text from overlapping
     where the axes cross. Normal users are not likely to need it.
     """
-    defaults = {"stroke-width":"0.25pt"}
-    text_defaults = {"stroke":"none", "fill":"black", "font-size":5, "text-anchor":"end", "dominant-baseline":"middle"}
+    defaults = {"stroke-width": "0.25pt", }
+    text_defaults = {"stroke": "none", "fill": "black", "font-size": 5, "text-anchor": "end", "dominant-baseline": "middle", }
     text_start = 2.5
     text_angle = 90.
 
     def __repr__(self):
-        return "<YAxis (%g, %g) at x=%g ticks=%s labels=%s %s>" % (self.ymin, self.ymax, self.atx, str(self.ticks), str(self.labels), self.attr)
+        return "<YAxis (%g, %g) at x=%g ticks=%s labels=%s %s>" % (
+               self.ymin, self.ymax, self.atx, str(self.ticks), str(self.labels), self.attr)
 
-    def __init__(self, ymin, ymax, atx=0, ticks=-10, miniticks=True, labels=True, logbase=None, arrow_start=None, arrow_end=None, exclude=None, text_attr={}, **attr):
+    def __init__(self, ymin, ymax, atx=0, ticks=-10, miniticks=True, labels=True, logbase=None,
+                 arrow_start=None, arrow_end=None, exclude=None, text_attr={}, **attr):
         self.atx = atx
         tattr = dict(self.text_defaults)
         tattr.update(text_attr)
@@ -3038,6 +3298,7 @@ class YAxis(LineAxis):
         self.x1 = self.atx
         self.x2 = self.atx
         return LineAxis.SVG(self, trans)
+
 
 class Axes:
     """Draw a pair of intersecting x-y axes.
@@ -3071,13 +3332,17 @@ class Axes:
     text_attr                default={}     SVG attributes for the text labels
     attribute=value pairs    keyword list   SVG attributes for all lines
     """
-    defaults = {"stroke-width":"0.25pt"}
-    text_defaults = {"stroke":"none", "fill":"black", "font-size":5}
+    defaults = {"stroke-width": "0.25pt", }
+    text_defaults = {"stroke": "none", "fill": "black", "font-size": 5, }
 
     def __repr__(self):
-        return "<Axes x=(%g, %g) y=(%g, %g) at (%g, %g) %s>" % (self.xmin, self.xmax, self.ymin, self.ymax, self.atx, self.aty, self.attr)
+        return "<Axes x=(%g, %g) y=(%g, %g) at (%g, %g) %s>" % (
+               self.xmin, self.xmax, self.ymin, self.ymax, self.atx, self.aty, self.attr)
 
-    def __init__(self, xmin, xmax, ymin, ymax, atx=0, aty=0, xticks=-10, xminiticks=True, xlabels=True, xlogbase=None, yticks=-10, yminiticks=True, ylabels=True, ylogbase=None, arrows=None, text_attr={}, **attr):
+    def __init__(self, xmin, xmax, ymin, ymax, atx=0, aty=0,
+                 xticks=-10, xminiticks=True, xlabels=True, xlogbase=None,
+                 yticks=-10, yminiticks=True, ylabels=True, ylogbase=None,
+                 arrows=None, text_attr={}, **attr):
         self.xmin, self.xmax = xmin, xmax
         self.ymin, self.ymax = ymin, ymax
         self.atx, self.aty = atx, aty
@@ -3094,10 +3359,14 @@ class Axes:
     def SVG(self, trans=None):
         """Apply the transformation "trans" and return an SVG object."""
         atx, aty = self.atx, self.aty
-        if atx < self.xmin: atx = self.xmin
-        if atx > self.xmax: atx = self.xmax
-        if aty < self.ymin: aty = self.ymin
-        if aty > self.ymax: aty = self.ymax
+        if atx < self.xmin:
+            atx = self.xmin
+        if atx > self.xmax:
+            atx = self.xmax
+        if aty < self.ymin:
+            aty = self.ymin
+        if aty > self.ymax:
+            aty = self.ymax
 
         xmargin = 0.1 * abs(self.ymin - self.ymax)
         xexclude = atx - xmargin, atx + xmargin
@@ -3138,11 +3407,12 @@ class HGrid(Ticks):
                                             (if miniticks != False)
     attribute=value pairs   keyword list    SVG attributes for the major tick lines
     """
-    defaults = {"stroke-width":"0.25pt", "stroke":"gray"}
-    mini_defaults = {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"}
+    defaults = {"stroke-width": "0.25pt", "stroke": "gray", }
+    mini_defaults = {"stroke-width": "0.25pt", "stroke": "lightgray", "stroke-dasharray": "1,1", }
 
     def __repr__(self):
-        return "<HGrid x=(%g, %g) %g <= y <= %g ticks=%s miniticks=%s %s>" % (self.xmin, self.xmax, self.low, self.high, str(self.ticks), str(self.miniticks), self.attr)
+        return "<HGrid x=(%g, %g) %g <= y <= %g ticks=%s miniticks=%s %s>" % (
+               self.xmin, self.xmax, self.low, self.high, str(self.ticks), str(self.miniticks), self.attr)
 
     def __init__(self, xmin, xmax, low, high, ticks=-10, miniticks=False, logbase=None, mini_attr={}, **attr):
         self.xmin, self.xmax = xmin, xmax
@@ -3169,6 +3439,7 @@ class HGrid(Ticks):
 
         return SVG("g", Path(d=ticksd, **self.attr).SVG(), Path(d=miniticksd, **self.mini_attr).SVG())
 
+
 class VGrid(Ticks):
     """Draws the vertical lines of a grid over a specified region
     using the standard tick specification (see help(Ticks)) to place the
@@ -3188,11 +3459,12 @@ class VGrid(Ticks):
                                             (if miniticks != False)
     attribute=value pairs   keyword list    SVG attributes for the major tick lines
     """
-    defaults = {"stroke-width":"0.25pt", "stroke":"gray"}
-    mini_defaults = {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"}
+    defaults = {"stroke-width": "0.25pt", "stroke": "gray", }
+    mini_defaults = {"stroke-width": "0.25pt", "stroke": "lightgray", "stroke-dasharray": "1,1", }
 
     def __repr__(self):
-        return "<VGrid y=(%g, %g) %g <= x <= %g ticks=%s miniticks=%s %s>" % (self.ymin, self.ymax, self.low, self.high, str(self.ticks), str(self.miniticks), self.attr)
+        return "<VGrid y=(%g, %g) %g <= x <= %g ticks=%s miniticks=%s %s>" % (
+               self.ymin, self.ymax, self.low, self.high, str(self.ticks), str(self.miniticks), self.attr)
 
     def __init__(self, ymin, ymax, low, high, ticks=-10, miniticks=False, logbase=None, mini_attr={}, **attr):
         self.ymin, self.ymax = ymin, ymax
@@ -3219,6 +3491,7 @@ class VGrid(Ticks):
 
         return SVG("g", Path(d=ticksd, **self.attr).SVG(), Path(d=miniticksd, **self.mini_attr).SVG())
 
+
 class Grid(Ticks):
     """Draws a grid over a specified region using the standard tick
     specification (see help(Ticks)) to place the grid lines.
@@ -3237,11 +3510,12 @@ class Grid(Ticks):
                                             (if miniticks != False)
     attribute=value pairs   keyword list    SVG attributes for the major tick lines
     """
-    defaults = {"stroke-width":"0.25pt", "stroke":"gray"}
-    mini_defaults = {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"}
+    defaults = {"stroke-width": "0.25pt", "stroke": "gray", }
+    mini_defaults = {"stroke-width": "0.25pt", "stroke": "lightgray", "stroke-dasharray": "1,1", }
 
     def __repr__(self):
-        return "<Grid x=(%g, %g) y=(%g, %g) ticks=%s miniticks=%s %s>" % (self.xmin, self.xmax, self.ymin, self.ymax, str(self.ticks), str(self.miniticks), self.attr)
+        return "<Grid x=(%g, %g) y=(%g, %g) ticks=%s miniticks=%s %s>" % (
+               self.xmin, self.xmax, self.ymin, self.ymax, str(self.ticks), str(self.miniticks), self.attr)
 
     def __init__(self, xmin, xmax, ymin, ymax, ticks=-10, miniticks=False, logbase=None, mini_attr={}, **attr):
         self.xmin, self.xmax = xmin, xmax
@@ -3297,7 +3571,7 @@ class XErrorBars:
           you nest errors from different sources, correlated and
           uncorrelated, statistical and systematic, etc.
     """
-    defaults = {"stroke-width":"0.25pt"}
+    defaults = {"stroke-width": "0.25pt", }
 
     def __repr__(self):
         return "<XErrorBars (%d nodes)>" % len(self.d)
@@ -3310,19 +3584,23 @@ class XErrorBars:
 
     def SVG(self, trans=None):
         """Apply the transformation "trans" and return an SVG object."""
-        if isinstance(trans, basestring): trans = totrans(trans) # only once
+        if isinstance(trans, basestring):
+            trans = totrans(trans) # only once
 
         output = SVG("g")
         for p in self.d:
             x, y = p[0], p[1]
 
-            if len(p) == 3: bars = [x - p[2], x + p[2]]
-            else: bars = [x + pi for pi in p[2:]]
+            if len(p) == 3:
+                bars = [x - p[2], x + p[2]]
+            else:
+                bars = [x + pi for pi in p[2:]]
 
             start, end = min(bars), max(bars)
             output.append(LineAxis(start, y, end, y, start, end, bars, False, False, **self.attr).SVG(trans))
 
         return output
+
 
 class YErrorBars:
     """Draws y error bars at a set of points. This is usually used
@@ -3343,7 +3621,7 @@ class YErrorBars:
           you nest errors from different sources, correlated and
           uncorrelated, statistical and systematic, etc.
     """
-    defaults = {"stroke-width":"0.25pt"}
+    defaults = {"stroke-width": "0.25pt", }
 
     def __repr__(self):
         return "<YErrorBars (%d nodes)>" % len(self.d)
@@ -3356,16 +3634,20 @@ class YErrorBars:
 
     def SVG(self, trans=None):
         """Apply the transformation "trans" and return an SVG object."""
-        if isinstance(trans, basestring): trans = totrans(trans) # only once
+        if isinstance(trans, basestring):
+            trans = totrans(trans) # only once
 
         output = SVG("g")
         for p in self.d:
             x, y = p[0], p[1]
 
-            if len(p) == 3: bars = [y - p[2], y + p[2]]
-            else: bars = [y + pi for pi in p[2:]]
+            if len(p) == 3:
+                bars = [y - p[2], y + p[2]]
+            else:
+                bars = [y + pi for pi in p[2:]]
 
             start, end = min(bars), max(bars)
             output.append(LineAxis(x, start, x, end, start, end, bars, False, False, **self.attr).SVG(trans))
 
         return output
+

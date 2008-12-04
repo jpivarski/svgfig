@@ -35,10 +35,13 @@ class Fig(trans.Delay):
 
     def __repr__(self):
         ren = "ren"
-        if len(self.children) == 1: ren = ""
+        if len(self.children) == 1:
+            ren = ""
         clip = ""
-        if self.clip: clip = " clip"
-        return "<Fig (%d child%s) xmin=%s xmax=%s ymin=%s ymax=%s%s>" % (len(self.children), ren, self.xmin, self.xmax, self.ymin, self.ymax, clip)
+        if self.clip:
+            clip = " clip"
+        return "<Fig (%d child%s) xmin=%s xmax=%s ymin=%s ymax=%s%s>" % (
+               len(self.children), ren, self.xmin, self.xmax, self.ymin, self.ymax, clip)
 
     def transform(self, t):
         t = svg.cannonical_transformation(t)
@@ -47,11 +50,12 @@ class Fig(trans.Delay):
         self.x, self.y = x1, y1
         self.width, self.height = x2 - x1, y2 - y1
 
-    def bbox(self): return defaults.BBox(self.x, self.x + self.width, self.y, self.y + self.height)
+    def bbox(self):
+        return defaults.BBox(self.x, self.x + self.width, self.y, self.y + self.height)
 
     def svg(self):
-        if self.xmin is not None and self.xmax is not None and \
-           self.ymin is not None and self.ymax is not None:
+        if (self.xmin is not None and self.xmax is not None and
+            self.ymin is not None and self.ymax is not None):
             self.trans = trans.window(self.xmin, self.xmax, self.ymin, self.ymax,
                                       x=self.x, y=self.y, width=self.width, height=self.height,
                                       xlogbase=self.xlogbase, ylogbase=self.ylogbase,
@@ -101,7 +105,8 @@ class Fig(trans.Delay):
     def __deepcopy__(self, memo={}):
         mostdict = copy.copy(self.__dict__)
         del mostdict["trans"]
-        if "repr" in mostdict: del mostdict["repr"]
+        if "repr" in mostdict:
+            del mostdict["repr"]
         output = new.instance(self.__class__)
         output.__dict__ = copy.deepcopy(mostdict, memo)
         output.__dict__["trans"] = self.trans
@@ -114,10 +119,14 @@ class Fig(trans.Delay):
         for child in self.children:
             bbox += child.bbox()
 
-        if self.xmin is not None: bbox.xmin = self.xmin
-        if self.xmax is not None: bbox.xmax = self.xmax
-        if self.ymin is not None: bbox.ymin = self.ymin
-        if self.ymax is not None: bbox.ymax = self.ymax
+        if self.xmin is not None:
+            bbox.xmin = self.xmin
+        if self.xmax is not None:
+            bbox.xmax = self.xmax
+        if self.ymin is not None:
+            bbox.ymin = self.ymin
+        if self.ymax is not None:
+            bbox.ymax = self.ymax
 
         self.trans = trans.window(bbox.xmin, bbox.xmax, bbox.ymin, bbox.ymax,
                                   x=self.x, y=self.y, width=self.width, height=self.height,
@@ -139,8 +148,10 @@ class Canvas(Fig):
 
     def __repr__(self):
         ren = "ren"
-        if len(self.children) == 1: ren = ""
-        return "<Canvas (%d child%s) width=%g height=%g xmin=%s xmax=%s ymin=%s ymax=%s>" % (len(self.children), ren, self.width, self.height, self.xmin, self.xmax, self.ymin, self.ymax)
+        if len(self.children) == 1:
+            ren = ""
+        return "<Canvas (%d child%s) width=%g height=%g xmin=%s xmax=%s ymin=%s ymax=%s>" % (
+               len(self.children), ren, self.width, self.height, self.xmin, self.xmax, self.ymin, self.ymax)
 
     def svg(self):
         Fig.svg(self)
@@ -148,3 +159,4 @@ class Canvas(Fig):
         self._svg = svg.SVG("svg", self.width, self.height, [0, 0, self.width, self.height])
         self._svg.__dict__["children"] = output.children
         self._svg.__dict__["attrib"].update(output.attrib)
+
