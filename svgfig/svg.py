@@ -352,7 +352,7 @@ class SVG:
     def save(self, fileName, encoding="utf-8", compresslevel=None):
         fileName = defaults._expand_fileName(fileName)
 
-        if compresslevel is not None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
+        if compresslevel is not None or re.search(r"\.svgz$", fileName, re.I) or re.search(r"\.gz$", fileName, re.I):
             import gzip
             if compresslevel is None:
                 f = gzip.GzipFile(fileName, "w")
@@ -719,7 +719,7 @@ class CDATA(SVG):
 ############################### reading SVG from a file
 
 def load(fileName):
-    if re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
+    if re.search(r"\.svgz$", fileName, re.I) or re.search(r"\.gz$", fileName, re.I):
         import gzip
         f = gzip.GzipFile(fileName)
     else:
@@ -743,7 +743,7 @@ def load_stream(stream):
         def __init__(self):
             self.stack = []
             self.output = None
-            self.all_whitespace = re.compile("^\s*$")
+            self.all_whitespace = re.compile(r"^\s*$")
             self.CDATA = False
 
         def startElement(self, tag, attrib):
