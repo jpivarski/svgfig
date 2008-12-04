@@ -2926,7 +2926,7 @@ class Ticks:
         Normally only used internally.
         """
         if len(original_ticks) < 2:
-            original_ticks = ticks(self.low, self.high)
+            original_ticks = ticks(self.low, self.high) # XXX ticks is undefined!
         original_ticks = original_ticks.keys()
         original_ticks.sort()
 
@@ -3229,7 +3229,7 @@ class XAxis(LineAxis):
 
     def __repr__(self):
         return "<XAxis (%g, %g) at y=%g ticks=%s labels=%s %s>" % (
-               self.xmin, self.xmax, self.aty, str(self.ticks), str(self.labels), self.attr)
+               self.xmin, self.xmax, self.aty, str(self.ticks), str(self.labels), self.attr) # XXX self.xmin/xmax undefd!
 
     def __init__(self, xmin, xmax, aty=0, ticks=-10, miniticks=True, labels=True, logbase=None,
                  arrow_start=None, arrow_end=None, exclude=None, text_attr={}, **attr):
@@ -3284,7 +3284,7 @@ class YAxis(LineAxis):
 
     def __repr__(self):
         return "<YAxis (%g, %g) at x=%g ticks=%s labels=%s %s>" % (
-               self.ymin, self.ymax, self.atx, str(self.ticks), str(self.labels), self.attr)
+               self.ymin, self.ymax, self.atx, str(self.ticks), str(self.labels), self.attr) # XXX self.ymin/ymax undefd!
 
     def __init__(self, ymin, ymax, atx=0, ticks=-10, miniticks=True, labels=True, logbase=None,
                  arrow_start=None, arrow_end=None, exclude=None, text_attr={}, **attr):
