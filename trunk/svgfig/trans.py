@@ -221,15 +221,15 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=Non
     ix2 = xmax
     iy2 = ymax
 
-    if xlogbase != None and (ix1 <= 0. or ix2 <= 0.):
+    if xlogbase is not None and (ix1 <= 0. or ix2 <= 0.):
         raise ValueError, "x range incompatible with log scaling: (%g, %g)" % (ix1, ix2)
 
-    if ylogbase != None and (iy1 <= 0. or iy2 <= 0.):
+    if ylogbase is not None and (iy1 <= 0. or iy2 <= 0.):
         raise ValueError, "y range incompatible with log scaling: (%g, %g)" % (iy1, iy2)
 
     xlogstr, ylogstr = "", ""
 
-    if xlogbase == None:
+    if xlogbase is None:
         xfunc = "%(ox1)s + 1.*(x - %(ix1)s)/(%(ix2)s - %(ix1)s) * (%(ox2)s - %(ox1)s)" % {
                 "ox1": repr(ox1), "ox2": repr(ox2), "ix1": repr(ix1), "ix2": repr(ix2)}
     else:
@@ -237,7 +237,7 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=Non
                 "ox1": repr(ox1), "ox2": repr(ox2), "ix1": repr(ix1), "ix2": repr(ix2), "minusInfinityX": repr(minusInfinityX), "logbase": xlogbase}
         xlogstr = " xlog=%g" % xlogbase
 
-    if ylogbase == None:
+    if ylogbase is None:
         yfunc = "%(oy1)s + 1.*(y - %(iy1)s)/(%(iy2)s - %(iy1)s) * (%(oy2)s - %(oy1)s)" % {
                 "oy1": repr(oy1), "oy2": repr(oy2), "iy1": repr(iy1), "iy2": repr(iy2)}
     else:
