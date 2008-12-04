@@ -23,8 +23,8 @@ _epsilon = 1e-5
 if re.search("windows", platform.system(), re.I):
     try:
         import _winreg
-        _default_directory = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, \
-                           r"Software\Microsoft\Windows\Current Version\Explorer\Shell Folders"), "Desktop")[0]
+        _default_directory = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER,
+                             r"Software\Microsoft\Windows\Current Version\Explorer\Shell Folders"), "Desktop")[0]
 #   tmpdir = _winreg.QueryValueEx(_winreg.OpenKey(_winreg.HKEY_CURRENT_USER, "Environment"), "TEMP")[0]
 #   if tmpdir[0:13] != "%USERPROFILE%":
 #     tmpdir = os.path.expanduser("~") + tmpdir[13:]
@@ -453,7 +453,7 @@ class SVG:
         """
         fileName = self.interpret_fileName(fileName)
 
-        if compresslevel is not None or re.search("\.svgz$", fileName, re.I) or re.search("\.gz$", fileName, re.I):
+        if compresslevel is not None or re.search(r"\.svgz$", fileName, re.I) or re.search(r"\.gz$", fileName, re.I):
             import gzip
             if compresslevel is None:
                 f = gzip.GzipFile(fileName, "w")
@@ -554,7 +554,7 @@ def canvas_outline(*sub, **attr):
     """Same as canvas(), but draws an outline around the drawable area,
     so that you know how close your image is to the edges."""
     svg = canvas(*sub, **attr)
-    match = re.match("[, \t]*([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]*", svg["viewBox"])
+    match = re.match(r"[, \t]*([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]+([0-9e.+\-]+)[, \t]*", svg["viewBox"])
     if match is None:
         raise ValueError, "canvas viewBox is incorrectly formatted"
     x, y, width, height = [float(x) for x in match.groups()]
@@ -602,7 +602,7 @@ def load_stream(stream):
         def __init__(self):
             self.stack = []
             self.output = None
-            self.all_whitespace = re.compile("^\s*$")
+            self.all_whitespace = re.compile(r"^\s*$")
 
         def startElement(self, name, attr):
             s = SVG(name)
@@ -831,7 +831,7 @@ class Fig:
                 elif strans is None:
                     subtrans = trans
                 else:
-                    subtrans = lambda x,y: trans(*strans(x, y))
+                    subtrans = lambda x, y: trans(*strans(x, y))
 
                 output.sub += s.SVG(subtrans).sub
 
