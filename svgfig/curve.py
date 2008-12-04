@@ -78,8 +78,11 @@ class Curve(svg.SVG):
         return math.atan2(dely, delx)
 
     ### pickleability and access issues
-    def __getattr__(self, name): return self.__dict__[name]
-    def __setattr__(self, name, value): self.__dict__[name] = value
+    def __getattr__(self, name):
+        return self.__dict__[name]
+
+    def __setattr__(self, name, value):
+        self.__dict__[name] = value
 
     def __getstate__(self):
         mostdict = copy.copy(self.__dict__)
@@ -115,7 +118,8 @@ class Curve(svg.SVG):
         mostdict = copy.copy(self.__dict__)
         del mostdict["trans"]
         del mostdict["f"]
-        if "repr" in mostdict: del mostdict["repr"]
+        if "repr" in mostdict:
+            del mostdict["repr"]
         output = new.instance(self.__class__)
         output.__dict__ = copy.deepcopy(mostdict, memo)
         output.__dict__["trans"] = copy.copy(self.trans)
@@ -127,23 +131,29 @@ class Curve(svg.SVG):
     ### presentation
     def __repr__(self):
         marks = ""
-        if len(self.marks) == 1: marks = " (1 mark)"
-        elif len(self.marks) > 1: marks = " (%d marks)" % len(self.marks)
+        if len(self.marks) == 1:
+            marks = " (1 mark)"
+        elif len(self.marks) > 1:
+            marks = " (%d marks)" % len(self.marks)
 
         trans = ""
-        if len(self.trans) > 0: trans = " (%d trans)" % len(self.trans)
+        if len(self.trans) > 0:
+            trans = " (%d trans)" % len(self.trans)
 
         attrib = ""
         for var in "stroke", "fill":
             if var in self.attrib:
                 attrib += " %s=%s" % (var, repr(self.attrib[var]))
 
-        return "<%s %s from %g to %g%s%s%s>" % (self.__class__.__name__, self.f, self.low, self.high, marks, trans, attrib)
+        return "<%s %s from %g to %g%s%s%s>" % (
+               self.__class__.__name__, self.f, self.low, self.high, marks, trans, attrib)
 
     ### transformation is like Delay
-    def transform(self, t): self.trans.append(svg.cannonical_transformation(t))
+    def transform(self, t):
+        self.trans.append(svg.cannonical_transformation(t))
 
-    def bbox(self): return pathdata.bbox(self.d())
+    def bbox(self):
+        return pathdata.bbox(self.d())
 
     ### construct the SVG path
     def svg(self):
@@ -169,9 +179,9 @@ class Curve(svg.SVG):
                     t, mark = item # marks should be (pos, mark) pairs or just pos
 
                 X, Y = self(t)
-                if self.low <= t <= self.high or \
-                   math.sqrt((X - lowX)**2 + (Y - lowY)**2) < trans.epsilon or \
-                   math.sqrt((X - highX)**2 + (Y - highY)**2) < trans.epsilon:
+                if (self.low <= t <= self.high or
+                    math.sqrt((X - lowX)**2 + (Y - lowY)**2) < trans.epsilon or
+                    math.sqrt((X - highX)**2 + (Y - highY)**2) < trans.epsilon):
 
                     angle = self.angle(t)
 
@@ -187,13 +197,15 @@ class Curve(svg.SVG):
 
     def d(self):
         data = _curve.curve(self.f, self.trans, self.low, self.high,
-                            self.random_sampling, self.random_seed, self.recursion_limit, self.linearity_limit, self.discontinuity_limit)
+                            self.random_sampling, self.random_seed,
+                            self.recursion_limit, self.linearity_limit, self.discontinuity_limit)
 
         segments = []
         last_d = None
         for d in data:
             if d is not None:
-                if last_d is None: segments.append([])
+                if last_d is None:
+                    segments.append([])
                 segments[-1].append(d)
             last_d = d
 
@@ -217,61 +229,76 @@ class Curve(svg.SVG):
 
     ### lots of functions for adding/removing marks
     def _matches(self, matching, mark):
-        if matching is None: return True
+        if matching is None:
+            return True
 
         try:
-            if isinstance(mark, matching): return True
-        except TypeError: pass
+            if isinstance(mark, matching):
+                return True
+        except TypeError:
+            pass
 
         if isinstance(mark, svg.SVG) and isinstance(matching, basestring):
-            if re.search(matching, mark.tag): return True
-            if "repr" in mark.__dict__ and re.search(matching, mark.repr): return True
+            if re.search(matching, mark.tag):
+                return True
+            if "repr" in mark.__dict__ and re.search(matching, mark.repr):
+                return True
 
         if isinstance(matching, basestring) and isinstance(mark, basestring):
-            if re.search(matching, mark): return True
+            if re.search(matching, mark):
+                return True
 
         return matching == mark
 
     def wipe(self, low=None, high=None, matching=None):
-        if low is None: low = self.low
-        if high is None: high = self.high
+        if low is None:
+            low = self.low
+        if high is None:
+            high = self.high
 
         newmarks = []
         for item in self.marks:
             if isinstance(item, (int, long, float)):
                 if self._matches(matching, item):
-                    if not low <= item <= high: newmarks.append(item)
+                    if not low <= item <= high:
+                        newmarks.append(item)
                 else:
                     newmarks.append(item)
 
             else:
                 pos, mark = item # marks should be (pos, mark) pairs or just pos
                 if self._matches(matching, mark):
-                    if not low <= pos <= high: newmarks.append(item)
+                    if not low <= pos <= high:
+                        newmarks.append(item)
                 else:
                     newmarks.append(item)
 
         self.marks = newmarks
 
     def keep(self, low=None, high=None, matching=None):
-        if low is None: low = self.low
-        if high is None: high = self.high
+        if low is None:
+            low = self.low
+        if high is None:
+            high = self.high
 
         newmarks = []
         for item in self.marks:
             if isinstance(item, (int, long, float)):
                 if self._matches(matching, item):
-                    if low <= item <= high: newmarks.append(item)
+                    if low <= item <= high:
+                        newmarks.append(item)
 
             else:
                 pos, mark = item # marks should be (pos, mark) pairs or just pos
                 if self._matches(matching, mark):
-                    if low <= pos <= high: newmarks.append(item)
+                    if low <= pos <= high:
+                        newmarks.append(item)
 
         self.marks = newmarks
 
     def drop(self, t, tolerance=None, matching=None):
-        if tolerance is None: tolerance = trans.epsilon * abs(self.high - self.low)
+        if tolerance is None:
+            tolerance = trans.epsilon * abs(self.high - self.low)
         self.wipe(t - tolerance, t + tolerance, matching=matching)
 
     def add(self, t, mark, angle=0., dx=0., dy=0.):
@@ -292,7 +319,8 @@ class Curve(svg.SVG):
             self.add(t, mark)
             self.marks[-1][1]["stroke"] = self["stroke"]
 
-    def minitick(self, t): self.tick(t, glyphs.minitick)
+    def minitick(self, t):
+        self.tick(t, glyphs.minitick)
 
     def _markorder(self, a, b):
         if isinstance(a, (int, long, float)):
@@ -304,16 +332,20 @@ class Curve(svg.SVG):
         else:
             posb, markb = b # marks should be (pos, mark) pairs or just pos
 
-        if marka is None and markb is not None: return 1
-        if marka is not None and markb is None: return -1
+        if marka is None and markb is not None:
+            return 1
+        if marka is not None and markb is None:
+            return -1
         return cmp(posa, posb)
 
     def sort(self, order=None):
-        if order is None: order = lambda a, b: self._markorder(a, b)
+        if order is None:
+            order = lambda a, b: self._markorder(a, b)
         self.marks.sort(order)
 
     def closest(self, t, tolerance=None, matching=None):
-        if tolerance is None: tolerance = trans.epsilon * abs(self.high - self.low)
+        if tolerance is None:
+            tolerance = trans.epsilon * abs(self.high - self.low)
 
         candidates = []
         for item in self.marks:
@@ -344,35 +376,46 @@ class Curve(svg.SVG):
         for item in self.marks:
             if not isinstance(item, (int, long, float)):
                 pos, mark = item # marks should be (pos, mark) pairs or just pos
-                if mark not in (glyphs.tick, glyphs.minitick, glyphs.frtick, glyphs.frminitick) and \
-                   not isinstance(mark, basestring) and not (isinstance(mark, svg.SVG) and self.tag == "text"):
-                    if pos == self.low: end1 = item
-                    if pos == self.high: end2 = item
+                if (mark not in (glyphs.tick, glyphs.minitick, glyphs.frtick, glyphs.frminitick) and
+                    not isinstance(mark, basestring) and not (isinstance(mark, svg.SVG) and self.tag == "text")):
+                    if pos == self.low:
+                        end1 = item
+                    if pos == self.high:
+                        end2 = item
 
         newmarks = []
         for item in self.marks:
             if isinstance(item, (int, long, float)):
-                if (item != self.low and item != self.high) or \
-                   (item == self.low and end1 is None) or \
-                   (item == self.high and end2 is None):
+                if ((item != self.low and item != self.high) or
+                    (item == self.low and end1 is None) or
+                    (item == self.high and end2 is None)):
                     newmarks.append(item)
 
             else:
                 pos, mark = item
-                if (mark not in (glyphs.tick, glyphs.minitick, glyphs.frtick, glyphs.frminitick)) or \
-                   (pos != self.low and pos != self.high) or \
-                   (pos == self.low and end1 is None) or \
-                   (pos == self.high and end2 is None):
+                if ((mark not in (glyphs.tick, glyphs.minitick, glyphs.frtick, glyphs.frminitick)) or
+                    (pos != self.low and pos != self.high) or
+                    (pos == self.low and end1 is None) or
+                    (pos == self.high and end2 is None)):
                     newmarks.append(item)
 
         self.marks = newmarks
 
     ### act like a list
-    def append(self, other): self.marks.append(other)
-    def prepend(self, other): self.marks[0:0] = [other]
-    def insert(self, i, other): self.marks.insert(i, other)
-    def remove(self, other): self.marks.remove(other)
-    def __len__(self): return len(self.marks)
+    def append(self, other):
+        self.marks.append(other)
+
+    def prepend(self, other):
+        self.marks[0:0] = [other]
+
+    def insert(self, i, other):
+        self.marks.insert(i, other)
+
+    def remove(self, other):
+        self.marks.remove(other)
+
+    def __len__(self):
+        return len(self.marks)
 
     def extend(self, other):
         if isinstance(other, SVG):
@@ -403,10 +446,17 @@ class Curve(svg.SVG):
         self.marks *= other
         return self
 
-    def count(self, *args, **kwds): return self.marks.count(*args, **kwds)
-    def index(self, *args, **kwds): return self.marks.index(*args, **kwds)
-    def pop(self, *args, **kwds): return self.marks.pop(*args, **kwds)
-    def reverse(self, *args, **kwds): return self.marks.reverse(*args, **kwds)
+    def count(self, *args, **kwds):
+        return self.marks.count(*args, **kwds)
+
+    def index(self, *args, **kwds):
+        return self.marks.index(*args, **kwds)
+
+    def pop(self, *args, **kwds):
+        return self.marks.pop(*args, **kwds)
+
+    def reverse(self, *args, **kwds):
+        return self.marks.reverse(*args, **kwds)
 
 ############################### plot axes
 
@@ -500,12 +550,13 @@ class YAxis(Curve):
 
 def format_number(x, format="%g", scale=1.):
     eps = trans.epsilon * abs(scale)
-    if abs(x) < eps: return "0"
+    if abs(x) < eps:
+        return "0"
     return format % x
 
 def unicode_number(x, scale=1.):
     """Converts numbers to a Unicode string, taking advantage of special
-  Unicode characters to make nice minus signs and scientific notation."""
+    Unicode characters to make nice minus signs and scientific notation."""
     output = format_number(x, u"%g", scale)
 
     if output[0] == u"-":
@@ -516,10 +567,13 @@ def unicode_number(x, scale=1.):
         uniout = unicode(output[:index]) + u"\u00d710"
         saw_nonzero = False
         for n in output[index+1:]:
-            if n == u"+": pass # uniout += u"\u207a"
-            elif n == u"-": uniout += u"\u207b"
+            if n == u"+":
+                pass # uniout += u"\u207a"
+            elif n == u"-":
+                uniout += u"\u207b"
             elif n == u"0":
-                if saw_nonzero: uniout += u"\u2070"
+                if saw_nonzero:
+                    uniout += u"\u2070"
             elif n == u"1":
                 saw_nonzero = True
                 uniout += u"\u00b9"
@@ -531,10 +585,13 @@ def unicode_number(x, scale=1.):
                 uniout += u"\u00b3"
             elif u"4" <= n <= u"9":
                 saw_nonzero = True
-                if saw_nonzero: uniout += eval("u\"\\u%x\"" % (0x2070 + ord(n) - ord(u"0")))
-            else: uniout += n
+                if saw_nonzero:
+                    uniout += eval("u\"\\u%x\"" % (0x2070 + ord(n) - ord(u"0")))
+            else:
+                uniout += n
 
-        if uniout[:2] == u"1\u00d7": uniout = uniout[2:]
+        if uniout[:2] == u"1\u00d7":
+            uniout = uniout[2:]
         return uniout
 
     return output
@@ -549,7 +606,8 @@ def ticks(low, high, maximum=None, exactly=None, format=unicode_number):
             t += (high - low)/(exactly - 1.)
         return output
 
-    if maximum is None: maximum = 10
+    if maximum is None:
+        maximum = 10
 
     counter = 0
     granularity = 10**math.ceil(math.log10(max(abs(low), abs(high))))
@@ -558,9 +616,12 @@ def ticks(low, high, maximum=None, exactly=None, format=unicode_number):
 
     def subdivide(counter, granularity, low, high, lowN, highN):
         countermod3 = counter % 3
-        if countermod3 == 0: granularity *= 0.5
-        elif countermod3 == 1: granularity *= 0.4
-        elif countermod3 == 2: granularity *= 0.5
+        if countermod3 == 0:
+            granularity *= 0.5
+        elif countermod3 == 1:
+            granularity *= 0.4
+        elif countermod3 == 2:
+            granularity *= 0.5
         counter += 1
         lowN = math.ceil(1.*low / granularity)
         highN = math.floor(1.*high / granularity)
@@ -609,7 +670,8 @@ def ticks(low, high, maximum=None, exactly=None, format=unicode_number):
                  subdivide(counter, granularity, low, high, lowN, highN)
 
 def logticks(low, high, base=10., maximum=None, format=unicode_number):
-    if maximum is None: maximum = 10
+    if maximum is None:
+        maximum = 10
 
     lowN = math.floor(math.log(low, base))
     highN = math.ceil(math.log(high, base))
@@ -635,7 +697,8 @@ def logticks(low, high, base=10., maximum=None, format=unicode_number):
 
         lowest = min(output2)
         for t, mark in output:
-            if t < lowest: output2.append((t, mark))
+            if t < lowest:
+                output2.append((t, mark))
 
         return output2
 
@@ -645,3 +708,4 @@ def logticks(low, high, base=10., maximum=None, format=unicode_number):
             output.append((m * t, glyphs.minitick))
 
     return output
+

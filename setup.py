@@ -34,7 +34,8 @@ class my_build_ext(build_ext):
 curve_extension = Extension(os.path.join("svgfig", "_curve"), [os.path.join("svgfig", "_curve.c")], {})
 
 def viewer_pkgconfig():
-    def drop_whitespace(word): return word != "\n" and word != ""
+    def drop_whitespace(word):
+        return word != "\n" and word != ""
     return filter(drop_whitespace, os.popen("pkg-config --cflags --libs gtk+-2.0 gthread-2.0").read().split(" "))
 
 viewer_extension = Extension(os.path.join("svgfig", "_viewer"),

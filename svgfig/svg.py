@@ -10,19 +10,24 @@ def randomid(prefix="", characters=10):
 
 # This rgb function could be a lot better... something to think about...
 def rgb(r, g, b, maximum=1.):
-    return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)), max(0, min(g*255./maximum, 255)), max(0, min(b*255./maximum, 255)))
+    return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)),
+                              max(0, min(g*255./maximum, 255)),
+                              max(0, min(b*255./maximum, 255)))
 
 ############################### class SVG
 
-def shortcut(tag): return eval("lambda *args, **kwds: SVG(\"%s\", *args, **kwds)" % tag)
+def shortcut(tag):
+    return eval("lambda *args, **kwds: SVG(\"%s\", *args, **kwds)" % tag)
 
 class SVG:
     def _preprocess_attribname(self, name):
         name_colon = re.sub("__", ":", name)
-        if name_colon != name: name = name_colon
+        if name_colon != name:
+            name = name_colon
 
         name_dash = re.sub("_", "-", name)
-        if name_dash != name: name = name_dash
+        if name_dash != name:
+            name = name_dash
 
         return name
 
@@ -69,28 +74,34 @@ class SVG:
     def tonumber(self):
         if self.tag is not None:
             tonumber_tag = getattr(defaults, "tonumber_%s" % self.tag, None)
-            if tonumber_tag is not None: tonumber_tag(self)
+            if tonumber_tag is not None:
+                tonumber_tag(self)
 
         for child in self.children:
-            if isinstance(child, SVG): child.tonumber()
+            if isinstance(child, SVG):
+                child.tonumber()
 
     def transform(self, t):
         t = cannonical_transformation(t)
 
         if self.tag is not None:
             tonumber_tag = getattr(defaults, "tonumber_%s" % self.tag, None)
-            if tonumber_tag is not None: tonumber_tag(self)
+            if tonumber_tag is not None:
+                tonumber_tag(self)
 
             transform_tag = getattr(defaults, "transform_%s" % self.tag, None)
-            if transform_tag is not None: transform_tag(t, self)
+            if transform_tag is not None:
+                transform_tag(t, self)
 
         for child in self.children:
-            if isinstance(child, SVG): child.transform(t)
+            if isinstance(child, SVG):
+                child.transform(t)
 
     def bbox(self):
         if self.tag is not None:
             tonumber_tag = getattr(defaults, "tonumber_%s" % self.tag, None)
-            if tonumber_tag is not None: tonumber_tag(self)
+            if tonumber_tag is not None:
+                tonumber_tag(self)
 
             bbox_tag = getattr(defaults, "bbox_%s" % self.tag, None)
             if bbox_tag is not None:
@@ -99,14 +110,17 @@ class SVG:
                 output = defaults.BBox(None, None, None, None)
 
         for child in self.children:
-            if isinstance(child, SVG): output += child.bbox()
+            if isinstance(child, SVG):
+                output += child.bbox()
         return output
 
-    def svg(self): self._svg = self
+    def svg(self):
+        self._svg = self
 
     ### signature attributes are accessible as member data
     def __getattr__(self, name):
-        if self.__dict__["tag"] is None: return self.__dict__[name]
+        if self.__dict__["tag"] is None:
+            return self.__dict__[name]
 
         signature = getattr(defaults, "signature_%s" % self.__dict__["tag"], None)
         if signature is not None and name in signature:
@@ -125,7 +139,8 @@ class SVG:
             else:
                 raise AttributeError, "Tag '%s' has no signature attrib '%s'" % (self.tag, name)
 
-    def __nonzero__(self): return True
+    def __nonzero__(self):
+        return True
 
     ### support access to deep children with tree indexes
     def _treeindex_descend(self, obj, treeindex):
@@ -138,24 +153,30 @@ class SVG:
     def __getitem__(self, treeindex):
         treeindex, obj = self._treeindex_descend(self, treeindex)
 
-        if isinstance(treeindex, (int, long, slice)): return obj.children[treeindex]
-        elif isinstance(treeindex, basestring): return obj.attrib[treeindex]
+        if isinstance(treeindex, (int, long, slice)):
+            return obj.children[treeindex]
+        elif isinstance(treeindex, basestring):
+            return obj.attrib[treeindex]
         else:
             raise IndexError, "treeindex must be [#, #, ... #] or [#, #, ... \"str\"]"
 
     def __setitem__(self, treeindex, value):
         treeindex, obj = self._treeindex_descend(self, treeindex)
 
-        if isinstance(treeindex, (int, long, slice)): obj.children[treeindex] = value
-        elif isinstance(treeindex, basestring): obj.attrib[treeindex] = value
+        if isinstance(treeindex, (int, long, slice)):
+            obj.children[treeindex] = value
+        elif isinstance(treeindex, basestring):
+            obj.attrib[treeindex] = value
         else:
             raise IndexError, "treeindex must be [#, #, ... #] or [#, #, ... \"str\"]"
 
     def __delitem__(self, treeindex):
         treeindex, obj = self._treeindex_descend(self, treeindex)
 
-        if isinstance(treeindex, (int, long, slice)): del obj.children[treeindex]
-        elif isinstance(treeindex, basestring): del obj.attrib[treeindex]
+        if isinstance(treeindex, (int, long, slice)):
+            del obj.children[treeindex]
+        elif isinstance(treeindex, basestring):
+            del obj.attrib[treeindex]
         else:
             raise IndexError, "treeindex must be [#, #, ... #] or [#, #, ... \"str\"]"
 
@@ -169,7 +190,8 @@ class SVG:
             self.attrib = attrib
             self.attrib_first = attrib_first
 
-        def __iter__(self): return self
+        def __iter__(self):
+            return self
 
         def make_children_iterators(self):
             if getattr(self.current, "children", None) is not None:
@@ -189,14 +211,17 @@ class SVG:
                 if self.treeindex != ():
                     return self.treeindex, self.current
 
-            if self.depth_limit is not None and len(self.treeindex) >= self.depth_limit: raise StopIteration
+            if self.depth_limit is not None and len(self.treeindex) >= self.depth_limit:
+                raise StopIteration
 
             if "iterators" not in self.__dict__:
                 self.iterators = []
 
-                if self.attrib and self.attrib_first: self.make_attrib_iterators()
+                if self.attrib and self.attrib_first:
+                    self.make_attrib_iterators()
                 self.make_children_iterators()
-                if self.attrib and not self.attrib_first: self.make_attrib_iterators()
+                if self.attrib and not self.attrib_first:
+                    self.make_attrib_iterators()
 
                 self.iterators = itertools.chain(*self.iterators)
 
@@ -224,12 +249,15 @@ class SVG:
 
             output.append(("%s %s%s" % (("%%-%ds" % index_width) % repr(list(treeindex)), ". . " * len(treeindex), repr_element)))
 
-        if asstring: return "\n".join(output)
-        else: print "\n".join(output)
+        if asstring:
+            return "\n".join(output)
+        else:
+            print "\n".join(output)
 
     ### how to present SVG objects on the commandline (used in tree)
     def __repr__(self):
-        if "repr" in self.__dict__: return self.repr
+        if "repr" in self.__dict__:
+            return self.repr
 
         output = ["%s" % self.tag]
 
@@ -376,29 +404,42 @@ class SVG:
         self.__dict__ = state[2]
 
     def __eq__(self, other):
-        if id(self) == id(other): return True
-        if self.__class__ != other.__class__: return False
+        if id(self) == id(other):
+            return True
+        if self.__class__ != other.__class__:
+            return False
         selfdict = copy.copy(self.__dict__)
         otherdict = copy.copy(other.__dict__)
         del selfdict["_svg"]
         del otherdict["_svg"]
         return selfdict == otherdict
 
-    def __ne__(self, other): return not (self == other)
+    def __ne__(self, other):
+        return not (self == other)
 
     def __deepcopy__(self, memo={}):
         output = new.instance(self.__class__)
         output.__dict__ = copy.deepcopy(self.__dict__, memo)
-        if "repr" in output.__dict__: del output.__dict__["repr"]
+        if "repr" in output.__dict__:
+            del output.__dict__["repr"]
         memo[id(self)] = output
         return output
 
     ### act like a list
-    def append(self, other): self.children.append(other)
-    def prepend(self, other): self.children[0:0] = [other]
-    def insert(self, i, other): self.children.insert(i, other)
-    def remove(self, other): self.children.remove(other)
-    def __len__(self): return len(self.children)
+    def append(self, other):
+        self.children.append(other)
+
+    def prepend(self, other):
+        self.children[0:0] = [other]
+
+    def insert(self, i, other):
+        self.children.insert(i, other)
+
+    def remove(self, other):
+        self.children.remove(other)
+
+    def __len__(self):
+        return len(self.children)
 
     def extend(self, other):
         if isinstance(other, SVG):
@@ -429,10 +470,17 @@ class SVG:
         self.children *= other
         return self
 
-    def count(self, *args, **kwds): return self.children.count(*args, **kwds)
-    def index(self, *args, **kwds): return self.children.index(*args, **kwds)
-    def pop(self, *args, **kwds): return self.children.pop(*args, **kwds)
-    def reverse(self, *args, **kwds): return self.children.reverse(*args, **kwds)
+    def count(self, *args, **kwds):
+        return self.children.count(*args, **kwds)
+
+    def index(self, *args, **kwds):
+        return self.children.index(*args, **kwds)
+
+    def pop(self, *args, **kwds):
+        return self.children.pop(*args, **kwds)
+
+    def reverse(self, *args, **kwds):
+        return self.children.reverse(*args, **kwds)
 
     ### act like a dict
     def clear(self, *args, **kwds):
@@ -448,20 +496,47 @@ class SVG:
     def __contains__(self, other):
         return other in self.attrib or other in self.children
 
-    def fromkeys(self, *args, **kwds): return self.attrib.fromkeys(*args, **kwds)
-    def has_key(self, *args, **kwds): return self.attrib.has_key(*args, **kwds)
-    def items(self, *args, **kwds): return self.attrib.items(*args, **kwds)
-    def keys(self, *args, **kwds): return self.attrib.keys(*args, **kwds)
-    def values(self, *args, **kwds): return self.attrib.values(*args, **kwds)
-    def get(self, *args, **kwds): return self.attrib.get(*args, **kwds)
-    def setdefault(self, *args, **kwds): return self.attrib.setdefault(*args, **kwds)
-    def iteritems(self, *args, **kwds): return self.attrib.iteritems(*args, **kwds)
-    def iterkeys(self, *args, **kwds): return self.attrib.iterkeys(*args, **kwds)
-    def itervalues(self, *args, **kwds): return self.attrib.itervalues(*args, **kwds)
-    def pop(self, *args, **kwds): return self.attrib.pop(*args, **kwds)
-    def popitem(self, *args, **kwds): return self.attrib.popitem(*args, **kwds)
-    def copy(self): return copy.copy(self)
-    def deepcopy(self): return copy.deepcopy(self)
+    def fromkeys(self, *args, **kwds):
+        return self.attrib.fromkeys(*args, **kwds)
+
+    def has_key(self, *args, **kwds):
+        return self.attrib.has_key(*args, **kwds)
+
+    def items(self, *args, **kwds):
+        return self.attrib.items(*args, **kwds)
+
+    def keys(self, *args, **kwds):
+        return self.attrib.keys(*args, **kwds)
+
+    def values(self, *args, **kwds):
+        return self.attrib.values(*args, **kwds)
+
+    def get(self, *args, **kwds):
+        return self.attrib.get(*args, **kwds)
+
+    def setdefault(self, *args, **kwds):
+        return self.attrib.setdefault(*args, **kwds)
+
+    def iteritems(self, *args, **kwds):
+        return self.attrib.iteritems(*args, **kwds)
+
+    def iterkeys(self, *args, **kwds):
+        return self.attrib.iterkeys(*args, **kwds)
+
+    def itervalues(self, *args, **kwds):
+        return self.attrib.itervalues(*args, **kwds)
+
+    def pop(self, *args, **kwds):
+        return self.attrib.pop(*args, **kwds)
+
+    def popitem(self, *args, **kwds):
+        return self.attrib.popitem(*args, **kwds)
+
+    def copy(self):
+        return copy.copy(self)
+
+    def deepcopy(self):
+        return copy.deepcopy(self)
 
 ############################### rules for converting into XML
 
@@ -481,7 +556,8 @@ def svg_to_xml(svg, indent, depth=0):
 
         try:
             line.append(u"id=\"%s\" " % remaining.pop("id"))
-        except KeyError: pass
+        except KeyError:
+            pass
 
         # signature attributes first, for readability
         signature = getattr(defaults, "signature_%s" % svg.tag, None)
@@ -533,8 +609,10 @@ def attrib_to_xml(tag, name, value):
 
     elif isinstance(value, (list, tuple)) and tag == "path" and name == "d":
         def numbertostr(x):
-            if isinstance(x, (int, long, float)): return repr(x)  # more precise
-            else: return x
+            if isinstance(x, (int, long, float)):
+                return repr(x)  # more precise
+            else:
+                return x
 
         line = []
         lastcommand = None
@@ -582,7 +660,8 @@ class Instruction(SVG):
         self.__dict__["_svg"] = self
         self.__dict__["text"] = text
 
-    def xml(self): return "<?%s %s?>" % (self.tag, self.text)
+    def xml(self):
+        return "<?%s %s?>" % (self.tag, self.text)
 
     def __repr__(self):
         value = re.sub("\n", "\\\\n", self.text)
@@ -601,9 +680,11 @@ class Comment(SVG):
         self.__dict__["_svg"] = self
         self.__dict__["text"] = text
 
-    def __eq__(self, other): return SVG.__eq__(self, other) and self.text == other.text
+    def __eq__(self, other):
+        return SVG.__eq__(self, other) and self.text == other.text
 
-    def xml(self): return "<!-- %s -->" % self.text
+    def xml(self):
+        return "<!-- %s -->" % self.text
 
     def __repr__(self):
         value = re.sub("\n", "\\\\n", self.text)
@@ -622,9 +703,11 @@ class CDATA(SVG):
         self.__dict__["_svg"] = self
         self.__dict__["text"] = text
 
-    def __eq__(self, other): return SVG.__eq__(self, other) and self.text == other.text
+    def __eq__(self, other):
+        return SVG.__eq__(self, other) and self.text == other.text
 
-    def xml(self): return "<![CDATA[%s]]>" % self.text
+    def xml(self):
+        return "<![CDATA[%s]]>" % self.text
 
     def __repr__(self):
         value = re.sub("\n", "\\\\n", self.text)
@@ -719,10 +802,17 @@ def load_stream(stream):
             self.output = self.stack.pop()
             self.CDATA = False
 
-        def startDTD(self, name, public_id, system_id): pass
-        def endDTD(self): pass
-        def startEntity(self, name): pass
-        def endEntity(self, name): pass
+        def startDTD(self, name, public_id, system_id):
+            pass
+
+        def endDTD(self):
+            pass
+
+        def startEntity(self, name):
+            pass
+
+        def endEntity(self, name):
+            pass
 
     ch = ContentHandler()
     parser = make_parser()
@@ -834,3 +924,4 @@ def _code_serializer(code):
 
 
 copy_reg.pickle(types.CodeType, _code_serializer)
+

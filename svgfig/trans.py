@@ -20,7 +20,8 @@ def transform(trans, obj):
     if callable(trans):
         obj.transform(trans)
     else:
-        for t in trans: obj.transform(t)
+        for t in trans:
+            obj.transform(t)
     return obj
 
 def evaluate(obj):
@@ -52,7 +53,8 @@ class Freeze(svg.SVG):
         else:
             return "<Freeze (%d children)>" % len(self.children)
 
-    def transform(self, trans): pass
+    def transform(self, trans):
+        pass
 
     def svg(self):
         self._svg = new.instance(svg.SVG)
@@ -114,7 +116,8 @@ class Delay(svg.SVG):
     def __deepcopy__(self, memo={}):
         mostdict = copy.copy(self.__dict__)
         del mostdict["trans"]
-        if "repr" in mostdict: del mostdict["repr"]
+        if "repr" in mostdict:
+            del mostdict["repr"]
         output = new.instance(self.__class__)
         output.__dict__ = copy.deepcopy(mostdict, memo)
         output.__dict__["trans"] = copy.copy(self.trans)
@@ -138,9 +141,11 @@ class Pin(svg.SVG):
 
     def __repr__(self):
         rotate = ""
-        if self.rotate: rotate = "and rotate "
+        if self.rotate:
+            rotate = "and rotate "
         ren = "ren"
-        if len(self.children) == 1: ren = ""
+        if len(self.children) == 1:
+            ren = ""
 
         return "<Pin %sat %g %g (%d child%s)>" % (rotate, self.x, self.y, len(self.children), ren)
 
@@ -160,7 +165,8 @@ class Pin(svg.SVG):
                          {"newx": repr(self.x), "newy": repr(self.y), "oldx": repr(oldx), "oldy": repr(oldy)})
 
         for child in self.children:
-            if isinstance(child, svg.SVG): child.transform(trans)
+            if isinstance(child, svg.SVG):
+                child.transform(trans)
 
     def svg(self):
         self._svg = new.instance(svg.SVG)
@@ -174,7 +180,8 @@ class Pin(svg.SVG):
 def transformation_angle(expr, x, y, scale=1.):
     func = svg.cannonical_transformation(expr)
     eps = epsilon
-    if scale != 0.: eps *= scale
+    if scale != 0.:
+        eps *= scale
 
     xprime, yprime = func(x + eps, y)
     x, y = func(x, y)
@@ -185,7 +192,8 @@ def transformation_angle(expr, x, y, scale=1.):
 def transformation_jacobian(expr, x, y, scale=1.):
     func = svg.cannonical_transformation(expr)
     eps = epsilon
-    if scale != 0.: eps *= scale
+    if scale != 0.:
+        eps *= scale
 
     X0, Y0 = func(x, y)
     xhatx, xhaty = func(x + eps, y)
@@ -213,26 +221,28 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100, xlogbase=Non
     ix2 = xmax
     iy2 = ymax
 
-    if xlogbase != None and (ix1 <= 0. or ix2 <= 0.): raise ValueError, "x range incompatible with log scaling: (%g, %g)" % (ix1, ix2)
+    if xlogbase != None and (ix1 <= 0. or ix2 <= 0.):
+        raise ValueError, "x range incompatible with log scaling: (%g, %g)" % (ix1, ix2)
 
-    if ylogbase != None and (iy1 <= 0. or iy2 <= 0.): raise ValueError, "y range incompatible with log scaling: (%g, %g)" % (iy1, iy2)
+    if ylogbase != None and (iy1 <= 0. or iy2 <= 0.):
+        raise ValueError, "y range incompatible with log scaling: (%g, %g)" % (iy1, iy2)
 
     xlogstr, ylogstr = "", ""
 
     if xlogbase == None:
-        xfunc = "%(ox1)s + 1.*(x - %(ix1)s)/(%(ix2)s - %(ix1)s) * (%(ox2)s - %(ox1)s)" % \
-                {"ox1": repr(ox1), "ox2": repr(ox2), "ix1": repr(ix1), "ix2": repr(ix2)}
+        xfunc = "%(ox1)s + 1.*(x - %(ix1)s)/(%(ix2)s - %(ix1)s) * (%(ox2)s - %(ox1)s)" % {
+                "ox1": repr(ox1), "ox2": repr(ox2), "ix1": repr(ix1), "ix2": repr(ix2)}
     else:
-        xfunc = "x <= 0 and %(minusInfinityX)s or %(ox1)s + 1.*(log(x, %(logbase)s) - log(%(ix1)s, %(logbase)s))/(log(%(ix2)s, %(logbase)s) - log(%(ix1)s, %(logbase)s)) * (%(ox2)s - %(ox1)s)" % \
-                {"ox1": repr(ox1), "ox2": repr(ox2), "ix1": repr(ix1), "ix2": repr(ix2), "minusInfinityX": repr(minusInfinityX), "logbase": xlogbase}
+        xfunc = "x <= 0 and %(minusInfinityX)s or %(ox1)s + 1.*(log(x, %(logbase)s) - log(%(ix1)s, %(logbase)s))/(log(%(ix2)s, %(logbase)s) - log(%(ix1)s, %(logbase)s)) * (%(ox2)s - %(ox1)s)" % {
+                "ox1": repr(ox1), "ox2": repr(ox2), "ix1": repr(ix1), "ix2": repr(ix2), "minusInfinityX": repr(minusInfinityX), "logbase": xlogbase}
         xlogstr = " xlog=%g" % xlogbase
 
     if ylogbase == None:
-        yfunc = "%(oy1)s + 1.*(y - %(iy1)s)/(%(iy2)s - %(iy1)s) * (%(oy2)s - %(oy1)s)" % \
-                {"oy1": repr(oy1), "oy2": repr(oy2), "iy1": repr(iy1), "iy2": repr(iy2)}
+        yfunc = "%(oy1)s + 1.*(y - %(iy1)s)/(%(iy2)s - %(iy1)s) * (%(oy2)s - %(oy1)s)" % {
+                "oy1": repr(oy1), "oy2": repr(oy2), "iy1": repr(iy1), "iy2": repr(iy2)}
     else:
-        yfunc = "y <= 0 and %(minusInfinityY)s or %(oy1)s + 1.*(log(y, %(logbase)s) - log(%(iy1)s, %(logbase)s))/(log(%(iy2)s, %(logbase)s) - log(%(iy1)s, %(logbase)s)) * (%(oy2)s - %(oy1)s)" % \
-                {"oy1": repr(oy1), "oy2": repr(oy2), "iy1": repr(iy1), "iy2": repr(iy2), "minusInfinityY": repr(minusInfinityY), "logbase": ylogbase}
+        yfunc = "y <= 0 and %(minusInfinityY)s or %(oy1)s + 1.*(log(y, %(logbase)s) - log(%(iy1)s, %(logbase)s))/(log(%(iy2)s, %(logbase)s) - log(%(iy1)s, %(logbase)s)) * (%(oy2)s - %(oy1)s)" % {
+                "oy1": repr(oy1), "oy2": repr(oy2), "iy1": repr(iy1), "iy2": repr(iy2), "minusInfinityY": repr(minusInfinityY), "logbase": ylogbase}
         ylogstr = " ylog=%g" % ylogbase
 
     output = eval("lambda x,y: (%s, %s)" % (xfunc, yfunc), math.__dict__)
@@ -243,3 +253,4 @@ def rotation(angle, cx=0, cy=0):
     output = eval("lambda x,y: (%(cx)s + cos(%(angle)s)*(x - %(cx)s) - sin(%(angle)s)*(y - %(cy)s), %(cy)s + sin(%(angle)s)*(x - %(cx)s) + cos(%(angle)s)*(y - %(cy)s))" % {"cx": repr(cx), "cy": repr(cy), "angle": repr(angle)}, math.__dict__)
     output.func_name = "rotation %g around %g %g" % (angle, cx, cy)
     return output
+
