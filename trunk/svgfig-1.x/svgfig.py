@@ -345,7 +345,7 @@ class SVG:
 
         return "\n".join(output)
 
-    def xml(self, indent="    ", newl="\n", depth_limit=None, depth=0):
+    def xml(self, indent=u"    ", newl=u"\n", depth_limit=None, depth=0):
         """Get an XML representation of the SVG.
 
         indent      string used for indenting
@@ -358,32 +358,32 @@ class SVG:
         attrstr = []
         for n, v in self.attr.items():
             if isinstance(v, dict):
-                v = "; ".join(["%s:%s" % (ni, vi) for ni, vi in v.items()])
+                v = u"; ".join([u"%s:%s" % (ni, vi) for ni, vi in v.items()])
             elif isinstance(v, (list, tuple)):
-                v = ", ".join(v)
-            attrstr.append(" %s=%s" % (n, repr(v)))
-        attrstr = "".join(attrstr)
+                v = u", ".join(v)
+            attrstr.append(u" %s=%s" % (n, repr(v)))
+        attrstr = u"".join(attrstr)
 
         if len(self.sub) == 0:
-            return "%s<%s%s />" % (indent * depth, self.t, attrstr)
+            return u"%s<%s%s />" % (indent * depth, self.t, attrstr)
 
         if depth_limit is None or depth_limit > depth:
             substr = []
             for s in self.sub:
                 if isinstance(s, SVG):
                     substr.append(s.xml(indent, newl, depth_limit, depth + 1) + newl)
-                elif isinstance(s, str):
-                    substr.append("%s%s%s" % (indent * (depth + 1), s, newl))
+                elif isinstance(s, basestring):
+                    substr.append(u"%s%s%s" % (indent * (depth + 1), s, newl))
                 else:
                     substr.append("%s%s%s" % (indent * (depth + 1), repr(s), newl))
-            substr = "".join(substr)
+            substr = u"".join(substr)
 
-            return "%s<%s%s>%s%s%s</%s>" % (indent * depth, self.t, attrstr, newl, substr, indent * depth, self.t)
+            return u"%s<%s%s>%s%s%s</%s>" % (indent * depth, self.t, attrstr, newl, substr, indent * depth, self.t)
 
         else:
-            return "%s<%s (%d sub)%s />" % (indent * depth, self.t, len(self.sub), attrstr)
+            return u"%s<%s (%d sub)%s />" % (indent * depth, self.t, len(self.sub), attrstr)
 
-    def standalone_xml(self, indent="    ", newl="\n"):
+    def standalone_xml(self, indent=u"    ", newl=u"\n", encoding=u"utf-8"):
         """Get an XML representation of the SVG that can be saved/rendered.
 
         indent      string used for indenting
@@ -394,21 +394,21 @@ class SVG:
             top = self
         else:
             top = canvas(self)
-        return """\
-<?xml version="1.0" standalone="no"?>
+        return u"""\
+<?xml version="1.0" encoding="%s" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
-""" + ("".join(top.__standalone_xml(indent, newl)))  # end of return statement
+""" % encoding + (u"".join(top.__standalone_xml(indent, newl)))  # end of return statement
 
     def __standalone_xml(self, indent, newl):
         output = [u"<%s" % self.t]
 
         for n, v in self.attr.items():
             if isinstance(v, dict):
-                v = "; ".join(["%s:%s" % (ni, vi) for ni, vi in v.items()])
+                v = u"; ".join([u"%s:%s" % (ni, vi) for ni, vi in v.items()])
             elif isinstance(v, (list, tuple)):
-                v = ", ".join(v)
-            output.append(u" %s=\"%s\"" % (n, v))
+                v = u", ".join(v)
+            output.append(u' %s="%s"' % (n, v))
 
         if len(self.sub) == 0:
             output.append(u" />%s%s" % (newl, newl))
@@ -461,12 +461,12 @@ class SVG:
                 f = gzip.GzipFile(fileName, "w", compresslevel)
 
             f = codecs.EncodedFile(f, "utf-8", encoding)
-            f.write(self.standalone_xml())
+            f.write(self.standalone_xml(encoding=encoding))
             f.close()
 
         else:
             f = codecs.open(fileName, "w", encoding=encoding)
-            f.write(self.standalone_xml())
+            f.write(self.standalone_xml(encoding=encoding))
             f.close()
 
     def inkview(self, fileName=None, encoding="utf-8"):
@@ -2022,7 +2022,7 @@ class Poly:
 ######################################################################
 
 class Text:
-    """Draws at text string at a specified point in local coordinates.
+    """Draws a text string at a specified point in local coordinates.
 
     x, y                   required      location of the point in local coordinates
     d                      required      text/Unicode string
@@ -2037,7 +2037,7 @@ class Text:
     def __init__(self, x, y, d, **attr):
         self.x = x
         self.y = y
-        self.d = str(d)
+        self.d = unicode(d)
         self.attr = dict(self.defaults)
         self.attr.update(attr)
 
@@ -2053,7 +2053,7 @@ class Text:
 
 
 class TextGlobal:
-    """Draws at text string at a specified point in global coordinates.
+    """Draws a text string at a specified point in global coordinates.
 
     x, y                   required      location of the point in global coordinates
     d                      required      text/Unicode string
@@ -2067,7 +2067,7 @@ class TextGlobal:
     def __init__(self, x, y, d, **attr):
         self.x = x
         self.y = y
-        self.d = str(d)
+        self.d = unicode(d)
         self.attr = dict(self.defaults)
         self.attr.update(attr)
 
