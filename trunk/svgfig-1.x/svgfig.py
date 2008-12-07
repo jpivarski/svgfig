@@ -446,7 +446,7 @@ class SVG:
         fileName        default=None            note that _default_fileName will be overwritten if
                                                 no fileName is specified. If the extension
                                                 is ".svgz" or ".gz", the output will be gzipped
-        encoding        default="utf-8"       file encoding (default is Unicode)
+        encoding        default="utf-8"         file encoding
         compresslevel   default=None            if a number, the output will be gzipped with that
                                                 compression level (1-9, 1 being fastest and 9 most
                                                 thorough)
@@ -475,7 +475,7 @@ class SVG:
         fileName        default=None            note that any file named _default_fileName will be
                                                 overwritten if no fileName is specified. If the extension
                                                 is ".svgz" or ".gz", the output will be gzipped
-        encoding        default="utf-8"       file encoding (default is Unicode)
+        encoding        default="utf-8"         file encoding
         """
         fileName = self.interpret_fileName(fileName)
         self.save(fileName, encoding)
@@ -487,7 +487,7 @@ class SVG:
         fileName        default=None            note that any file named _default_fileName will be
                                                 overwritten if no fileName is specified. If the extension
                                                 is ".svgz" or ".gz", the output will be gzipped
-        encoding        default="utf-8"       file encoding (default is Unicode)
+        encoding        default="utf-8"         file encoding
         """
         fileName = self.interpret_fileName(fileName)
         self.save(fileName, encoding)
@@ -499,7 +499,7 @@ class SVG:
         fileName        default=None            note that any file named _default_fileName will be
                                                 overwritten if no fileName is specified. If the extension
                                                 is ".svgz" or ".gz", the output will be gzipped
-        encoding        default="utf-8"       file encoding (default is Unicode)
+        encoding        default="utf-8"         file encoding
         """
         fileName = self.interpret_fileName(fileName)
         self.save(fileName, encoding)
@@ -568,7 +568,7 @@ def template(fileName, svg, replaceme="REPLACEME"):
 
     fileName         required                name of the template SVG
     svg              required                SVG object for replacement
-    replaceme        default="REPLACEME"   fake SVG element to be replaced by the given object
+    replaceme        default="REPLACEME"     fake SVG element to be replaced by the given object
 
     >>> print load("template.svg")
     None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
@@ -654,9 +654,8 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
 
     expr       required                  a string expression or a function
                                          of two real or one complex value
-    vars       default=("x", "y")    independent variable names;
-                                         a singleton ("z",) is interpreted
-                                         as complex
+    vars       default=("x", "y")        independent variable names; a singleton
+                                         ("z",) is interpreted as complex
     globals    default=None              dict of global variables
     locals     default=None              dict of local variables
     """
@@ -1570,7 +1569,7 @@ def funcRtoC(expr, var="t", globals=None, locals=None):
     """Converts a complex "z(t)" string to a function acceptable for Curve.
 
     expr    required        string in the form "z(t)"
-    var     default="t"   name of the independent variable
+    var     default="t"     name of the independent variable
     globals default=None    dict of global variables used in the expression;
                             you may want to use Python's builtin globals()
     locals  default=None    dict of local variables
@@ -1591,7 +1590,7 @@ def funcRtoR2(expr, var="t", globals=None, locals=None):
     """Converts a "f(t), g(t)" string to a function acceptable for Curve.
 
     expr    required        string in the form "f(t), g(t)"
-    var     default="t"   name of the independent variable
+    var     default="t"     name of the independent variable
     globals default=None    dict of global variables used in the expression;
                             you may want to use Python's builtin globals()
     locals  default=None    dict of local variables
@@ -1610,7 +1609,7 @@ def funcRtoR(expr, var="x", globals=None, locals=None):
     """Converts a "f(x)" string to a function acceptable for Curve.
 
     expr    required        string in the form "f(x)"
-    var     default="x"   name of the independent variable
+    var     default="x"     name of the independent variable
     globals default=None    dict of global variables used in the expression;
                             you may want to use Python's builtin globals()
     locals  default=None    dict of local variables
@@ -1836,7 +1835,7 @@ class Poly:
 
     d                       required        list of tuples representing points
                                             and possibly control points
-    mode                    default="L"   "lines", "bezier", "velocity",
+    mode                    default="L"     "lines", "bezier", "velocity",
                                             "foreback", "smooth", or an abbreviation
     loop                    default=False   if True, connect the first and last
                                             point, closing the loop
@@ -2715,7 +2714,7 @@ class Ticks:
             ########### end hack ###########
 
             if label != "":
-                output.append(SVG("text", label, transform="translate(%g, %g) rotate(%g)" % \
+                output.append(SVG("text", label, transform="translate(%g, %g) rotate(%g)" %
                                   (X - yhatx*self.text_start, Y - yhaty*self.text_start, angle), **self.text_attr))
 
         for t in self.last_miniticks:
@@ -2755,7 +2754,8 @@ class Ticks:
         elif callable(self.labels):
             format = self.labels
 
-        else: raise TypeError, "labels must be None/False, True, a format string, or a number->string function"
+        else:
+            raise TypeError, "labels must be None/False, True, a format string, or a number->string function"
 
         # Now for the ticks
         ticks = self.ticks
