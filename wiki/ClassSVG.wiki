@@ -192,10 +192,11 @@ To turn the SVG object into a real XML fragment, use the *xml* method.
 
 For XML that can be saved into a file, use the *standalone_xml* method.
 
-*standalone_xml(indent, newl)*
+*standalone_xml(indent, newl, encoding)*
 
 || indent || _default_="    " || string used for indenting ||
 || newl || _default_="\n" || newline character ||
+|| encoding || _default_="utf-8" || xml encoding spec (charset) ||
 
 SVG attribute values can be numbers, lists, and dicts in addition to flat strings.  Numbers will be quoted, as Scalable Vector Graphics requires, lists become comma-delimited lists (useful for `font-family`), and dicts become semicolon-delimited CSS specifications (useful for `style`).
 {{{
