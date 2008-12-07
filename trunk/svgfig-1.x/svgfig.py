@@ -395,10 +395,10 @@ class SVG:
         else:
             top = canvas(self)
         return """\
-    <?xml version="1.0" standalone="no"?>
-    <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
-    """ + ("".join(top.__standalone_xml(indent, newl)))  # end of return statement
+""" + ("".join(top.__standalone_xml(indent, newl)))  # end of return statement
 
     def __standalone_xml(self, indent, newl):
         output = [u"<%s" % self.t]
