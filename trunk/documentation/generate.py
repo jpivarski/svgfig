@@ -58,7 +58,8 @@ group_identifiers = {
   "numbers-for-ticks": lambda m, n: m == "curve" and n in ("format_number", "unicode_number"),
   "utility-functions": lambda m, n: (m == "defaults" and n in ("tonumber", "tonumberlist", "tostringlist", "tostringmap", "isnumber")) or \
                                     (m == "pathdata" and n[:5] == "parse") or \
-                                    (m == "svg" and n[:11] == "cannonical_"),
+                                    (m == "svg" and n[:10] == "canonical_") or \
+                                    (m == "svg" and n[:11] == "cannonical_"), # XXX DEPRECATED (wrong spelling), remove later
   "conversion-to-xml": lambda m, n: m == "svg" and n[-7:] == "_to_xml",
   "load": lambda m, n: m == "svg" and n in ("load", "load_stream", "template"),
   "svg-tools": lambda m, n: m == "svg" and n in ("randomid", "rgb"),

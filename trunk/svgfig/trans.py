@@ -14,7 +14,7 @@ def tonumber(obj):
 
 def transform(trans, obj):
     if isinstance(trans, basestring):
-        trans = svg.cannonical_transformation(trans)
+        trans = svg.canonical_transformation(trans)
 
     obj = copy.deepcopy(obj)
     if callable(trans):
@@ -78,7 +78,7 @@ class Delay(svg.SVG):
             return "<Delay (%d children) (%d trans)>" % (len(self.children), len(self.trans))
 
     def transform(self, trans):
-        self.trans.append(svg.cannonical_transformation(trans))
+        self.trans.append(svg.canonical_transformation(trans))
 
     def bbox(self):
         self.svg()
@@ -150,7 +150,7 @@ class Pin(svg.SVG):
         return "<Pin %sat %g %g (%d child%s)>" % (rotate, self.x, self.y, len(self.children), ren)
 
     def transform(self, trans):
-        trans = svg.cannonical_transformation(trans)
+        trans = svg.canonical_transformation(trans)
 
         oldx, oldy = self.x, self.y
         self.x, self.y = trans(self.x, self.y)
@@ -178,7 +178,7 @@ class Pin(svg.SVG):
 ############################### operations on transformations
 
 def transformation_angle(expr, x, y, scale=1.):
-    func = svg.cannonical_transformation(expr)
+    func = svg.canonical_transformation(expr)
     eps = epsilon
     if scale != 0.:
         eps *= scale
@@ -190,7 +190,7 @@ def transformation_angle(expr, x, y, scale=1.):
     return math.atan2(dely, delx)
 
 def transformation_jacobian(expr, x, y, scale=1.):
-    func = svg.cannonical_transformation(expr)
+    func = svg.canonical_transformation(expr)
     eps = epsilon
     if scale != 0.:
         eps *= scale
