@@ -196,12 +196,12 @@ class SVG:
 
     def append(self, x):
         """Appends x to the list of sub-elements (drawn last, overlaps
-        other primatives)."""
+        other primitives)."""
         self.sub.append(x)
 
     def prepend(self, x):
         """Prepends x to the list of sub-elements (drawn first may be
-        overlapped by other primatives)."""
+        overlapped by other primitives)."""
         self.sub[0:0] = [x]
 
     def extend(self, x):
@@ -771,7 +771,7 @@ class Fig:
 
     Fig(obj, obj, obj..., trans=function)
 
-    obj     optional list    a list of drawing primatives
+    obj     optional list    a list of drawing primitives
     trans   default=None     a coordinate transformation function
 
     >>> fig = Fig(Line(0,0,1,1), Rect(0.2,0.2,0.8,0.8), trans="2*x, 2*y")
@@ -851,7 +851,7 @@ class Plot:
 
     xmin, xmax      required        minimum and maximum x values (in the objs' coordinates)
     ymin, ymax      required        minimum and maximum y values (in the objs' coordinates)
-    obj             optional list   drawing primatives
+    obj             optional list   drawing primitives
     keyword options keyword list    options defined below
 
     The following are keyword options, with their default values:
@@ -965,7 +965,7 @@ class Frame:
 
         xmin, xmax      required        minimum and maximum x values (in the objs' coordinates)
         ymin, ymax      required        minimum and maximum y values (in the objs' coordinates)
-        obj             optional list   drawing primatives
+        obj             optional list   drawing primitives
         keyword options keyword list    options defined below
 
         The following are keyword options, with their default values:
@@ -2526,7 +2526,7 @@ def unumber(x):
 
 
 class Ticks:
-    """Superclass for all graphics primatives that draw ticks,
+    """Superclass for all graphics primitives that draw ticks,
     miniticks, and tick labels.  This class only draws the ticks.
 
     Ticks(f, low, high, ticks, miniticks, labels, logbase, arrow_start,
