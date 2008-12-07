@@ -25,17 +25,17 @@ Adding an arrow changes the structure of the output SVG.
 
 == SVG method ==
 
-Line has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
+Line has an *SVG* method, as described in [GeneralPrimitive General features for all primitives].
 
 == Path method ==
 
-Line has a *Path* method, as described in [GeneralPrimative General features for all primatives].
+Line has a *Path* method, as described in [GeneralPrimitive General features for all primitives].
 
 Arrows are ignored by the Path method.
 
 == Defaults ==
 
-Line has the same defaults as [ClassCurve Curve].  Defaults are described in [GeneralPrimative General features for all primatives].
+Line has the same defaults as [ClassCurve Curve].  Defaults are described in [GeneralPrimitive General features for all primitives].
 
 || random_sampling || True || if False, bisect with a point exactly halfway between pairs of points; if True, randomly choose a point between 30% and 70% ||
 || recursion_limit || 15 || number of subdivisions before giving up; if 15, sampling algorithm can visit _at most_ 2^15^ points ||

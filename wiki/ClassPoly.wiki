@@ -27,11 +27,11 @@ The format of the tuples in `d` depends on the `mode`.
 
 == SVG method ==
 
-Poly has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
+Poly has an *SVG* method, as described in [GeneralPrimitive General features for all primitives].
 
 == Path method ==
 
-Poly has a *Path* method, as described in [GeneralPrimative General features for all primatives].
+Poly has a *Path* method, as described in [GeneralPrimitive General features for all primitives].
 
 == Considerations ==
 

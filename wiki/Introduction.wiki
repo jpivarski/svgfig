@@ -7,7 +7,7 @@ SVGFig is a [http://www.python.org Python] extension module that defines two mai
 
 [ClassSVG SVG] represents an image in [http://www.svg.org/ Scalable Vector Graphics] format, a markup language similar to HTML.  By making Scalable Vector Graphics commands accessible to the Python language, the [ClassSVG SVG] class broadens the user's capabilities in much the same way that dynamically-generated HTML did for webpages.  You can write programs that create images.
 
-[ClassFig Fig] builds a mathematical figure by applying a coordinate transformation to graphics primatives.  Unlike the the strictly linear transformations in the Scalable Vector Graphics command-set, [ClassFig Fig] transformations can be any Python function.  Moreover, one often wants to transform only the mathematically-meaningful coordinates and not the widths of lines, lengths of tick marks, or radii of circular points, so [ClassFig Fig] allows you to make such a distinction.  [ClassFig Fig] transformations are composed by nesting, so you can make self-similar images by recursion.
+[ClassFig Fig] builds a mathematical figure by applying a coordinate transformation to graphics primitives.  Unlike the the strictly linear transformations in the Scalable Vector Graphics command-set, [ClassFig Fig] transformations can be any Python function.  Moreover, one often wants to transform only the mathematically-meaningful coordinates and not the widths of lines, lengths of tick marks, or radii of circular points, so [ClassFig Fig] allows you to make such a distinction.  [ClassFig Fig] transformations are composed by nesting, so you can make self-similar images by recursion.
 
 = The SVG Part =
 
@@ -165,7 +165,7 @@ Of course, all the SVGFig documentation is available [Reference on this site] an
 
 = The Fig Part =
 
-The [ClassFig Fig] class doesn't do much by itself; it's an organizing structure.  SVGFig defines a number of classes that draw graphics primatives, including
+The [ClassFig Fig] class doesn't do much by itself; it's an organizing structure.  SVGFig defines a number of classes that draw graphics primitives, including
   * [ClassLine Line]: connecting two points
   * [ClassPoly Poly]: connecting a list of points
   * [ClassRect Rect] and [ClassEllipse Ellipse]: rectangles/squares and ellipses/circles
@@ -174,13 +174,13 @@ The [ClassFig Fig] class doesn't do much by itself; it's an organizing structure
   * [ClassPath Path]: SVG-like paths
   * [ClassAxes Axes], [ClassLineAxis LineAxis], [ClassCurveAxis CurveAxis]: coordinate axis along various shapes.
 
-Each of these has a SVG method that "draws" the primative by applying a coordinate transform and producing a [ClassSVG SVG] object.
+Each of these has a SVG method that "draws" the primitive by applying a coordinate transform and producing a [ClassSVG SVG] object.
 {{{
 >>> Line(0, 0, 1, 1).SVG("x, 2*y")
 <path d='M0 0L1 2' />
 }}}
 
-[ClassFig Fig] collects a list of primatives and applies a transformation to all of them all.
+[ClassFig Fig] collects a list of primitives and applies a transformation to all of them all.
 {{{
 >>> f = Fig(Line(0,0,1,1), Line(1,1,2,3), Line(2,3,0,0), trans="x, 2*y")
 >>> f
@@ -215,7 +215,7 @@ This can be used to make self-similar figures from recursion.  (I'm not sure why
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-4.png]
 
-[ClassPlot Plot] and [ClassFrame Frame] are alternatives for [ClassFig Fig] which draw coordinate axes.  This is merely a convenience: [ClassAxes Axes] are graphics primatives like anything else.
+[ClassPlot Plot] and [ClassFrame Frame] are alternatives for [ClassFig Fig] which draw coordinate axes.  This is merely a convenience: [ClassAxes Axes] are graphics primitives like anything else.
 {{{
 >>> import random
 >>> scribble = Poly([(random.gauss(0,1), random.gauss(0,1)) for i in xrange(30)], "smooth", loop=True, stroke="blue")
@@ -231,7 +231,7 @@ to adjust the text labels.)
 
 === Coordinate Transformations ===
 
-Transformations must be Python functions that map (x,y) to (x',y'), but there are several ways to make them.  The easiest way is with a string in "x', y'" form.  When a primative sees such a string, it converts it into a callable function using the [DefTotrans totrans] function.
+Transformations must be Python functions that map (x,y) to (x',y'), but there are several ways to make them.  The easiest way is with a string in "x', y'" form.  When a primitive sees such a string, it converts it into a callable function using the [DefTotrans totrans] function.
 {{{
 >>> Line(0,0,1,1).SVG(totrans("2*x,2*y")), Line(0,0,1,1).SVG("2*x,2*y")
 (<path d='M0 0L2 2' />, <path d='M0 0L2 2' />)
@@ -291,7 +291,7 @@ The adaptive sampling algorithm even detects discontinuities and breaks the curv
 }}}
 [http://svgfig.googlecode.com/svn/wiki/introduction-9.png]
 
-Since this is such a great algorithm, most of the graphics primatives use it.  [ClassLine Line], [ClassRect Rect], [ClassEllipse Ellipse], etc. are all drawn by calling [ClassCurve Curve].  Thus, straight lines (and even coordinate axes) become curves when passed through a curvy coordinate system.
+Since this is such a great algorithm, most of the graphics primitives use it.  [ClassLine Line], [ClassRect Rect], [ClassEllipse Ellipse], etc. are all drawn by calling [ClassCurve Curve].  Thus, straight lines (and even coordinate axes) become curves when passed through a curvy coordinate system.
 {{{
 >>> from math import *
 >>> def vortex(x, y):
@@ -318,7 +318,7 @@ This also gives us the opportunity to make arbitrarily-curved coordinate axes.  
 
 = Closing the Loop =
 
-[ClassFig Figs] can make [ClassSVG SVGs], but can [ClassSVG SVGs] make [ClassFig Figs]?  To a limited extent, yes.  One of SVGFig's graphics primatives, [ClassPath Path], represents a Scalable Vector Graphics <path />.  [ClassPath Path] parses the path data string, converting it into a list of tuples that can be distorted by coordinate transformations.  This is how the SVGFig logo was constructed: see [SVGFigLogo SVGFigLogo].
+[ClassFig Figs] can make [ClassSVG SVGs], but can [ClassSVG SVGs] make [ClassFig Figs]?  To a limited extent, yes.  One of SVGFig's graphics primitives, [ClassPath Path], represents a Scalable Vector Graphics <path />.  [ClassPath Path] parses the path data string, converting it into a list of tuples that can be distorted by coordinate transformations.  This is how the SVGFig logo was constructed: see [SVGFigLogo SVGFigLogo].
 
 [http://code.google.com/p/svgfig/wiki/SVGFigLogo http://svgfig.googlecode.com/svn/wiki/introduction-12.png]
 

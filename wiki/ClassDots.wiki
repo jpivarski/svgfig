@@ -37,4 +37,4 @@ SVG image, so that the dots link to the right reference.
 
 == SVG method ==
 
-Dots has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
+Dots has an *SVG* method, as described in [GeneralPrimitive General features for all primitives].

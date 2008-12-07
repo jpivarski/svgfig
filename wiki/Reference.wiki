@@ -33,7 +33,7 @@ _(The following applies only to the 1.x branch of SVGFig.  For version 2.x, see 
     * [DefMake_symbol make_symbol]: makes a <symbol /> element from a template of standard shapes
     * [DefMake_marker make_marker]: makes a <marker /> element from a template
 
-  * [ClassFig Fig]: holds a set of transformable primatives and globally-positioned SVG objects, composes transformations when nested
+  * [ClassFig Fig]: holds a set of transformable primitives and globally-positioned SVG objects, composes transformations when nested
   * [ClassPlot Plot]: a Fig with coordinate axes
   * [ClassFrame Frame]: a Fig in a coordinate frame
 
@@ -42,9 +42,9 @@ _(The following applies only to the 1.x branch of SVGFig.  For version 2.x, see 
     * [DefWindow window]: creates a transformation by mapping a rectangle of "inner" coordinates to a rectangle of "outer" coordinates
     * [DefRotate rotate]: creates a simple rotation of the plane
 
-== Fig Primatives ==
+== Fig Primitives ==
 
-  * [GeneralPrimative General features of all primatives]
+  * [GeneralPrimitive General features of all primitives]
 
   * [ClassPath Path]: a transformable representation of an SVG path
     * [DefPathtoPath pathtoPath]: converts SVG <path /> objects into transformable Paths

@@ -17,10 +17,10 @@ Draws at text string at a specified point in local coordinates.
 
 == SVG method ==
 
-Text has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
+Text has an *SVG* method, as described in [GeneralPrimitive General features for all primitives].
 
 == Defaults ==
 
-Text has the following defaults, as described in [GeneralPrimative General features for all primatives].
+Text has the following defaults, as described in [GeneralPrimitive General features for all primitives].
 
 || defaults || {"stroke":"none", "fill":"black", "font-size":5} ||

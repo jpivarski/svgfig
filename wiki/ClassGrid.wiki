@@ -56,11 +56,11 @@ Only draws the vertical lines of a grid.
 
 == SVG method ==
 
-Grid, HGrid, and VGrid have *SVG* methods, as described in [GeneralPrimative General features for all primatives].
+Grid, HGrid, and VGrid have *SVG* methods, as described in [GeneralPrimitive General features for all primitives].
 
 == Defaults ==
 
-Grid, HGrid, and VGrid have the following defaults, as described in [GeneralPrimative General features for all primatives].
+Grid, HGrid, and VGrid have the following defaults, as described in [GeneralPrimitive General features for all primitives].
 
 || defaults || {"stroke-width":"0.25pt", "stroke":"gray"} ||
 || mini_defaults || {"stroke-width":"0.25pt", "stroke":"lightgray", "stroke-dasharray":"1,1"} ||

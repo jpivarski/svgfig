@@ -15,10 +15,10 @@ Fig objects can always be converted into [ClassSVG SVG].
 
 *Fig(obj, obj, obj..., trans=function)*
 
-|| obj || _optional list_ || a list of drawing primatives ||
+|| obj || _optional list_ || a list of drawing primitives ||
 || trans || _default_=None || a coordinate transformation function ||
 
-The drawing primatives are either classes that implement the *SVG*
+The drawing primitives are either classes that implement the *SVG*
 method (see below) or are [ClassSVG SVG] objects.  If [ClassSVG SVG],
 coordinates are _not_ transformed.  This allows you to mix objects in
 local coordinates with objects in global coordinates, such as text
@@ -61,5 +61,5 @@ Fig objects are converted into [ClassSVG SVG] with the *SVG* method.
 
 || trans || _default_=None || a coordinate transformation function (to override the default) ||
 
-All graphics primatives must supply a *SVG* method with the same
+All graphics primitives must supply a *SVG* method with the same
 arguments.

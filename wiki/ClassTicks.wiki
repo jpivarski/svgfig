@@ -26,7 +26,7 @@ Maybe you'll find that useful.
 
 == Defaults ==
 
-Ticks has the following defaults, as described in [GeneralPrimative General features for all primatives].
+Ticks has the following defaults, as described in [GeneralPrimitive General features for all primitives].
 
 || text_defaults || {"stroke":"none", "fill":"black", "font-size":5} || default SVG attributes for text labels ||
 || tick_start || -1.5 || position relative to the axis (in SVG units) to start the ticks ||
@@ -45,7 +45,7 @@ When a Ticks is evaluated with *SVG*, it will gain two members.
 
 == SVG method ==
 
-Ticks has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
+Ticks has an *SVG* method, as described in [GeneralPrimitive General features for all primitives].
 
 == Other methods ==
 

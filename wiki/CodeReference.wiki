@@ -5,7 +5,7 @@ _(The following applies only to the 1.x branch of SVGFig.  For version 2.x, see 
 = Reference=
 
 == Table of Contents ==
-  # *[#Graphics_Primitives Graphics Primitives]* ([GeneralPrimative general features])
+  # *[#Graphics_Primitives Graphics Primitives]* ([GeneralPrimitive general features])
     # *[#Curves Curves]*
       * [ClassCurve Curve], [DefFuncRtoR2 funcRtoR2()], [DefFuncRtoC funcRtoC()], [DefFuncRtoR funcRtoR()], [ClassLine Line], [ClassVLine HLine and VLine], [ClassRect Rect], [ClassEllipse Ellipse]
     # *[http://code.google.com/p/svgfig/wiki/CodeReference#Ticks%2C_Axes%2C_and_Gridlines Ticks, Axes, and Gridlines]*
@@ -24,7 +24,7 @@ _(The following applies only to the 1.x branch of SVGFig.  For version 2.x, see 
 
 == Graphics Primitives ==
 A _graphics primitive_ is any one graphics object, such as a line, curve, or polygon.  You can apply coordinate transformations to graphics primitives, group them together into figures, and then convert them to SVG objects.
-  * [GeneralPrimative General features] of all graphics primitives
+  * [GeneralPrimitive General features] of all graphics primitives
 
 === Curves ===
 A _curve_ is a graphics primitive representing a parametric curve.  Curves map correctly under coordinate transformations -- SVGFig uses an adaptive sampling algorithm to convert the end result to SVG.

@@ -40,11 +40,11 @@ In all respects, XErrorBars acts like YErrorBars.
 
 == SVG method ==
 
-XErrorBars and YErrorBars have *SVG* methods, as described in [GeneralPrimative General features for all primatives].
+XErrorBars and YErrorBars have *SVG* methods, as described in [GeneralPrimitive General features for all primitives].
 
 == Defaults ==
 
-XErrorBars and YErrorBars have the following defaults, as described in [GeneralPrimative General features for all primatives].
+XErrorBars and YErrorBars have the following defaults, as described in [GeneralPrimitive General features for all primitives].
 
 || defaults || {"stroke-width":"0.25pt"} ||
 

@@ -40,11 +40,11 @@ could reference the wrong markers.
 
 == SVG method ==
 
-!CurveAxis has an *SVG* method, as described in [GeneralPrimative General features for all primatives].
+!CurveAxis has an *SVG* method, as described in [GeneralPrimitive General features for all primitives].
 
 == Defaults ==
 
-!CurveAxis has defaults as described in [GeneralPrimative General features for all primatives].
+!CurveAxis has defaults as described in [GeneralPrimitive General features for all primitives].
 
 || defaults || {"stroke-width":"0.25pt"} || default SVG attributes for the curve and tick marks ||
 || text_defaults || {"stroke":"none", "fill":"black", "font-size":5} || default SVG attributes for the text ||

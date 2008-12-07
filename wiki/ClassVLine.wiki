@@ -31,9 +31,9 @@ curve.
 
 == SVG method ==
 
-VLine and HLine have *SVG* methods, as described in [GeneralPrimative General features for all primatives].
+VLine and HLine have *SVG* methods, as described in [GeneralPrimitive General features for all primitives].
 
 == Path method ==
 
-VLine and HLine have *Path* methods, as described in [GeneralPrimative General features for all primatives].
+VLine and HLine have *Path* methods, as described in [GeneralPrimitive General features for all primitives].
 

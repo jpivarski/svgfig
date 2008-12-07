@@ -21,4 +21,4 @@ Note that all lengths in 'd' are interpreted using global units (i.e. pixels).
 
 == SVG method ==
 
-Pinned has an *SVG* method, as described in [GeneralPrimative General features for all primitives].
+Pinned has an *SVG* method, as described in [GeneralPrimitive General features for all primitives].

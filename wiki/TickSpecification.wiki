@@ -5,7 +5,7 @@ _(This page applies only to the 1.x branch of SVGFig.)_
 
 = Standard tick specification methods =
 
-Several graphics primatives and Fig substitutes request ticks,
+Several graphics primitives and Fig substitutes request ticks,
 miniticks, and tick labels.  These are all interpreted the same way.
 
 == Ticks ==

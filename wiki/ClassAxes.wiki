@@ -41,7 +41,7 @@ These identifiers must be unique, or the axes will reference the wrong markers.
 
 == Defaults ==
 
-Axes have the following defaults, as described in [GeneralPrimative General features for all primatives].
+Axes have the following defaults, as described in [GeneralPrimitive General features for all primitives].
 
 || defaults || {"stroke-width":"0.25pt"} ||
 || text_defaults || {"stroke":"none", "fill":"black", "font-size":5} ||
@@ -72,7 +72,7 @@ it.
 
 == Defaults ==
 
-XAxis has the following defaults, as described in [GeneralPrimative General features for all primatives].
+XAxis has the following defaults, as described in [GeneralPrimitive General features for all primitives].
 
 || defaults || {"stroke-width":"0.25pt"} || default SVG attributes for all lines ||
 || text_defaults || {"stroke":"none", "fill":"black", "font-size":5, "dominant-baseline":"text-before-edge"} || default SVG attributes for text labels ||
@@ -96,7 +96,7 @@ Only draws the y axis; arguments are similar to XAxis.
 
 == Defaults ==
 
-YAxis has the following defaults, as described in [GeneralPrimative General features for all primatives].
+YAxis has the following defaults, as described in [GeneralPrimitive General features for all primitives].
 
 || defaults || {"stroke-width":"0.25pt"} || default SVG attributes for all lines ||
 || text_defaults || {"stroke":"none", "fill":"black", "font-size":5, "text-anchor":"end", "dominant-baseline":"middle"} || default SVG attributes for text labels ||
@@ -118,4 +118,4 @@ When an XAxis or a YAxis is evaluated with *SVG*, it will gain two members.
 
 == SVG method ==
 
-Axes, XAxis, and YAxis have *SVG* methods, as described in [GeneralPrimative General features for all primatives].
+Axes, XAxis, and YAxis have *SVG* methods, as described in [GeneralPrimitive General features for all primitives].
