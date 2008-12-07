@@ -640,6 +640,13 @@ def load_stream(stream):
     return ch.output
 
 ######################################################################
+def set_func_name(f, name):
+    """try to patch the function name string into a function object"""
+    try:
+        f.func_name = name
+    except TypeError:
+        # py 2.3 raises: TypeError: readonly attribute
+        pass
 
 def totrans(expr, vars=("x", "y"), globals=None, locals=None):
     """Converts to a coordinate transformation (a function that accepts
@@ -653,6 +660,8 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
     globals    default=None              dict of global variables
     locals     default=None              dict of local variables
     """
+    if locals is None:
+        locals = {}  # python 2.3's eval() won't accept None
 
     if callable(expr):
         if expr.func_code.co_argcount == 2:
@@ -661,7 +670,7 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
         elif expr.func_code.co_argcount == 1:
             split = lambda z: (z.real, z.imag)
             output = lambda x, y: split(expr(x + y*1j))
-            output.func_name = expr.func_name
+            set_func_name(output, expr.func_name)
             return output
 
         else:
@@ -672,7 +681,7 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
         if globals is not None:
             g.update(globals)
         output = eval("lambda %s, %s: (%s)" % (vars[0], vars[1], expr), g, locals)
-        output.func_name = "%s,%s -> %s" % (vars[0], vars[1], expr)
+        set_func_name(output, "%s,%s -> %s" % (vars[0], vars[1], expr))
         return output
 
     elif len(vars) == 1:
@@ -682,7 +691,7 @@ def totrans(expr, vars=("x", "y"), globals=None, locals=None):
         output = eval("lambda %s: (%s)" % (vars[0], expr), g, locals)
         split = lambda z: (z.real, z.imag)
         output2 = lambda x, y: split(output(x + y*1j))
-        output2.func_name = "%s -> %s" % (vars[0], expr)
+        set_func_name(output2, "%s -> %s" % (vars[0], expr))
         return output2
 
     else:
@@ -752,8 +761,8 @@ def window(xmin, xmax, ymin, ymax, x=0, y=0, width=100, height=100,
 
     output = lambda x, y: (xfunc(x), yfunc(y))
 
-    output.func_name = "(%g, %g), (%g, %g) -> (%g, %g), (%g, %g)%s%s" % (
-                       ix1, ix2, iy1, iy2, ox1, ox2, oy1, oy2, xlogstr, ylogstr)
+    set_func_name(output, "(%g, %g), (%g, %g) -> (%g, %g), (%g, %g)%s%s" % (
+                          ix1, ix2, iy1, iy2, ox1, ox2, oy1, oy2, xlogstr, ylogstr))
     return output
 
 
@@ -1566,13 +1575,15 @@ def funcRtoC(expr, var="t", globals=None, locals=None):
                             you may want to use Python's builtin globals()
     locals  default=None    dict of local variables
     """
+    if locals is None:
+        locals = {}  # python 2.3's eval() won't accept None
     g = cmath.__dict__
     if globals is not None:
         g.update(globals)
     output = eval("lambda %s: (%s)" % (var, expr), g, locals)
     split = lambda z: (z.real, z.imag)
     output2 = lambda t: split(output(t))
-    output2.func_name = "%s -> %s" % (var, expr)
+    set_func_name(output2, "%s -> %s" % (var, expr))
     return output2
 
 
@@ -1585,11 +1596,13 @@ def funcRtoR2(expr, var="t", globals=None, locals=None):
                             you may want to use Python's builtin globals()
     locals  default=None    dict of local variables
     """
+    if locals is None:
+        locals = {}  # python 2.3's eval() won't accept None
     g = math.__dict__
     if globals is not None:
         g.update(globals)
     output = eval("lambda %s: (%s)" % (var, expr), g, locals)
-    output.func_name = "%s -> %s" % (var, expr)
+    set_func_name(output, "%s -> %s" % (var, expr))
     return output
 
 
@@ -1602,11 +1615,13 @@ def funcRtoR(expr, var="x", globals=None, locals=None):
                             you may want to use Python's builtin globals()
     locals  default=None    dict of local variables
     """
+    if locals is None:
+        locals = {}  # python 2.3's eval() won't accept None
     g = math.__dict__
     if globals is not None:
         g.update(globals)
     output = eval("lambda %s: (%s, %s)" % (var, var, expr), g, locals)
-    output.func_name = "%s -> %s" % (var, expr)
+    set_func_name(output, "%s -> %s" % (var, expr))
     return output
 
 
