@@ -22,7 +22,7 @@ class Curve(svg.SVG):
         self.__dict__["tag"] = None
         self.__dict__["children"] = []
         self.__dict__["_svg"] = []
-        self.__dict__["f"] = svg.cannonical_parametric(expr)
+        self.__dict__["f"] = svg.canonical_parametric(expr)
         self.__dict__["low"] = low
         self.__dict__["high"] = high
 
@@ -150,7 +150,7 @@ class Curve(svg.SVG):
 
     ### transformation is like Delay
     def transform(self, t):
-        self.trans.append(svg.cannonical_transformation(t))
+        self.trans.append(svg.canonical_transformation(t))
 
     def bbox(self):
         return pathdata.bbox(self.d())

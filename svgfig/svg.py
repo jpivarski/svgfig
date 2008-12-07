@@ -82,7 +82,7 @@ class SVG:
                 child.tonumber()
 
     def transform(self, t):
-        t = cannonical_transformation(t)
+        t = canonical_transformation(t)
 
         if self.tag is not None:
             tonumber_tag = getattr(defaults, "tonumber_%s" % self.tag, None)
@@ -825,7 +825,7 @@ def load_stream(stream):
 
 ############################### standard representation for transformations and parametric functions
 
-def cannonical_transformation(expr):
+def canonical_transformation(expr):
     if expr is None:
         output = lambda x, y: (x, y)
         output.func_name = "identity"
@@ -869,7 +869,8 @@ def cannonical_transformation(expr):
         else:
             raise TypeError, "Transformation string '%s' must contain real 'x' and 'y' or complex 'z'" % expr
 
-def cannonical_parametric(expr):
+
+def canonical_parametric(expr):
     if callable(expr):
 
         # 1 real -> 2 real
@@ -903,6 +904,9 @@ def cannonical_parametric(expr):
 
         else:
             raise TypeError, "Parametric string '%s' must contain real 't', 'x', or 'z'" % expr
+
+cannonical_transformation = canonical_transformation  # XXX DEPRECATED (wrong spelling), will be removed later
+cannonical_parametric = canonical_parametric  # XXX DEPRECATED (wrong spelling), will be removed later
 
 ############################### make code objects pickleable (so that curves and transformations are pickleable)
 

@@ -44,7 +44,7 @@ class Fig(trans.Delay):
                len(self.children), ren, self.xmin, self.xmax, self.ymin, self.ymax, clip)
 
     def transform(self, t):
-        t = svg.cannonical_transformation(t)
+        t = svg.canonical_transformation(t)
         x1, y1 = t(self.x, self.y)
         x2, y2 = t(self.x + self.width, self.y + self.height)
         self.x, self.y = x1, y1
