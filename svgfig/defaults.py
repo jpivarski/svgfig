@@ -165,7 +165,7 @@ def bbox_path(svg):
 ##### polyline
 ##### radialGradient
 ##### rect
-signature_rect = ["x", "y", "width", "height", "stroke", "fill"]
+signature_rect = ["x", "y", "width", "height", "stroke", "fill", "rx", "ry"]
 require_rect = ["x", "y", "width", "height"]
 defaults_rect = {"stroke": "black", "fill": "none"}
 

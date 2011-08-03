@@ -1,5 +1,6 @@
 import math, cmath, random, re, os, sys, copy, itertools, codecs, tempfile, new, types, copy_reg, warnings
 import defaults
+import _viewer
 
 saved = [] # keep track of all fileNames saved for the user's convenience
 
@@ -345,9 +346,9 @@ class SVG:
         output = [defaults.xml_header] + svg_to_xml(svg, indent) + [u""]
         return unicode(newl.join(output))
 
+	Viewer = _viewer.View()
     def view(self): # no writing-to-disk needed!
-        import _viewer
-        _viewer.str(self.xml())
+		self.Viewer.renderSVG(self.xml())
 
     def save(self, fileName, encoding="utf-8", compresslevel=None):
         fileName = defaults._expand_fileName(fileName)
