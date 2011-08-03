@@ -32,12 +32,13 @@ class SVG:
 
         return name
 
+    Viewer = _viewer.View()
+
     def __init__(self, tag, *signature_attrib, **more_attrib):
         self.__dict__["tag"] = tag
         self.__dict__["attrib"] = dict(getattr(defaults, "defaults_%s" % tag, {}))
         self.__dict__["children"] = []
         self.__dict__["_svg"] = self
-
         signature = getattr(defaults, "signature_%s" % tag, None)
 
         # if there is no signature, inline arguments are interpreted as children
@@ -346,7 +347,7 @@ class SVG:
         output = [defaults.xml_header] + svg_to_xml(svg, indent) + [u""]
         return unicode(newl.join(output))
 
-	Viewer = _viewer.View()
+
     def view(self): # no writing-to-disk needed!
 		self.Viewer.renderSVG(self.xml())
 
