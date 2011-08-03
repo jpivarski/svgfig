@@ -7,8 +7,7 @@ import os
 import svgfig.defaults
 
 extension_features = {
-  "_curve": None,
-  "_viewer": ">>> SVG(\"circle\", 30, 50, 10).view()      (pop up a window and look at an SVG fragment)",
+  "_curve": None
   }
 
 class my_build_ext(build_ext):
@@ -33,17 +32,6 @@ class my_build_ext(build_ext):
 
 curve_extension = Extension(os.path.join("svgfig", "_curve"), [os.path.join("svgfig", "_curve.c")], {})
 
-def viewer_pkgconfig():
-    def drop_whitespace(word):
-        return word != "\n" and word != ""
-    return filter(drop_whitespace, os.popen("pkg-config --cflags --libs gtk+-2.0 gthread-2.0").read().split(" "))
-
-viewer_extension = Extension(os.path.join("svgfig", "_viewer"),
-                             [os.path.join("svgfig", "_viewer.c")], {},
-                             libraries=["cairo", "rsvg-2"],
-                             extra_compile_args=viewer_pkgconfig(),
-                             extra_link_args=viewer_pkgconfig())
-
 setup(name="SVGFig",
       version=svgfig.defaults.version,
       description="SVGFig: Quantitative drawing in Python and SVG",
@@ -61,5 +49,5 @@ setup(name="SVGFig",
                   os.path.join("svgfig", "trans"),
                   ],
       cmdclass={"build_ext": my_build_ext},
-      ext_modules=[curve_extension, viewer_extension],
+      ext_modules=[curve_extension],
      )
