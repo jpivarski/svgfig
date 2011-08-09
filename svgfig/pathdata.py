@@ -10,8 +10,10 @@ def poly(*data, **kwds):
         del kwds["loop"]
     if len(kwds) > 0:
         raise TypeError, errstring
-	if len(data) == 1:
-		data = data[0]
+
+    if len(data) <= 1:
+        data = data[0]
+
     try:
         output = []
         for x, y in data:
