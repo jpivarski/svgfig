@@ -18,7 +18,7 @@ If you find issues in 1.x that you think might be bugs, please inform me through
 
 == svgfig-1.1.6 ==
 
-[http://svgfig.googlecode.com/files/svgfig-1.1.5.tgz svgfig-1.1.6.tgz] [http://svgfig.googlecode.com/files/svgfig-1.1.5.zip svgfig-1.1.6.zip]
+[http://svgfig.googlecode.com/files/svgfig-1.1.6.tgz svgfig-1.1.6.tgz] [http://svgfig.googlecode.com/files/svgfig-1.1.6.zip svgfig-1.1.6.zip]
 
   * Fixed two typos and a division-by-zero.
 
