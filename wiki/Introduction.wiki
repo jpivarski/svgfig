@@ -87,7 +87,7 @@ None                 <g (2 sub) fill-opacity='50%' />
 [1]                      <rect y=30 width=60 fill='blue' x=30 height=60 />                           
 }}}
 
-The numbers on the left are tree indexes: you can reference any sub-element with a list of numbers and strings.  Our tree isn't interesting enough, so let's make a bigger one.
+The numbers on the left are tree indexes: you can reference any sub-element with a list of numbers and strings.  This is similar to the sections and subsections of a book or legal document.  Our tree isn't interesting enough, so let's make a bigger one.
 {{{
 >>> g2 = SVG("g", SVG("g", SVG("g", g)))
 >>> print g2
