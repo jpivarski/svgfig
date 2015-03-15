@@ -1,0 +1,55 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# class Path #
+
+Path represents an SVG path, an arbitrary set of curves and straight
+segments.  Unlike `SVG("path", d="...")`, Path stores coordinates as a
+list of numbers, rather than a string, so that it is transformable in
+a [Fig](ClassFig.md).
+
+## Arguments ##
+
+**Path(d, attribute=value)**
+
+| d | _required_ | path data |
+|:--|:-----------|:----------|
+| attribute=value pairs | _keyword list_ | SVG attributes |
+
+The path data may be a string/Unicode, like an SVG path, or a list of
+tuples, each of which is a command.  The string format is defined in
+the [SVG 1.1 specification](http://www.w3.org/TR/SVG/paths.html), and
+will be converted immediately into a list of tuples.
+
+Tuple-commands are defined as follows:
+  * ("Z/z",): close the current path
+  * ("H/h", x) or ("V/v", y): a horizontal or vertical line segment to x or y
+  * ("M/m/L/l/T/t", x, y, global): moveto, lineto, or smooth quadratic curveto point (x, y).  If global=True, (x, y) should not be transformed.
+  * ("S/sQ/q", cx, cy, cglobal, x, y, global): polybezier or smooth quadratic curveto point (x, y) using (cx, cy) as a control point.  If cglobal or global=True, (cx, cy) or (x, y) should not be transformed.
+  * ("C/c", c1x, c1y, c1global, c2x, c2y, c2global, x, y, global): cubic curveto point (x, y) using (c1x, c1y) and (c2x, c2y) as control points.  If c1global, c2global, or global=True, (c1x, c1y), (c2x, c2y), or (x, y) should not be transformed.
+  * ("A/a", rx, ry, rglobal, x-axis-rotation, angle, large-arc-flag, sweep-flag, x, y, global): arcto point (x, y) using the aforementioned parameters.
+
+In all cases, capital letters imply absolute motion to the given
+points/control points and lower-case letters imply a step which is
+relative to the previous (x, y) point (if it exists).
+
+For all points, if the corresponding "global" variable is False, the
+point will be transformed by the coordinate transform.  If "global" is
+True, the point will not be transformed.
+
+In addition to the legal SVG plot data, parsed Paths accept the following new command:
+  * (",/.", rx, ry, rglobal, angle, x, y, global): an ellipse at point (x, y) with radii (rx, ry).  If _angle_ is 0, the whole ellipse is drawn; otherwise, a partial ellipse is drawn.
+
+This makes it easier to create dots.  The period (".") version of this
+command uses absolute positions and the comma (",") version is
+relative.
+
+## SVG method ##
+
+Path has an **SVG** method, as described in [General features for all primitives](GeneralPrimitive.md).
+
+## Considerations ##
+
+Note that elliptical arcs and dots won't be properly transformed in
+all coordinate transformations.  Only the control points are set to
+the transformed coordinates.  This can also lead to distortion if
+there's a lot of space between control points.

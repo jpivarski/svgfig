@@ -1,0 +1,42 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# template #
+
+Loads an SVG image from disk, like [load](Defload.md), but replaces all
+instances of 
+
+&lt;REPLACEME /&gt;
+
+ with an [SVG](ClassSVG.md) object of your
+choosing.
+
+## Arguments ##
+
+**template(fileName, svg, replaceme)**
+
+| fileName | _**required**_ | name of the template SVG |
+|:---------|:---------------|:-------------------------|
+| svg | _**required**_ | SVG object for replacement |
+| replaceme | _default_="REPLACEME" | fake SVG element to be replaced by the given object |
+
+## Example ##
+
+In this example, the file `template.svg` contains single yellow rectangle and a 
+
+&lt;REPLACEME /&gt;
+
+ tag.
+```
+>>> print load("template.svg")
+None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
+[0]                      <rect height=u'100' width=u'100' stroke=u'none' y=u'0' x=u'0' fill=u'yellow'
+[1]                      <REPLACEME />
+```
+
+With the template function, we can put our own SVG objects on the yellow background.
+```
+>>> print template("template.svg", SVG("circle", cx=50, cy=50, r=30))
+None                 <svg (2 sub) style=u'stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoi
+[0]                      <rect height=u'100' width=u'100' stroke=u'none' y=u'0' x=u'0' fill=u'yellow'
+[1]                      <circle cy=50 cx=50 r=30 />
+```

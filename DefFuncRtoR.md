@@ -1,0 +1,30 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# funcRtoR #
+
+Converts a "f(x)" string to a function acceptable for
+[Curve](ClassCurve.md).
+
+## Arguments ##
+
+**funcRtoR(expr, var, globals, locals)**
+
+| expr | _**required**_ | string in the form "f(x)" |
+|:-----|:---------------|:--------------------------|
+| var | _default_="x" | name of the independent variable |
+| globals | _default_=None | dict of global variables used in the expression; you may want to use Python's builtin `globals()` |
+| locals | _default_=None | dict of local variables |
+
+All symbols from Python's [math library](http://docs.python.org/lib/module-math.html)
+are in scope, so you can say things like "sin(x)".
+
+Example use of globals.
+```
+>>> funcRtoR("c*x**2", globals={"c": 12})
+```
+
+This does the same thing.
+```
+>>> c = 12
+>>> funcRtoR("c*x**2", globals=globals())
+```

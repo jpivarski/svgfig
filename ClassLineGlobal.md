@@ -1,0 +1,33 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# class LineGlobal #
+
+LineGlobal draws a line between two points, one or both of which is in
+global coordinates.  (This line will not be curved by curving coordinate systems.)
+
+This is useful for connecting parts of your figure defined in global
+coordinates with parts defined in a coordinate transform.
+
+## Arguments ##
+
+**LineGlobal(x1, y1, x2, y2, local1, local2, arrow\_start, arrow\_end, attribute=value)**
+
+| x1, y1 | _**required**_ | the starting point |
+|:-------|:---------------|:-------------------|
+| x2, y2 | _**required**_ | the ending point |
+| local1 | _default_=False | If True, interpret first point as a local coordinate (that is, apply the transformation) |
+| local2 | _default_=False | If True, interpret second point as a local coordinate (that is, apply the transformation) |
+| arrow\_start | _default_=None | if an identifier string/Unicode, draw a new arrow object at the beginning of the line; if a marker, draw that marker instead |
+| arrow\_end | _default_=None | same for the end of the line |
+| attribute=value pairs | _keyword list_ | SVG attributes |
+
+If a coordinate is global, it can be expressed as a string with SVG
+units, like "2 cm".
+
+To add arrows to the ends of the line, you need to supply a _new_ identifier.  If the identifier references another object (SVG `id` attribute), the renderer will attempt to place that object instead (if it's a marker).
+
+Adding an arrow changes the structure of the output SVG.
+
+## SVG method ##
+
+LineGlobal has an **SVG** method, as described in [General features for all primitives](GeneralPrimitive.md).

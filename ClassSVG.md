@@ -1,0 +1,281 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# class SVG #
+
+Creates a document object model of an SVG image.  This can be a
+fragment or a whole graphic (with a top-level 
+
+&lt;svg /&gt;
+
+ tag).
+
+  1. [Arguments](#Arguments.md)
+  1. [Data members](#Data_members.md)
+  1. [Tree indexing](#Tree_indexing.md)
+  1. [List-like features](http://code.google.com/p/svgfig/wiki/ClassSVG#List-like_features)
+  1. [Iteration](#Iteration.md)
+  1. [Text representations](#Text_representations.md)
+  1. [Operators](#Operators.md)
+  1. [Deep copying](#Deep_copying.md)
+  1. [Saving and viewing](#Saving_and_viewing.md)
+
+## Arguments ##
+
+**SVG(t, sub, sub, sub..., attribute=value)**
+
+| t | _**required**_ | SVG type, such as "g", "line", "rect" |
+|:--|:---------------|:--------------------------------------|
+| sub | _optional list_ | nested SVG elements or text/Unicode |
+| attribute=value pairs | _optional keywords_ | SVG attributes, such as stroke="none", fill="blue" |
+
+Nested SVG elements must be specified before the attributes of the
+parent, which is the opposite order of XML.
+
+Python attribute names cannot contain colons or hyphens,
+so the following conversions are made (calls a function called `attr_preprocess`):
+
+| "`__`" (two underscores) | become a colon "`:`" |
+|:-------------------------|:---------------------|
+| "`_`" (one underscore) | becomes a hyphen "`-`" |
+
+Thus, "`xmlns__xlink`" becomes "`xmlns:xlink`" and "`marker_start`" becomes "`marker-start`".
+
+### Examples ###
+
+#### SVG in XML ####
+```
+<g id="mygroup" fill="blue">
+    <rect x="1" y="1" width="2" height="2" />
+    <rect x="3" y="3" width="2" height="2" />
+</g>
+```
+
+#### SVG in Python ####
+```
+>>> svg = SVG("g", SVG("rect", x=1, y=1, width=2, height=2), \ 
+...                SVG("rect", x=3, y=3, width=2, height=2), \ 
+...           id="mygroup", fill="blue")
+```
+
+## Data members ##
+
+| t | SVG type |
+|:--|:---------|
+| sub | list of SVG elements or text/Unicode |
+| attr | dict of attribute names and values |
+
+## Tree indexing ##
+
+Children can be accessed with square brackets, e.g.
+```
+>>> svg = SVG("text", SVG("tspan", "hello there"), stroke="none", fill="black")
+>>> svg[0]
+<tspan (1 sub) />
+```
+but so can grand-children:
+```
+>>> svg[0, 0]
+'hello there'
+```
+
+Every element in the tree is referenced by a list of numbers, which
+can be used for retrieval (`__getitem__`), assignment (`__setitem__`),
+and deletion (`__delitem__`):
+```
+>>> svg[0, 0] = "good-bye!"
+>>> del svg[0, 0]
+```
+
+Attributes can be accessed by a tree index ending in a string.
+```
+>>> svg["fill"]
+'black'
+```
+
+## List-like features ##
+
+SVG objects can be extended like lists with these member functions.
+
+  * **append(x)**: add an element to the end of SVG.sub (drawn last, covers everything else)
+```
+>>> svg.append(SVG("tspan", "another"))
+```
+
+  * **prepend(x)**: add an element to the beginning (drawn first, may be hidden under other items)
+
+  * **extend(list)**: concatenate a list of SVG items
+```
+>>> svg.extend([s1, s2, s3])
+>>> svg.extend(s4.sub)
+```
+
+## Iteration ##
+
+SVGs are iterable: they return (tree index, SVG element) pairs, like
+**items** from a dictionary.  The top-most level is not included.
+```
+>>> svg = SVG("g", SVG("g", SVG("line", x1=0, y1=0, x2=1, y2=1)), \
+...                SVG("text", SVG("tspan", "hello again")))
+... 
+>>> for ti, s in svg:
+...     print ti, repr(s)
+... 
+(0,) <g (1 sub) />
+(0, 0) <line x2=1 y1=0 x1=0 y2=1 />
+(0, 0, 'x2') 1
+(0, 0, 'y1') 0
+(0, 0, 'x1') 0
+(0, 0, 'y2') 1
+(1,) <text (1 sub) />
+(1, 0) <tspan (1 sub) />
+(1, 0, 0) 'hello again'
+```
+
+The iteration is depth-first through the tree, using generators to
+avoid copying the data.  Iteration may be controlled with these data members:
+
+  * **depth\_first(depth\_limit)**: get a generator, and optionally limit the recursion depth.
+```
+>>> svg.depth_first()
+<svgfig.SVGDepthIterator instance at 0xb7c407cc>
+```
+  * **breadth\_first(depth\_limit)**: _**not implemented**_
+
+| depth\_first | _default_=None | if a number, limit recursion to the specified level (0 returns no output, 1 goes 1 level deep, etc.) |
+|:-------------|:---------------|:-----------------------------------------------------------------------------------------------------|
+
+  * **items(sub, attr, text)**: create a list of (tree index, SVG element) pairs, possibly filtering out sub-elements,
+attributes, and text/Unicode.
+  * **keys(sub, attr, text)**: just get the tree indexes
+  * **values(sub, attr, text)**: just get the SVG elements
+
+| sub | _default_=True | if True, show sub-elements |
+|:----|:---------------|:---------------------------|
+| attr | _default_=True | if True, show attributes |
+| text | _default_=True | if True, show text/Unicode |
+
+## Text representations ##
+
+To get a quick look at an SVG object's structure, print out its string
+representation (`__str__`):
+```
+>>> print svg
+None                 <g (2 sub) />
+[0]                      <g (1 sub) />
+[0, 0]                       <line x2=1 y1=0 x1=0 y2=1 />
+[1]                      <text (1 sub) />
+[1, 0]                       <tspan (1 sub) />
+```
+
+Sometimes, you will want a more compact expression: `str(svg)` and
+`"%s" % svg` will return the above.  For a one-line identifier, use
+`repr(svg)`:
+```
+>>> svg
+<g (2 sub) />
+>>> print repr(svg)
+<g (2 sub) />
+```
+
+The output can be more carefully controlled with the **tree** method.
+
+**tree(depth\_limit, sub, attr, text, tree\_width, obj\_width)**
+
+| depth\_limit | _default_=None | if a number, limit the recursion depth |
+|:-------------|:---------------|:---------------------------------------|
+| sub | _default_=True | if True, print sub-elements |
+| attr | _default_=True | if True, print keyword attributes |
+| text | _default_=True | if True, print text/Unicode strings |
+| tree\_width | _default_=20 | number of characters allotted for tree indexes |
+| obj\_width | _default_=80 | number of characters allotted for the SVG objects |
+
+To turn the SVG object into a real XML fragment, use the **xml** method.
+
+**xml(indent, newl, depth\_limit)**
+
+| indent | _default_="    " | string used for indenting |
+|:-------|:-----------------|:--------------------------|
+| newl | _default_="\n" | newline character |
+| depth\_limit | _default_=None | if a number, limit the recursion depth |
+
+For XML that can be saved into a file, use the **standalone\_xml** method.
+
+**standalone\_xml(indent, newl, encoding)**
+
+| indent | _default_="    " | string used for indenting |
+|:-------|:-----------------|:--------------------------|
+| newl | _default_="\n" | newline character |
+| encoding | _default_="utf-8" | xml encoding spec (charset) |
+
+SVG attribute values can be numbers, lists, and dicts in addition to flat strings.  Numbers will be quoted, as Scalable Vector Graphics requires, lists become comma-delimited lists (useful for `font-family`), and dicts become semicolon-delimited CSS specifications (useful for `style`).
+```
+>>> print SVG("svg", x1=10, y1=10, width="1cm", height="1cm", \
+...            style={"stroke-linejoin": "round", "stroke-width": 1}, \
+...            font_family=["Arial", "Helvetica", "sans-serif"]).standalone_xml()
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg style="stroke-linejoin:round; stroke-width:1" font-family="Arial, Helvetica, sans-serif" height="1cm" width="1cm" y1="10" x1="10" />
+```
+
+## Operators ##
+
+The `in` operator applies to SVG attributes.
+```
+>>> "x1" in SVG("line", x1=0, x2=0, y1=1, y2=1)
+True
+```
+
+Two SVG elements are equal if they represent the same image.  They do
+not need to be the same Python objects.
+```
+>>> s1 = SVG("rect", x1=0, x2=0, y1=1, y2=1)
+>>> s2 = SVG("rect", x1=0, x2=0, y1=1, y2=1)
+>>> s1 == s2
+True
+>>> id(s1) == id(s2)
+False
+```
+
+## Deep copying ##
+
+It is possible to cross-link SVG trees, such that changes in one will
+affect the other.  This is usually not what you want.  To avoid this,
+use the **clone** method.
+
+**clone(shallow)**
+
+| shallow | _default_=False | if True, perform a shallow copy rather than a deep copy |
+|:--------|:----------------|:--------------------------------------------------------|
+
+## Saving and viewing ##
+
+**save(fileName, encoding, compresslevel)**
+
+| fileName | _default_=None | note that default\_fileName will be overwritten if no fileName is given.  If a given fileName ends in ".svgz" or ".gz", the output will be gzipped |
+|:---------|:---------------|:---------------------------------------------------------------------------------------------------------------------------------------------------|
+| encoding | _default_="utf-8" | file encoding |
+| compresslevel | _default_=None | if a number, the output will be gzipped with that compression level (1-9, 1 being fastest and 9 most thorough) |
+
+The default value for default\_fileName is "tmp.svg".  In Linux, files are saved in your working directory unless fileName is an absolute path.  In Windows, files are saved to default\_directory, which by default contains the path of your Desktop:
+
+```
+>>> import svgfig
+>>> svgfig.default_directory
+u'C:\\Documents and Settings\\Jim\\Desktop'
+>>> svgfig.SVG("line", x1=10, y1=10, x2=90, y2=90).save()  # saves to Desktop\tmp.svg
+>>> svgfig.default_directory += '\\myproject'
+>>> svgfig.SVG("line", x1=10, y1=10, x2=90, y2=90).save()  # saves to Desktop\myproject\tmp.svg
+```
+
+You can use the following commands to view your SVG file (Linux only):
+
+**inkview(fileName, encoding)**
+
+**inkscape(fileName, encoding)**
+
+**firefox(fileName, encoding)**
+
+| fileName | _default_=None | temporary fileName: note that default\_fileName will be overwritten if not specified |
+|:---------|:---------------|:-------------------------------------------------------------------------------------|
+| encoding | _default_="utf-8" | file encoding |

@@ -1,0 +1,52 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# totrans #
+
+Coordinate transformation functions are Python callables that map a
+pair of arguments to a pair of output values.  This can be cumbersome,
+so totrans converts a minimal text expression to such a function.
+
+This is applied automatically by [Fig](ClassFig.md), [Plot](ClassPlot.md),
+[Frame](ClassFrame.md), and all plottable objects.
+
+## Arguments ##
+
+**totrans(expr, vars, globals, locals)**
+
+| expr | _**required**_ | text expression of the form "f(x,y), g(x,y)" or a Python callable |
+|:-----|:---------------|:------------------------------------------------------------------|
+| vars | _default_=("x", "y") | argument names; if only one value is given, the expression is treated as a complex function |
+| globals | _default_=None | dict of global variables used in the expression; you may want to use Python's builtin `globals()` |
+| locals | _default_=None | dict of local variables |
+
+All symbols from Python's [math library](http://docs.python.org/lib/module-math.html)
+are in scope, so you can say things like `cos(0.1)*x - sin(0.1)*y, sin(0.1)*x + cos(0.1)*y`.
+
+If vars has only one element (e.g. ["z"]), the expression will be
+treated as a complex function, using symbols from Python's
+[cmath library](http://docs.python.org/lib/module-cmath.html) instead.
+
+If expr is already a Python callable, it will be converted from
+complex to a function of two real variables.
+
+## Examples ##
+
+Simply swap two variables:
+```
+totrans("y, x")
+```
+
+Example use of globals.
+```
+totrans("c*x - s*y, s*x + c*y", globals={"c": math.cos(0.1), "s": math.sin(0.1)})
+```
+If "c" and "s" are variables defined in Python's global scope, the same can be accomplished with
+```
+totrans("c*x - s*y, s*x + c*y", globals=globals())
+```
+
+These yield the same transformation:totrans("c*x - s*y, s*x + c*y", globals=globals())
+}}}
+totrans("z**2", vars=("z",))
+totrans(lambda z: z**2)
+}}}```

@@ -1,0 +1,22 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# rgb #
+
+Returns a string of the form "#xxyyzz" where xx, yy, and zz are hexadecimal.
+
+## Arguments ##
+
+**rgb(r, g, b, maximum)**
+
+| r, g, b | _**required**_ | values for red, green, and blue channel |
+|:--------|:---------------|:----------------------------------------|
+| maximum | _default_=1. | the maximum value for each channel |
+
+## Examples ##
+
+```
+>>> rgb(0.5, 0.5, 0.5)
+'#7f7f7f'
+>>> rgb(50, 50, 50, maximum=100)
+'#7f7f7f'
+```

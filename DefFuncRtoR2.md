@@ -1,0 +1,31 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# funcRtoR2 #
+
+Converts a "f(t), g(t)" string to a function acceptable for
+[Curve](ClassCurve.md).  If you pass a string to [Curve](ClassCurve.md),
+funcRtoR2 will be used to convert it to a function.
+
+## Arguments ##
+
+**funcRtoR2(expr, var, globals, locals)**
+
+| expr | _**required**_ | string in the form "f(t), g(t)" |
+|:-----|:---------------|:--------------------------------|
+| var | _default_="t" | name of the independent variable |
+| globals | _default_=None | dict of global variables used in the expression; you may want to use Python's builtin `globals()` |
+| locals | _default_=None | dict of local variables |
+
+All symbols from Python's [math library](http://docs.python.org/lib/module-math.html)
+are in scope, so you can say things like "cos(t), sin(t)".
+
+Example use of globals.
+```
+>>> funcRtoR2("c*t, c*t**2", globals={"c": 12})
+```
+
+This does the same thing.
+```
+>>> c = 12
+>>> funcRtoR2("c*t, c*t**2", globals=globals())
+```

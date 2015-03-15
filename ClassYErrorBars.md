@@ -1,0 +1,52 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# class YErrorBars #
+
+YErrorBars draws y error bars at a set of points.  This is usually used
+before (under) a set of [Dots](ClassDots.md) at the same points.
+
+## Arguments ##
+
+**YErrorBars(d, attribute=value)**
+
+| d | _**required**_ | list of (x,y,yerr...) points |
+|:--|:---------------|:-----------------------------|
+| attribute=value pairs | _keyword list_ | SVG attributes |
+
+If points in `d` have
+  * 3 elements, the third is the symmetric error bar
+  * 4 elements, the third and fourth are the asymmetric lower and upper error bar.  The third element should be negative, e.g. (5, 5, -1, 2) is a bar from 4 to 7.
+  * more than 4, a tick mark is placed at each value.  This lets you nest errors from different sources, correlated and uncorrelated, statistical and systematic, etc.
+
+Note lists like (x,y,yerr) can be constructed with Python's
+`zip` function.
+```
+>>> x = [1,2,3,4,5]
+>>> y = [1,4,9,16,25]
+>>> yerr = [0.1, 0.2, 0.3, 0.4, 0.5]
+>>> zip(x,y)
+[(1, 1, 0.1), (2, 4, 0.2), (3, 9, 0.3), (4, 16, 0.4), (5, 25, 0.5)]
+```
+
+# class XErrorBars #
+
+XErrorBars draws x error bars at a set of points.  This is usually
+used before (under) a set of [Dots](ClassDots.md) and maybe YErrorBars at
+the same points.
+
+In all respects, XErrorBars acts like YErrorBars.
+
+## SVG method ##
+
+XErrorBars and YErrorBars have **SVG** methods, as described in [General features for all primitives](GeneralPrimitive.md).
+
+## Defaults ##
+
+XErrorBars and YErrorBars have the following defaults, as described in [General features for all primitives](GeneralPrimitive.md).
+
+| defaults | {"stroke-width":"0.25pt"} |
+|:---------|:--------------------------|
+
+## Trivia ##
+
+Error bars are implemented with short coordinate axes that usually have only two unlabeled tickmarks.

@@ -1,0 +1,50 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# canvas #
+
+Creates a top-level [SVG](ClassSVG.md) object, allowing the user to
+control the image size and aspect ratio.
+
+## Arguments ##
+
+**canvas(sub, sub, sub..., attribute=value)**
+
+| sub | _optional list_ | nested SVG elements or text/Unicode |
+|:----|:----------------|:------------------------------------|
+| attribute=value pairs | _optional keywords_ | SVG attributes, such as width="400px", viewBox="0 0 100 100" |
+
+### Default attribute values ###
+
+| width | "400px" |
+|:------|:--------|
+| height | "400px" |
+| viewBox | "0 0 100 100" |
+| xmlns | "http://www.w3.org/2000/svg" |
+| xmlns:xlink | "http://www.w3.org/1999/xlink" |
+| version | "1.1" |
+| style | "stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle" |
+| font-family | "Helvetica,Arial,FreeSans,Sans,sans,sans-serif" |
+
+You can change the defaults through the canvas\_defaults variable.  For example,
+```
+>>> import svgfig
+>>> svgfig.canvas().attr["font-family"]
+'font-famica,Arial,FreeSans,Sans,sans,sans-serif'
+>>> svgfig.canvas_defaults["font-family"] = "serif"
+>>> svgfig.canvas().attr["font-family"]
+'serif'
+```
+
+# canvas\_outline #
+
+Creates a top-level [SVG](ClassSVG.md) object with the same arguments, but
+draws an outline around the viewBox and fills the background with
+"cornsilk" (yellowish) to make it easier to find.
+
+Use this to optimize the box outline, then drop the "outline" for a
+normal canvas.
+```
+>>> canvas_outline(...)
+>>> # I like it
+>>> canvas(...)
+```

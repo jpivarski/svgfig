@@ -1,0 +1,103 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+All graphics primitives have the following features:
+  1. [SVG method](#SVG_method.md)
+  1. [Path method](#Path_method.md)
+  1. [Member data](#Member_data.md)
+  1. [Defaults](#Defaults.md)
+
+## SVG method ##
+
+All graphics primitives have a **SVG** method to convert to [SVG](ClassSVG.md).
+
+**SVG(trans)**
+
+| trans | _default_=None | a coordinate transformation function (to override the default) |
+|:------|:---------------|:---------------------------------------------------------------|
+
+## Path method ##
+
+_Some_ graphics primitives also have a **Path** method to convert to [Path](ClassPath.md).
+
+**Path(trans, local)**
+
+| trans | _default_=None | a coordinate transformation function (to override the default) |
+|:------|:---------------|:---------------------------------------------------------------|
+| local | _default_=False | express the path in local coordinates |
+
+Be careful to transform coordinates only once: the following are equivalent
+  * `something.Path(transformation, local=False).SVG()`
+  * `something.Path(transformation, local=True).SVG(transformation)`
+  * `something.Path(None, local=True).SVG(transformation)`
+  * `something.Path(None, local=False).SVG(transformation)`
+though the actual output may differ due to the adaptive sampling algorithm.  (Straight segments
+might look curved under a transformation, and the sampling algorithm will want to give these
+segments more points if it knows about the transformation.)
+
+Generally, you want
+  * `something.Path(transformation, local=False)`
+
+## Member data ##
+
+Every option in a primitive's constructor may be accessed later as member data.  For example,
+```
+>>> line = Line(x1=0, y1=0, x2=1, y2=1)
+>>> line.x1
+0
+>>> line.y1 = 4
+```
+
+Some primitives define additional data members when they are drawn
+with **SVG**.  For example, you can give [XAxis](ClassXAxis.md) a vague
+`ticks` specification and obtain the list of ticks actually created
+through `last_ticks`.
+```
+>>> axis = XAxis(0, 100, 0, ticks=-10)
+>>> axis.SVG()
+<g (9 sub) />
+>>> axis.last_ticks
+{0.0: u'0', 100.0: u'100', 40.0: u'40', 80.0: u'80', 20.0: u'20', 60.0: u'60'}
+```
+
+## Defaults ##
+
+All primitives have default SVG attributes which can be changed at the
+class level or the instance level.
+
+```
+>>> LineAxis.defaults
+{'stroke-width': '0.25pt'}
+>>> lineaxis = LineAxis(0,0,1,1)
+>>> lineaxis.attr
+{'stroke-width': '0.25pt'}
+```
+
+Change the "stroke-width" for `lineaxis`.
+```
+>>> lineaxis.attr["stroke-width"] = "0.5pt"
+>>> lineaxis.attr
+{'stroke-width': '0.5pt'}
+```
+
+Make a new LineAxis; it has the old "stroke-width".
+```
+>>> lineaxis2 = LineAxis(0,0,1,1)
+>>> lineaxis2.attr
+{'stroke-width': '0.25pt'}
+```
+
+Change the "stroke-width" for all subsequent LineAxis instances.
+```
+>>> LineAxis.defaults["stroke-width"] = "0.5pt"
+>>> lineaxis3 = LineAxis(0,0,1,1)
+>>> lineaxis3.attr
+{'stroke-width': '0.5pt'}
+```
+
+(But that didn't change the already-instantiated `lineaxis2`.
+```
+>>> lineaxis2.attr
+{'stroke-width': '0.25pt'}
+```
+
+Some primitives have default options which are not SVG attributes.  They work the same way.

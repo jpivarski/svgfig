@@ -1,0 +1,12 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# pathtoPath #
+
+Converts `SVG("path", d="...")` into `Path(d=[...])`.
+
+## Arguments ##
+
+**path(svg)**
+
+| svg | _**required**_ | an SVG path |
+|:----|:---------------|:------------|

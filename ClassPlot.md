@@ -1,0 +1,62 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# class Plot #
+
+Acts like [Fig](ClassFig.md), but draws a coordinate axis.  You also need to supply plot ranges.
+
+## Arguments ##
+
+**Plot(xmin, xmax, ymin, ymax, obj, obj, obj..., keyword options...)**
+
+| xmin, xmax | _**required**_ | minimum and maximum x values (in the objs' coordinates) |
+|:-----------|:---------------|:--------------------------------------------------------|
+| ymin, ymax | _**required**_ | minimum and maximum y values (in the objs' coordinates) |
+| obj | _optional list_ | drawing primitives |
+| keyword options | _keyword list_ | options defined below |
+
+The drawing primitives must implement the **SVG** method, as described
+in the [Fig](ClassFig.md) documentation.
+
+Unlike [Fig](ClassFig.md), Plot has an implicit coordinate transformation:
+from (xmin, xmax), (ymin, ymax) to its bounding box.  This coordinate
+transformation (a [window](DefWindow.md) transformation) flips the
+direction of the y axis (SVG coordinates have y increasing downward,
+local Plot coordinates have y increasing upward).
+
+Any additional coordinate transformation, given through the "trans"
+keyword option (or given as an argument to the **SVG** method) is
+composed with Plot's implicit window transformation.
+
+The following are keyword options, with their default values:
+
+| trans | None | transformation function |
+|:------|:-----|:------------------------|
+| x, y | 5, 5 | upper-left corner of the Plot in SVG coordinates |
+| width, height | 90, 90 | width and height of the Plot in SVG coordinates |
+| flipx, flipy | False, True | flip the sign of the coordinate axis |
+| minusInfinity | -1000 | if an axis is logarithmic and an object is plotted at 0 or a negative value, -1000 will be used as a stand-in for NaN |
+| atx, aty | 0, 0 | the place where the coordinate axes cross |
+| xticks | -10 | request ticks according to the [standard tick specification](TickSpecification.md) |
+| xminiticks | True | request miniticks according to the [standard minitick specification](TickSpecification.md) |
+| xlabels | True | request tick labels according to the [standard tick label specification](TickSpecification.md) |
+| xlogbase | None | if a number, the axis and transformation are logarithmic with ticks at the given base (10 being the most common) |
+| same for y |  |  |
+| arrows | None | if a new identifier, create arrow markers and draw them at the ends of the coordinate axes |
+| text\_attr | {} | a dictionary of attributes for label text |
+| axis\_attr | {} | a dictionary of attributes for the axis lines |
+
+## Member data ##
+
+These data may be changed at any time.  You do not need to make a list
+of all graphics before creating a Plot; you can create an empty Plot and
+append items to its `d` member.
+
+| d | list of plottable objects |
+|:--|:--------------------------|
+| all keyword options | same meaning as above |
+
+## SVG method ##
+
+Just like [Fig](ClassFig.md), Plot has an **SVG** method to convert its objects into [SVG](ClassSVG.md).
+
+All graphics primitives must supply a **SVG** method with the same arguments.

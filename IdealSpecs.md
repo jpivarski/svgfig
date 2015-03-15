@@ -1,0 +1,60 @@
+How I would like SVGFig to behave.
+
+# Introduction #
+
+I've been wracking my brain for the last several days, trying to figure out how to move SVGFig from its current state to a state where I would like to use it as my main drawing program.  This has proven surprisingly difficult:  there are things that SVGFig doesn't currently do well, but it's hard to figure out exactly what functionality needs to be implemented to make SVGFig work better.
+
+Therefore, I thought I'd try a little experiment:  take some drawings that I've already done, and write out what I would consider the ideal pseudocode to specify the drawing.  I'll try to make the pseudocode as SVGFig-like as possible, but since this is primarily a creative exercise I'm not going to interrupt myself to look up the specs for existing functions.
+
+## First Image: Two Intersecting Lines ##
+![http://svgfig.googlecode.com/svn/wiki/IntersectingLines.png](http://svgfig.googlecode.com/svn/wiki/IntersectingLines.png)
+
+This is a pretty simple one.  Here's how I would want to specify it:
+```
+P = Plot(-1, 4, -1, 4)   # Create the plot with axes.  I'm assuming that the shown axis
+                         # style has previously been set as the default behavior
+f1 = func('x + 1')
+P += Curve(f1, color = red, thickness = 1.5)
+P += Latex('x - y = -1', offset = '0,6').rotate(atan(1)).placeat(0.8, f1(0.8))
+f2 = func('9 - 3*x')
+P += Curve(f2, color = blue, thickness = 1.5)
+P += Latex('3x + y = 9', offset = '0,6').rotate(-atan(3)).placeat(0.7, f2(0.7))
+P += Dot(radius=5, x=2, y=3)   # radius specified in pixels
+P += Latex('(2,3)', valign = center, halign = left, offset = '10,-3').placeat(2,3)
+P.save()
+```
+
+## Second Image: Inverse Functions ##
+![http://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Inverse_Square_Graph.png/200px-Inverse_Square_Graph.png](http://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Inverse_Square_Graph.png/200px-Inverse_Square_Graph.png)
+
+This one is about the same as the last one:
+```
+P = Plot(-1.5, 2.5, -1.5, 2.5, grid = True)
+P += Line(-1.5, -1.5, 2.5, 2.5, thickness = 0.5)
+P += Curve('x^2', color = red, thickness = 1.5)
+P += Latex('x^2', halign = right, offset = '-6,0').placeat(1.5, 2.25)
+P += Curve('sqrt(x)', color = blue, thickness = 1.5)
+P += Latex('\sqrt{x}', valign = top, background = white, offset = '0,-6').placeat(2,sqrt(2))
+P.save()
+```
+
+## Third Image: Simple Link ##
+![http://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Linking_Number_1.svg/200px-Linking_Number_1.svg.png](http://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Linking_Number_1.svg/200px-Linking_Number_1.svg.png)
+
+This one is more about drawing shapes than curves.  The links are made up of quarter and half circles, which come up so often that they are likely to have their own command:
+```
+P = Fig(0,3,0,2)   # this is a Fig with xmin, xmax, ymin, ymax
+P += halfcirc(1,2,1,0, color=red, arrow=[Vstyle,middle])
+     # The first four arguments are x1, y1, x2, y2
+     # semicircle is assumed to go counterclockwise
+P += halfcirc(3,2,3,0, dir=clockwise, color=blue, arrow=[Vstyle,middle])
+q1 = qcirc(1,1,2,0,color=blue)
+q2 = qcirc(1,0,2,1,color=red)
+mydot = Dot(radius=10, (x,y) = intersection(q1, q2), fill=white)
+P += q1 + mydot + q2
+q1 = qcirc(2,1,1,2,color=red)
+q2 = qcirc(2,2,1,1,color=blue)
+mydot = Dot(radius=10, (x,y) = intersection(q1, q2), fill=white)
+P += q1 + mydot + q2
+P.save()
+```

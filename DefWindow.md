@@ -1,0 +1,26 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# window #
+
+The window function creates a coordinate transformation that maps two
+"inner" points (xmin, ymin), (xmax, ymax) to two outer points (x, y),
+(x+width, y+height).
+
+The transformation may be linear or logarithmic in one or both directions.
+
+By default, window flips the direction of the y axis, because SVG
+increases y downward and most plotting applications increase y upward.
+
+## Arguments ##
+
+**window(xmin, xmax, ymin, ymax, x, y, width, height, xlogbase, ylogbase, minusInfinity, flipx, flipy)**
+
+| xmin, xmax | _**required**_ | "inner" x range |
+|:-----------|:---------------|:----------------|
+| ymin, ymax | _**required**_ | "inner" y range |
+| x, y | _default_=0, 0 | "outer" upper-left corner |
+| width, height | _default_=100, 100 | "outer" width and height |
+| xlogbase, ylogbase | _default_=None, None | if a number, transform logarithmically |
+| minusInfinity | _default_=-1000 | if an axis is logarithmic and an object is plotted at 0 or a negative value, -1000 will be used as a stand-in for NaN |
+| flipx | False | if True, reverse the x axis |
+| flipy | True | if True, reverse the y axis |

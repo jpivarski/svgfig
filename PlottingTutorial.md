@@ -1,0 +1,126 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# Plotting Tutorial #
+
+SVGFig allows you to do sophisticated mathematical drawing and offers a lot of control over the output, but sometimes you just want to make a simple plot.  Here are some examples and tips.
+
+Let's plot the parabola _y_ = _x_<sup>2</sup>, the "Hello world" of graphing calculators.
+```
+>>> from svgfig import *
+>>> c = Curve( "t, t**2", -2, 2 )
+>>> p = Plot( -2, 2, -2, 6, c )
+>>> s = p.SVG()
+>>> s.save()
+```
+
+The above code should create a file called "tmp.svg".  It will appear in your current working directory (for UNIX/Linux/Mac computers) or on the Desktop (for Windows computers).  If you open this file in an SVG-enabled web browser (such as [Firefox](http://www.mozilla.com/firefox)) or in an SVG viewer/editor, you should see the following:
+
+![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-1.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-1.png)
+
+**Note:** If you're using [Inkscape](http://www.inkscape.org) or Inkview, the labels on the x-axis will appear to be in the wrong places.  This is because of a bug in these programs, which will hopefully be corrected soon.  In the meantime, you can get the labels to look right using the following command:
+```
+>>> hacks["inkscape-text-vertical-shift"] = True
+```
+(Use this any time after importing from svgfig, and before saving.)
+
+Now that you can see the plot, let's examine the commands used to make it:
+```
+>>> from svgfig import *
+>>> c = Curve( "t, t**2", -2, 2 )
+>>> p = Plot( -2, 2, -2, 6, c )
+>>> s = p.SVG()
+>>> s.save()
+```
+
+  * The first line of code imports all of the classes and functions of svgfig into python.
+  * The second line creates a [Curve](ClassCurve.md) object called `c`.  A Curve can represent any parametrically defined curve in the plane.  In this case, the Curve `c` is the parabola defined by the equations (_x_, _y_) = (_t_, _t_<sup>2</sup>), with _t_ ranging from -2 to 2.
+  * The third line creates a [Plot](ClassPlot.md) object called `p`.  A Plot can be any collection of Curves, Lines, and so forth, together with a pair of coordinates axes.  The first four arguments set the range for the Plot: in this case `x_min` is -2, `x_max` is 2, `y_min` is -2 and `y_max` is 6.  In addition to the axes, the Plot `p` contains the Curve  `c`.
+  * The fourth line creates an [SVG](ClassSVG.md) object from `p`, using the SVG() member function of the [Plot](ClassPlot.md) class.  The resulting SVG object `s` essentially consists of SVG code stored in a tree format.  This includes an SVG command to draw the parabola, as well as commands for the axes, the axis labels, and the tick marks.
+  * Finally, the fifth line saves these SVG commands into the file "tmp.svg", using the save() member function of the [SVG](ClassSVG.md) class.  You can pass the save function an explcit file name if you like, e.g. `save("filename.svg")` or `save("filename.svgz")` for a zipped SVG.
+
+Incidentally, there was no need to perform these commands one at a time.  It would have been quite easy to combine the last three steps together:
+
+```
+>>> from svgfig import *
+>>> c = Curve( "t, t**2", -2, 2 )
+>>> Plot( -2, 2, -2, 6, c ).SVG().save()
+```
+
+We can even combine all four steps into a single command:
+
+```
+>>> from svgfig import *
+>>> Plot( -2, 2, -2, 6, Curve( "t, t**2", -2, 2 ) ).SVG().save()
+```
+
+Why such long syntax?  It makes all steps in the process manifest, so that it's clear how to take it apart if you have to.  For instance, there are no special commands for overlaying two plots, you just add another [Curve](ClassCurve.md) primitive to the list.
+```
+>>> c1 = Curve( "t, t**2", -2, 2 )
+>>> c2 = Curve( "t, t**3", -2, 2, stroke = "blue" )
+>>> Plot(-2, 2, -2, 6, c1, c2).SVG().save()
+```
+![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-2.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-2.png)
+
+They didn't both need to be [Curves](ClassCurve.md).  All the graphics primitives are the same sorts of objects, so we could overlay an [Ellipse](ClassEllipse.md) instead.  (The `stroke="blue"` attribute is the same because it's passed directly to the Scalable Vector Graphics language.  Any SVG attribute can go there.)
+```
+>>> c = Curve("t, t**2", -2, 2)
+>>> e = Ellipse(0, 0, 1, 2, 1, stroke="blue")
+>>> Plot(-2, 2, -2, 6, c, e).SVG().save()
+```
+![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-3.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-3.png)
+
+Now what about the way that the plot looks?  Normally coordinate axes have arrows.  We can do that in SVGFig, but we need to give the arrows a name.  (SVG refers to markers, such as arrowheads, with URLs, just like a webpage.)
+```
+>>> c = Curve("t, t**2", -2, 2)
+>>> Plot(-2, 2, -2, 6, c, arrows="myarrows").SVG().save()
+```
+![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-4.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-4.png)
+
+Of course, all of the previous exmaples are the sorts of plots we see in math textbooks.  Physicists usually plot data in boxes like this:
+```
+>>> c = Curve("t, t**2", -2, 2)
+>>> Frame(-2, 2, -2, 6, c).SVG().save()
+```
+![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-5.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-5.png)
+
+[Plot](ClassPlot.md) and [Frame](ClassFrame.md) are drop-in replacements for [Fig](ClassFig.md), which doesn't draw an axis and doesn't transform to a specified range unless explicitly told to do so.  You can use [Fig](ClassFig.md) to have more control over the axes.  For instance, suppose we only wanted the X axis, and not the y axis:
+```
+>>> c = Curve("t, t**2", -2, 2)
+>>> xa = XAxis(-2, 2, 0)
+>>> mywin = window(-2, 2, -2, 6, x=10, width=80)
+>>> Fig(c, xa, trans = mywin).SVG().save()
+```
+![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-6.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-6.png)
+
+The [window](DefWindow.md) transformation `mywin` passed as a keyword argument to [Fig](ClassFig.md) takes the role of the "-2, 2, -2, 6" that we've been passing to [Plot](ClassPlot.md) and [Frame](ClassFrame.md).  This [window](DefWindow.md) transforms _xmin_, _xmax_, _ymin_, _ymax_ = (-2, 2, -2, 6) to a box in the user coordinates whose upper-left corner is _x_, _y_ = (10, 0) with a width of 80% and a height of 100%.
+
+Though you could construct it from the ground-up, the [Plot](ClassPlot.md) and [Frame](ClassFrame.md) classes provide convenient options for setting tick marks.
+  * You can ask for exactly 10 y-ticks, even though it doesn't divide the range very well.
+```
+>>> c = Curve("t, t**2", -2, 2)
+>>> Plot(-2, 2, -2, 6, c, yticks=10).SVG().save()
+```
+![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-7.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-7.png)
+  * We can give SVGFig a little more freedom to pick nice tick values (multiples of 2 and 5) while specifying an upper limit on the number.  A negative number like -20 is interpreted as "no more than 20 ticks."
+```
+>>> c = Curve("t, t**2", -2, 2)
+>>> Plot(-2, 2, -2, 6, c, yticks=-20).SVG().save()
+>>> Plot(-2, 2, -2, 6, c, yticks=-7).SVG().save()
+```
+![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-8.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-8.png) ![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-8_5.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-8_5.png)
+  * We can also specify the exact locations of every tick by passing a Python list.
+```
+>>> c = Curve("t, t**2", -2, 2)
+>>> Plot( -2, 2, -2, 6, c, yticks = [2,3,4,5] ).SVG().save()
+```
+![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-9.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-9.png)
+  * And we can additionally control the text labels of the ticks by passing a Python dictionary.
+```
+>>> c = Curve("t, t**2", -2, 2)
+>>> Plot (-2, 2, -2, 6, c, yticks = {2:"two", 3:"three", 4:"four", 5:"five"} ).SVG().save()
+```
+![http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-10.png](http://svgfig.googlecode.com/svn/wiki/PlottingTutorial-10.png)
+
+Similarly, the shorter, unlabeled ticks can be controlled with xminiticks and yminiticks (though the dictionary method doesn't apply).  You can find more in the [tick specification reference](TickSpecification.md).
+
+For a complete tutorial, see the [documentation](Reference.md).

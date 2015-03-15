@@ -1,0 +1,77 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# class CurveAxis #
+
+CurveAxis draws a Python callable as an axis along a parametric curve.
+Curves are adaptively sampled, meaning that the function is evaluated
+at more points near corners and along curves and at fewer points along
+straight segments.
+
+The sampling algorithm starts at the endpoints and bisects until three
+consecutive points are nearly linear, or until reaching a recursion limit.
+
+## Arguments ##
+
+**CurveAxis(f, low, high, ticks, miniticks, labels, logbase, arrow\_start, arrow\_end, text\_attr, attribute=value)**
+
+| f | _**required**_ | a Python callable or string in the form "f(t), g(t)", just like [Curve](ClassCurve.md) |
+|:--|:---------------|:---------------------------------------------------------------------------------------|
+| low, high | _**required**_ | left and right endpoints |
+| ticks | _default_=-10 | request ticks according to the [standard tick specification](TickSpecification.md) |
+| miniticks | _default_=True | request miniticks according to the [standard minitick specification](TickSpecification.md) |
+| labels | True | request tick labels according to the [standard tick label specification](TickSpecification.md) |
+| logbase | _default_=None | if a number, the x axis is logarithmic with ticks at the given base (10 being the most common) |
+| arrow\_start | _default_=None | if a new string identifier, draw an arrow at the low-end of the axis, referenced by that identifier; if an SVG marker object, use that marker |
+| arrow\_end | _default_=None | if a new string identifier, draw an arrow at the high-end of the axis, referenced by that identifier; if an SVG marker object, use that marker |
+| text\_attr | _default_={} | SVG attributes for the text labels |
+| attribute=value pairs | _keyword list_ | SVG attributes |
+
+The function must take one argument and return two values, just like
+[Curve](ClassCurve.md).  If it is a string, it will be passed to
+[funcRtoR2](DefFuncRtoR2.md).  For complex functions, use an explicit call
+to [funcRtoC](DefFuncRtoC.md) and for real functions, use an explicit call
+to [funcRtoR](DefFuncRtoR.md), which return a function in the right
+format.
+
+Arrows must be referenced by new string identifiers, otherwise, they
+could reference the wrong markers.
+
+## SVG method ##
+
+CurveAxis has an **SVG** method, as described in [General features for all primitives](GeneralPrimitive.md).
+
+## Defaults ##
+
+CurveAxis has defaults as described in [General features for all primitives](GeneralPrimitive.md).
+
+| defaults | {"stroke-width":"0.25pt"} | default SVG attributes for the curve and tick marks |
+|:---------|:--------------------------|:----------------------------------------------------|
+| text\_defaults | {"stroke":"none", "fill":"black", "font-size":5} | default SVG attributes for the text |
+
+CurveAxis also has the same defaults as [Curve](ClassCurve.md).
+
+| random\_sampling | True | if False, bisect with a point exactly halfway between pairs of points; if True, randomly choose a point between 30% and 70% |
+|:-----------------|:-----|:----------------------------------------------------------------------------------------------------------------------------|
+| recursion\_limit | 15 | number of subdivisions before giving up; if 15, sampling algorithm can visit _at most_ 2<sup>15</sup> points |
+| linearity\_limit | 0.05 | maximum deviation (in SVG units) from a straight line |
+| discontinuity\_limit | 5 | minimum deviation (in SVG units) between points that is considered continuous |
+
+## Special data members ##
+
+After the CurveAxis has been evaluated with **SVG**, it gains three
+new data memebers.
+  * **last\_ticks**: explicit dict of value, label pairs for major ticks
+  * **last\_miniticks**: explicit list of values for miniticks
+  * **last\_samples**: an iterable of Curve.Sample objects:
+```
+>>> c = CurveAxis(funcRtoR("x**2"), 0, 1)
+>>> c.SVG()
+>>> for s in c.last_samples:
+...     print s.x, s.y, s.X, s.Y
+...
+```
+
+Curve.Sample has four data members, `x`, `y`, `X`, `Y`.  These are
+coordinates in local (lowercase) and global (uppercase) coordinates.
+If a coordinate is `None`, there is a break in the curve, due to a
+discontinuity in the supplied function.

@@ -1,0 +1,30 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# make\_symbol #
+
+Creates a new instance of an SVG symbol to avoid cross-linking objects.  The user must supply a new identifier.
+
+## Arguments ##
+
+**make\_symbol(id, shape, attribute=value)**
+
+| id | _**required**_ | a new identifier (string/Unicode) |
+|:---|:---------------|:----------------------------------|
+| shape | _default_="dot" | the shape name from **symbol\_templates** |
+| attribute=value list | _keyword list_ | modify the SVG attributes of the new symbol, e.g. stroke="red", fill="yellow" |
+
+## Templates ##
+
+Symbol templates come from a dictionary in the svgfig namespace called **symbol\_templates**.
+
+| "dot" | a circular dot |
+|:------|:---------------|
+| "box" | a square box |
+| "uptri" | an upward-pointing triangle |
+| "downtri" | a downward-pointing triangle |
+
+```
+>>> import svgfig
+>>> svgfig.symbol_templates
+{'box': <symbol (1 sub) overflow='visible' viewBox='0 0 1 1' />, ...
+```

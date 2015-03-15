@@ -1,0 +1,404 @@
+## Why version 2? ##
+
+In principle, SVGFig is supposed to be general and flexible enough to have a basic core that never changes, like TeX.  If so, then that core needs to be very well designed, and it's hard to assess an idea before it has been at least partially implemented.  I built at least four generations of pre-SVGFigs, tested them on actual analysis projects, and returned to the drawing board each time.  SVGFig 1.x was a great improvement, and represents a nearly-converged core.  Jim B. and I worked with it and brainstormed for a few months, deciding in the end to re-write the core one last time.  From SVGFig 2.0 onward, development should be upward: making interesting and highly-usable tools for specific types of plots, legends, figures, etc.  If you'd like to help define the plotting layer by contributing, [send me an e-mail](mailto:jpivarski@gmail.com) and get a [Google/GMail account](https://www.google.com/accounts/NewAccount) if you don't already have one (for SVN and wiki access).
+
+## SVGFig 2.0.0alpha2 ##
+
+To download, click here: [svgfig-2.0.0alpha2.tgz](http://svgfig.googlecode.com/files/svgfig-2.0.0alpha2.tgz)
+
+As the name implies, this is not a stable release, but something to show curious onlookers what's happening.  I'll assume that the reader is already familiar with [SVGFig 1.x](Introduction.md).
+
+As briefly as possible, here's what's new:
+  * Python now "knows" a little about the SVG it's representing: how to transform it, the best order to read and present attributes from and to the user, and ultimately, it will be able to calculate intersections between paths and basic shapes and use that to construct figures.
+  * Transformation functions now immediately change the objects they are applied to.  Different coordinate systems can be maintained in the same figure by explicitly delaying the evaluation of a subtree.  This makes it easier to understand what SVGFig is doing, since a small number of different coordinate systems can be deliberately created by the user, but every transformation does not spawn off a new system.
+  * The old SVGFig maintained a distinction between transformable objects (with class names like Path) from plain SVG (created with code like SVG("path", ...)).  This distinction is no longer necessary: everything is now an SVG object.  Some of these objects, like [Curve](ClassCurve.md) (now subclasses of SVG), dynamically generate SVG data on output.
+  * The adaptive-sampling algorithm used by Curve is now compiled for speed.  I have instructions on my [!PyMinuit project page](http://code.google.com/p/pyminuit/) for compiling on Windows, so it should still be cross-platform.  (That's kept me from compiling any part of SVGFig before.)
+  * Everything is now pickleable, so you can save and restore the dynamic objects in addition to the static SVG.  This lets you save a curve as a function, rather than a set of points.
+  * Jim B.'s LaTeX-to-path module will be included in a later alpha version.  This is the most asked-for feature.  I have seen it working, so rest assured, it is definitely possible, even on Windows.  The version you can download now has a very large LaTeX command name-to-Unicode conversion table, which is useful, but not as pretty as real LaTeX.
+  * Includes a viewer that lets you pop open a persistent window and quickly render the SVG objects you're working on.  I find this to be essential for building up a plot and debugging.  Programs for plotting in physics applications have been doing this for years.
+  * Some annoying features in 1.x that generated a lot of output accidentally (try typing "for s in svg: print s" in 1.x sometime) have become explicit function calls.
+
+## Tour guide ##
+
+Have a copy of the code in front of you?  Good.  I'll point out the main features.
+
+### setup.py and the svgfig directory ###
+
+SVGFig has been divided into several files for better organization, and there are now two compiled extension modules, so `setup.py` got a bit more complicated.  When invoked as
+```
+% python setup.py install
+```
+or
+```
+% python setup.py install --home=~
+```
+it attempts to compile `_curve.c` (which has no dependencies) and `_viewer.c` (which depends on `gtk+-2.0`, `gthread-2.0`, `cairo`, and `rsvg-2`).  If either of these fails, the installation proceeds, you will just have fewer features.  I highly recommend the viewer, but it's not essential.
+
+### interactive.py ###
+
+Now that you have installed SVGFig, you will generally invoke it by executing
+```
+>>> from svgfig.interactive import *
+```
+on the command line.  This loads into the user's namespace only those functions which are useful for interactive plotting.  The others become accessible by their long names, like
+```
+>>> svgfig.defaults.xml_header = "<!-- change the default header -->"
+```
+
+### The SVG representation ###
+
+The SVG class (defined in `svg.py`) is basically the same as it was in 1.x, with some tweaks.  (That's what I meant when I said that the core shows evidence of convergence.)  There's still a single SVG class which is differentiated into SVG element types by their tag name, e.g. SVG("line"...), SVG("circle"...), SVG("g"...).  The major new thing is that SVGFig knows the difference between a "line" and a "circle".  The first way you can see this is in the constructor:
+```
+>>> SVG("line", 0, 0, 10, 30)
+<line x1=0 y1=0 x2=10 y2=30 stroke='black'>
+>>> SVG("circle", 10, 30, 5, fill="yellow")
+<circle cx=10 cy=30 r=5 stroke='black' fill='yellow'>
+```
+
+When the SVG tag is a "line", SVGFig looks in `defaults.py` for line's calling signature, which is
+```
+>>> defaults.signature_line
+['x1', 'y1', 'x2', 'y2', 'stroke']
+```
+(and editable at run-time).  Only the first four arguments are required (see "defaults.require\_line"), the rest have default values ("defaults.defaults\_line").  In short, you construct SVG elements like you would a Python function from a reasonably well-designed library.  From the signature, SVGFig also knows which are the most important attributes and shows them in order in the string representation.  Other attributes, of which there might be many, are suppressed.
+```
+>>> SVG("line", 0, 0, 10, 30, stroke_width=5)
+<line x1=0 y1=0 x2=10 y2=30 stroke='black' (1 other attribute)>
+```
+
+If there are a few elements you use a lot, you can create short-cuts which let you to call them like ordinary functions:
+```
+>>> line = shortcut("line")
+>>> line(0, 0, 10, 30, stroke_width=5)
+<line x1=0 y1=0 x2=10 y2=30 stroke='black' (1 other attribute)>
+```
+
+In SVGFig 1.x, I didn't allow attribute access as member data
+```
+>>> SVG("line", 0, 0, 10, 30).x2
+10
+```
+even though this is natural and a bit less typing than the "[tree-index](http://code.google.com/p/svgfig/wiki/ClassSVG#Tree_indexing)" mechanism:
+```
+>>> SVG("line", 0, 0, 10, 30)["x2"]
+10
+```
+That's because attribute names might collide with names of member data and member functions in the SVG class.  But now that some attributes are more important than others, namely the signature attributes, you can do this for signature attributes.  (We'll just have to make sure that only attributes with safe names are put into the signature.)  You can still use the [tree-index](http://code.google.com/p/svgfig/wiki/ClassSVG#Tree_indexing) mechanism introduced in version 1, which is particularly useful for accessing attributes of children, sub-children, sub-sub-sub-children, etc.
+
+Some SVG element types have no signature because the children are more important than attributes.  No signature means that the inline arguments are interpreted as children:
+```
+>>> print defaults.signature_g
+None
+>>> SVG("g", SVG("line", 0, 0, 10, 30))
+<g (1 child)>
+```
+
+There are a few oddballs that need both keyword arguments and children, so "calling" an SVG object like a function adds children inline:
+```
+>>> s = SVG("text", 50, 50)("what to say")
+>>> s
+<text 'what to say' x=50 y=50 stroke='none' fill='black'>
+>>> print s.xml()
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="400" height="400" viewBox="0, 0, 100, 100" font-family="Helvetica, Arial, FreeSans, Sans, sans, sans-serif" style="font-size:4px; stroke-width:0.5pt; text-anchor:middle" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+    <text x="50" y="50" stroke="none" fill="black" >what to say</text>
+</svg>
+```
+
+SVG elements now know how to transform themselves and calculate their bounding boxes; this functionality is also defined in `defaults.py`:
+```
+>>> s = SVG("line", 0, 0, 10, 30)
+>>> s
+<line x1=0 y1=0 x2=10 y2=30 stroke='black'>
+>>> s.transform("y, x")
+>>> s
+<line x1=0.0 y1=0.0 x2=30.0 y2=10.0 stroke='black'>
+>>> s.bbox()
+<BBox xmin=0 xmax=30 ymin=0 ymax=10>
+>>> defaults.transform_line
+<function transform_line at 0xb7d1cd4c>
+>>> defaults.bbox_line
+<function bbox_line at 0xb7d1cd84>
+```
+
+The rest of the changes to the SVG class are minor conveniences:
+  * The element type, list of children, and attributes are now called `tag`, `children`, and `attrib` to conform to the convention established by [ElementTree](http://effbot.org/zone/element-index.htm).
+  * Iteration over an SVG object only steps through its children, rather than recursively walking over the whole tree, which is more in line with its list-like member functions.  Recursive iteration over the whole tree is accessible through the "walk" function:
+```
+>>> deepsvg = SVG("g", SVG("g", SVG("text", 10, 10)(SVG("tspan", "hello"))), SVG("rect", 0, 0, 20, 20))
+>>> for treeindex, obj in deepsvg.walk():
+... 
+```
+  * Printing an SVG element just shows its string representation, as a normal Python user would expect.  To get a very useful print-out of the tree structure, use the "tree" function.
+```
+>>> deepsvg.tree()
+None                 <g (2 children)>
+[0]                  . . <g (1 child)>
+[0, 0]               . . . . <text x=10 y=10 stroke='none' fill='black' (1 child)>
+[0, 0, 0]            . . . . . . <tspan 'hello'>
+[0, 0, 0, 0]         . . . . . . . . 'hello'
+[1]                  . . <rect x=0 y=0 width=20 height=20 stroke='black' fill='none'>
+```
+  * Now you can both save to and load from gzipped SVG, just end the fileName in "svg.gz" or "svgz".
+  * Saved filenames are appended to a list called `svg.saved` so that you can find them on your hard drive.  Linux users expect everything to appear in their working directory and Windows users expect everything to appear on their desktop, so there are different behaviors on the two systems, and the saved list is a safety net.
+```
+>>> deepsvg.inkview()
+>>> deepsvg.save("some.svg")
+>>> svg.saved
+['/tmp/svgfig-qfb9Uj.svg', 'some.svg']
+```
+  * Assuming you have the dependencies and it compiled, you can quickly view any SVG fragment with the "view" method, in addition to "inkview", "inkscape", and "firefox" to see it in different browsers.  The "view" method does not need disk access (no temporary files).
+```
+>>> deepsvg.view()
+>>> svg.saved
+['/tmp/svgfig-qfb9Uj.svg', 'some.svg']
+```
+  * Subclasses of SVG represent XML preprocessing instructions, comments, and CDATA.  They are inert in Python, but at least working on an image in SVGFig doesn't automatically destroy this information.
+  * Everything can be [pickled](http://docs.python.org/lib/module-pickle.html).  Even functions (like transformation functions or parametric curves), as long as these functions don't depend on local variables which are not saved.  Functions saved from one version of Python and read in another aren't guaranteed to work, but there's a warning if you try to do that.
+
+## Transformation in trans.py ##
+
+One of the main features of the original SVGFig is that it allows arbitrary non-linear coordinate transformations, to make it easy to create new types of plots.  The new `trans` module has some basic utilities for transformation functions, which are simply Python functions from _x,y_ to _x',y'_, and some SVG subclasses that inhibit or modify this behavior.
+
+Often, you'll transform SVG objects by calling their `svg.transform()` method.  The SVG element knows how to transform itself because this behavior is defined for each SVG tag in the `defaults`.  But the operation is potentially destructive: the old coordinates will be replaced by new ones.  To instead get a transformed copy of the object, use the unbound `transform()` function:
+```
+>>> svg = SVG("line", 0, 0, 1, 1)
+>>> svg2 = transform("x*2, y", svg)
+>>> svg2
+<line x1=0.0 y1=0.0 x2=2.0 y2=1.0 stroke='black'>
+>>> svg
+<line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+```
+There are several bound-unbound pairs that work like this: `tonumber` (turns SVG strings to numbers whereever possible), `transform` (transforms), and `evaluate` (turns dynamic objects into pure SVG).  The bound method modifies the object in question and the unbound method makes a modified copy.  (Confusion between in-place operations and operations that return a copy have plagued many systems based on functional languages--- hopefully this solves the problem for SVGFig!)
+
+(You can copy objects without modification using `clone`, which is just a reference to the `deepcopy` function in the standard Python `copy` library.)
+```
+>>> clone(svg)
+<line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+```
+When duplicating parts of an image, it's important to `clone` them rather than just assigning them.  When you say `x = y` in Python, `x` becomes a reference to the same thing that `y` references.  This minimizes memory usage, but at a price: changing the color of `y` automatically changes the color of `x`, which may be undesired.  To decouple the objects, use `x = clone(y)`.)
+
+The transformation function was expressed as a string in the example above, but that is simply for convenience--- the string was converted into Python code and used as a Python function like any other.  The format of the string is a 2-tuple representing the output _x'_ and _y'_ values, and it is expressed in _x_ and _y_.  Here are some equivalent ways to rotate 0.1 radians, to give a sense of the possibilities:
+```
+1.
+>>> transform("cos(0.1)*x - sin(0.1)*y, sin(0.1)*x + cos(0.1)*y", SVG("line", 0, 0, 1, 0))
+<line x1=0.0 y1=0.0 x2=0.995004165278 y2=0.0998334166468 stroke='black'>
+
+2.
+>>> import math
+>>> transform(lambda x, y: (math.cos(0.1)*x - math.sin(0.1)*y, math.sin(0.1)*x + math.cos(0.1)*y), SVG("line", 0, 0, 1, 0))
+<line x1=0.0 y1=0.0 x2=0.995004165278 y2=0.0998334166468 stroke='black'>
+
+3.
+>>> def myrot(x,y):
+...     c = math.cos(0.1)
+...     s = math.sin(0.1)
+...     return c*x - s*y, s*x + c*y
+... 
+>>> transform(myrot, SVG("line", 0, 0, 1, 0))
+<line x1=0.0 y1=0.0 x2=0.995004165278 y2=0.0998334166468 stroke='black'>
+
+4.
+>>> transform(rotation(0.1), SVG("line", 0, 0, 1, 0))
+<line x1=0.0 y1=0.0 x2=0.995004165278 y2=0.0998334166468 stroke='black'>
+
+5.
+>>> transform("z*(cos(0.1) + sin(0.1)*1j)", SVG("line", 0, 0, 1, 0))
+<line x1=0.0 y1=0.0 x2=0.995004165278 y2=0.0998334166468 stroke='black'>
+```
+
+The first is a string, expressing the product of the rotation matrix with an _(x, y)_ vector, the second is the same thing as an inline lambda expression, and the third is a multi-line user-defined function (which is much more readable!).  The fourth uses a function from the `trans` module which generates rotations (after all, that's a pretty common thing to want to do), and the fifth is a rotation in the complex plane: note that there is only one variable, _z_.  When a function takes only one argument, that argument is interpreted as a complex number, where the real and imaginary components are used in place of _x_ and _y_.
+
+The useful [window](DefWindow.md) transformation from version 1 can be found in this module, with the small exception that `flipy` is by default `False` (so that nested windows don't alternate between "up" being `+y` and `-y`.  You'll often be setting `flipy=True`, but at least it's explicitly in your control.
+
+## Anti-transformations in trans.py ##
+
+All of this would allow you to build a graphic once: for instance, you could create SVG objects representing your data, using data values as coordinates, transform that to the coordinate system of the page, draw axes for scale, and print out your plot.  But if you want to change a value in the data, you'd either have to reverse the transformation (not recommended, and sometimes not possible) or re-run the script (not interactive, which is a bummer).  Ideally, we want the plot window to be a window to a world which has its own coordinate system, where values are expressed in mass and temperature, etc.  To do that, we borrow an idea from functional programming, in which trees that are not supposed to be executed are "quoted" for delayed evaluation.
+```
+>>> svg = Delay(SVG("line", 0, 0, 1, 1))
+>>> svg.tree()
+None                 <Delay (1 child) (0 trans)>
+[0]                  . . <line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+>>> svg.transform(rotation(0.1))
+>>> svg.tree()
+None                 <Delay (1 child) (1 trans)>
+[0]                  . . <line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+>>> print svg.xml()
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="400" height="400" viewBox="0, 0, 100, 100" font-family="Helvetica, Arial, FreeSans, Sans, sans, sans-serif" style="font-size:4px; stroke-width:0.5pt; text-anchor:middle" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+    <g >
+        <line x1="0.0" y1="0.0" x2="0.89517074863119772" y2="1.0948375819248539" stroke="black" />
+    </g>
+</svg>
+```
+
+The `Delay` class is a subclass of SVG, and it acts like an SVG group, but it has the special property that transformations are held back until you actually render the SVG (e.g. `view` and `save` also cause an evaluation).  After viewing, the transformations are still delayed
+```
+None                 <Delay (1 child) (1 trans)>
+[0]                  . . <line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+```
+so you can view your graphic as often as you like without changing the internal coordinates.  The "1 trans" refers to a single transformation function in the queue: multiple transformations are stored up so that they can all be applied as though they were a single composed function.
+
+The `evaluate()` functions (bound and unbound) force an evaluation of the graphic, even if you don't view it.  A cache of the most recent evaluation is hidden as `_svg` member data:
+```
+>>> svg._svg.tree()
+None                 <g (1 child)>
+[0]                  . . <line x1=0.0 y1=0.0 x2=0.895170748631 y2=1.09483758192 stroke='black'>
+```
+The unbound version of `evaluate()` is useful for getting a "pure-SVG" copy of a structure.  This lets you work with a dynamic object on one hand and something close to the SVG that will actually be generated on the other.
+
+Since the point of all of this was to keep a different coordinate system inside a plot window as out, the plot functions are all descendents of `Delay`.
+
+The simplest anti-transformation is `Freeze`.  Putting objects in a `Freeze` group ensures that they remain in global coordinates, since all transformation functions applied to them are ignored.
+
+More interesting is `Pin`.  Often figures will include sub-drawings whose positions are to be transformed, but not their graphical content.  For example, perhaps the user wants to set smiley-faces at all of his or her data points.  When the data points are transformed to the page, which might involve stretching in the _x_ direction, squashing in the _y_ direction, and certainly a flip so that increasing _y_ is down, the user does not want all the smiles to be distorted.  (This is not the best example because complicated data markers should be constructed with SVG "symbol" and "use" elements, but it illustrates the problem in general.)  The `Pin` class wraps SVG such that all transformations apply to a single point, and the graphical content is only translated to follow that point.
+```
+>>> car = SVG("path", poly((48, 86), (50, 83), (52, 86)) + \
+...                   poly((47, 86), (53, 86), (53, 90), (47, 90), loop=True), \
+...           fill="white")
+>>> fig = SVG("g", SVG("circle", 50, 50, 33), car)
+>>> fig.view()
+
+>>> for angle in 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0:
+...     fig += transform(rotation(-angle, 50, 50), car)
+... 
+>>> fig.view()
+
+>>> car = Pin(50, 83, car)
+>>> fig = SVG("g", SVG("circle", 50, 50, 33), car)
+>>> for angle in 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0:
+...     fig += transform(rotation(-angle, 50, 50), car)
+... 
+>>> fig.view()
+```
+
+![http://svgfig.googlecode.com/svn/wiki/Version2Announcement_ferris1.png](http://svgfig.googlecode.com/svn/wiki/Version2Announcement_ferris1.png) ![http://svgfig.googlecode.com/svn/wiki/Version2Announcement_ferris2.png](http://svgfig.googlecode.com/svn/wiki/Version2Announcement_ferris2.png) ![http://svgfig.googlecode.com/svn/wiki/Version2Announcement_ferris3.png](http://svgfig.googlecode.com/svn/wiki/Version2Announcement_ferris3.png)
+
+_(For a discussion of `poly`, used in the definition of this path, see the section on pathdata below.)_
+
+To aid in computations, `transformation_angle()` and `transformation_jacobian()` compute the angle at a given point in a transformation and the Jacobian.  The angle is used in cases like the one above, where a transformation might be very complicated, but the rotation at a given point is a single number.  The Jacobian is in a more general sense the derivative of the transformation; it's a matrix of partial derivatives _((dfx/dx, dfy/dx), (dfx/dy, dfy/dy))_ which captures the shear and mirror-flip of the transformation at that point.  SVG can only handle linear transformations, but the Jacobian approximates the full transformation at a point as a linear transformation matrix.  Passing this to small SVG shapes can distort them in a way that looks consistent with the full transformation.  This is fun to apply to small bits of text.
+
+## Optimization and expansion of Curve ##
+
+The [adaptive-sampling algorithm](http://code.google.com/p/svgfig/wiki/Introduction#(Almost)_Everything's_a_Parametric_Function) introduced in SVGFig 1.x (before that, actually) works as it did before.  It still evaluates the function at more points in the curvier regions than the straight ones, and breaks the line where it detects discontinuities.  However, the code that actually generates the path data from a parametric function has been hardened into compiled C code for efficiency.
+
+Also, the `Curve` class has become a subclass of `SVG`, and it does the same kind of lazy evaluation as `Delay`, computing the path on demand when you wish to view it, saving a cached copy of the last evaluation in the `_svg` data member.  Also like `Delay`, it maintains a list of transformations to apply when evaluated.
+```
+>>> s = SVG("g", Curve("x**2", 0, 1))
+>>> s.tree()
+None                 <g (1 child)>
+[0]                  . . <Curve <function x -> x**2 at 0xb7c9b454> from 0 to 1 stroke='black' fill='none'>
+>>> evaluate(s).tree()
+None                 <g (1 child)>
+[0]                  . . <path d=[('M', 0.0, 0.0), ('L', 1.0, 1.0)] stroke='black' fill='none'>
+```
+
+But `Curve` has also become a generalized arrow/coordinate axis/whatever with the addition of `marks`.  The `marks` member data is a list of SVG elements to draw along the curve at specified positions.
+
+```
+>>> from svgfig.interactive import *
+>>> c = Curve("cos(t), sin(t)", 0.3, 6.0)
+>>> for t in 1., 2., 3., 4., 5.:
+...     c.add(t, transform("1.5*x, 1.5*y", glyphs.farrowhead))
+... 
+>>> c2 = Curve("0.7*cos(t), 0.7*sin(t)", 0.3, 6.0, marks=ticks(0.3, 6.0), farrow=True, barrow=True)
+>>> Fig(c, c2).view()
+```
+
+![http://svgfig.googlecode.com/svn/wiki/Version2Announcement_arrowmarks.png](http://svgfig.googlecode.com/svn/wiki/Version2Announcement_arrowmarks.png)
+
+We no longer need Ticks, LineTicks, CurveTicks, and special Line types with arrows, because that can all be emulated by setting the `marks` appropriately.  Moreover, you can also do new things, like put an arrowhead halfway along a line (gratuitously demonstrated above).
+
+The `marks` is a list of (position, SVG) pairs, where the SVG will be rotated to follow the curve.  Marks will be drawn in order, so by sorting this list you can control what overlaps what.  Treating a `Curve` as a list (with methods like `append`, etc) acts on the `marks`, and there are a few convenience functions: `add` (put a new mark at a given position; it's better than `append` because it copies the given object for you), `drop` (remove all marks within a short distance of a given point), `wipe` (eliminate a whole interval), `keep` (eliminate everything but an interval), `tick` (add a tick-mark), `closest` (return a list of all marks within a short distance of a given point, in order of their distance).  The `drop`, `wipe`, and `keep` functions can be restricted to ticks which match a given pattern.
+
+Also in the `curve` module are functions that generate optimal tick-marks, `ticks` and `logticks`.  This gives you more control over the initial set of tick-marks.
+```
+>>> ticks(0.3, 6.)
+[(1.0, <tick>), (1.0, u'1'), (2.0, <tick>), (2.0, u'2'), (3.0, <tick>), (3.0, u'3'), (4.0, <tick>), (4.0, u'4'),
+ (5.0, <tick>), (5.0, u'5'), (6.0, <tick>), (6.0, u'6'), (0.5, <minitick>), (1.5, <minitick>), (2.5, <minitick>),
+ (3.5, <minitick>), (4.5, <minitick>), (5.5, <minitick>)]
+```
+
+### Random stuff in glyphs.py, defaults.py, and pathdata.py ###
+
+We've seen arrowheads and tick-marks on curves: these shapes were not hard-coded, they're objects defined in `glyphs.py`.  This is intended to be a growing library of dingbats for plot-building, all defined as SVG objects.  They have special string representations which make long lists of tick-marks readable, as in the above example.  This representation only applies to the actual objects in `glyphs.py`, copied objects are displayed as normal.
+```
+>>> glyphs.tick, clone(glyphs.tick)
+(<tick>, <path d='M0 -1.5L0 1.5' stroke='black' fill='none'>)
+```
+
+The same module also has a large dictionary mapping LaTeX names to Unicode symbols, which lets you use Python's string formatting feature to build strings with special symbols (without knowing all the Unicode numbers).
+```
+>>> Canvas(70, 10,
+...        SVG("text", 0, 0)("%(hbar)s %(to)s 0 limit %(Rightarrow)s everything %(to)s %(infty)s" % latex),
+...        xmin=-100, xmax=100, ymin=-20, ymax=20).view()
+```
+
+![http://svgfig.googlecode.com/svn/wiki/Version2Announcement_unicodeTeX.png](http://svgfig.googlecode.com/svn/wiki/Version2Announcement_unicodeTeX.png)
+
+The output is not LaTeX, and offers no means of superscripting or subscripting.  We plan to add a module to invoke a real LaTeX process and convert TeX expressions into path images.  What this dictionary provides is a convenient way of looking up Unicode symbols, since many people know LaTeX names by heart.  There are four other dictionaries that work in a similar way: `glyphs.greek`, `glyphs.hebrew`, `glyphs.cyrillic`, and `glyphs.currency` (none of them are in the interactive namespace).  They map character names to symbols in some common non-Latin alphabets.
+
+We've already seen `defaults.py`; it stores all the system-wide defaults in one place.  The specialized behavior of every SVG element type is defined here, as well as the default `xml_header`, and version numbers.  Any of them can be modified at run-time.
+```
+>>> SVG("g", "hey").tree()
+None                 <g (1 child)>
+[0]                  . . 'hey'
+
+>>> defaults.signature_g = ["id"]
+>>> SVG("g", "hey").tree()
+None                 <g id='hey'>
+```
+
+The `pathdata.py` module has some internal functions for dealing with path data (the `d` attribute of `SVG("path")`).  This is where path strings are parsed to become lists of numerical commands which can be transformed.
+
+In addition, there are some convenience functions for creating these lists of numerical commands from lists of numbers.  The most common is `poly` for straight lines.
+```
+>>> poly((1, 10), (2, 20), (3, 30))
+[('M', 1, 10), ('L', 2, 20), ('L', 3, 30)]
+
+>>> xlist = [1, 2, 3]
+>>> ylist = [10, 20, 30]
+>>> poly(*zip(xlist, ylist))
+[('M', 1, 10), ('L', 2, 20), ('L', 3, 30)]
+```
+
+There's also `bezier`, `velocity`, `foreback`, and `smooth`, just as in the old [Poly](ClassPoly.md) interface.
+
+### Plot containers ###
+
+Plots of functions or data in SVGFig are container objects like `SVG("g")` which maintain a separate coordinate system for the data.  Thus, your data can be SVG objects with coordinates in slugs versus fortnights, but the plot container, a subclass of `Delay` (see above), dynamically transforms those coordinates to distances in the SVG file.  Unlike a `Delay` object, which you must supply with coordinate transformations, plots build their own transformation (usually only one, not a list) from the bounding box of the data and/or user-specified `xmin`, `xmax`, `ymin`, `ymax`.
+
+The simplest plot container is `Fig`, which stretches your objects to fit in a box (the standard canvas size with 10% margins by default).  It doesn't add any coordinate axes.
+```
+>>> Fig(SVG("line", 0, 0, 1, 1)).tree()
+None                 <Fig (1 child) xmin=None xmax=None ymin=None ymax=None>
+[0]                  . . <line x1=0 y1=0 x2=1 y2=1 stroke='black'>
+>>> evaluate(Fig(SVG("line", 0, 0, 1, 1))).tree()
+None                 <g (1 child)>
+[0]                  . . <line x1=10.0 y1=10.0 x2=90.0 y2=90.0 stroke='black'>
+```
+When building a graphic, it will often be useful to quickly view it with `Fig(graphic).view()`.  Note that it takes a `flipy=True` option (`False` by default) to put increasing `y` in the right direction, namely up.  (`Fig` has all the `window` options.)
+
+In the old SVGFig, it was difficult to make a canvas with a specified aspect ratio.  (There were three things users needed to change: the graphic's dimensions, the !viewBox, and the coordinates of all the drawn objects.  Not optimal!)  To rectify this, we've introduced `Canvas` as a plot object which will typically contain another plot.  The new `Canvas` creates a top-level `SVG("svg")` element (which controls the dimensions of the whole image) and also scales all of its contents to fit.  A typical usage would be
+```
+>>> from math import *
+>>> goldenratio = (1. + sqrt(5.))/2.
+>>> Canvas(100*goldenratio, 100, Plot(SVG("path", poly(*mydata)))).view()
+```
+which plots a set of data points defined in `mydata` with coordinate axes.  The `Plot` class (which doesn't yet exist) fills a standard 100-by-100 square with margins, but then the `Canvas` stretches this to the golden ratio and saves the image with golden-ratio dimensions.
+
+The two standard workhorse plot containers will be `Plot` and `Frame`, which draw their contents with coordinate axes (two intersecting axes with arrows in the case of `Plot` and an enclosed box in the case of `Frame`).  Neither of these have been written yet, but it should be easy to do, given the tool set that has been developed thus far.  These will both be subclasses of `Fig`.
+
+Eventually, SVGFig will have many different types of plot containers: some for organizing data, like `FrameArray` which fills N-by-M `Frame` plots with linked coordinate axes, and some for curvilinear coordinate systems, like `Polar` for radial data and `Sky` for Hammer-Aitoff projections of the sky.  In addition, there will be standard classes for making error bars, histograms, and such using `Curve` so that they behave properly in the curvilinear plots.  (This is not just showing off: straight cross-hairs on a polar plot cross at the wrong place.)
+
+Beyond that, there will be data containers in a new module called `data.py` which dynamically generate the plot container and a single dataset (as a histogram, scatter plot, functional curve, etc.).  The data containers dynamically set the bounds of the plot from the data, so if you add points to a histogram, you don't need to update the `Plot`'s `ymax`.  The idea is that one dataset controls the scale of the plot, and other datasets may be overlaid but are entirely passive.  (Many plotting packages implicitly work like this in that only the first plot command sets the axes; subsequent commands with an "overlay" option just fill the same window.  This method does the same thing from a single object, so that the whole series can be drawn with one command, unlike most plotting packages.)
+
+It would also be good to have an object for drawing stacked histograms; adding them up and drawing them in the right order is usually a multi-line pain in most plotting packages, but this is a very common task.
+
+Naturally, there should be legends and info-boxes and other decorations for a well-annotated plot.  One useful type of object would be an arrow (or line) with endpoints in two different coordinate systems, the data coordinates and the plot coordinates.  This would make it easy to point out a peak (determined from the data in data coordinates) with a text label in the "upper-right" of the plot (some position in plot coordinates like (0.7, 0.7)).  I've never seen anything like that, but there have been many occasions when it would have been useful.
+
+Basically, SVGFig lowers the bar to creating general solutions for common tasks, so that we no longer need to say, "I wish there was a function to draw such-and-such."  Make it yourself!  Post it on the SVGFig-recipes message board!  _(Note to self: I need to make a SVGFig-recipes message board.)_  If it's useful to a wide audience, I'll add it to the SVGFig package.  This should be like LaTeX, easy to type up a quick document, and easy to program modules for other people to use.  There may even be something like a CTAN repository someday.

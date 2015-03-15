@@ -1,0 +1,65 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# class Fig #
+
+A Fig stores graphics primitive objects and applies a single
+coordinate transformation to them.  To compose coordinate systems,
+nest Fig objects.
+
+Fig objects can always be converted into [SVG](ClassSVG.md).
+
+## Arguments ##
+
+**Fig(obj, obj, obj..., trans=function)**
+
+| obj | _optional list_ | a list of drawing primitives |
+|:----|:----------------|:-----------------------------|
+| trans | _default_=None | a coordinate transformation function |
+
+The drawing primitives are either classes that implement the **SVG**
+method (see below) or are [SVG](ClassSVG.md) objects.  If [SVG](ClassSVG.md),
+coordinates are _not_ transformed.  This allows you to mix objects in
+local coordinates with objects in global coordinates, such as text
+labels.
+
+The transformation function can be a Python callable with two
+arguments and two return values or a string in "x, y" form.  String
+expressions are converted with the [totrans](DefTotrans.md) function.
+
+### Examples ###
+
+```
+>>> fig = Fig(Line(0,0,1,1), Rect(0.2,0.2,0.8,0.8), trans="2*x, 2*y")
+>>> print fig.SVG().xml()
+<g>
+    <path d='M0 0L2 2' />
+    <path d='M0.4 0.4L1.6 0.4ZL1.6 1.6ZL0.4 1.6ZL0.4 0.4ZZ' />
+</g>
+>>> print Fig(fig, trans="x/2., y/2.").SVG().xml()
+<g>
+    <path d='M0 0L1 1' />
+    <path d='M0.2 0.2L0.8 0.2ZL0.8 0.8ZL0.2 0.8ZL0.2 0.2ZZ' />
+</g>
+```
+
+## Member data ##
+
+These data may be changed at any time.  You do not need to make a list
+of all graphics before creating a Fig; you can create an empty Fig and
+append items to its `d` member.
+
+| d | list of plottable objects |
+|:--|:--------------------------|
+| trans | transformation function |
+
+## SVG method ##
+
+Fig objects are converted into [SVG](ClassSVG.md) with the **SVG** method.
+
+**SVG(trans)**
+
+| trans | _default_=None | a coordinate transformation function (to override the default) |
+|:------|:---------------|:---------------------------------------------------------------|
+
+All graphics primitives must supply a **SVG** method with the same
+arguments.

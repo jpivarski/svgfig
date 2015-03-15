@@ -1,0 +1,41 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg style="stroke:black; fill:none; stroke-width:0.5pt; stroke-linejoin:round; text-anchor:middle" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial,FreeSans,Sans,sans,sans-serif" height="400px" width="400px" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100">
+
+<g>
+
+<path d="M10 25L15.041 36.8084L21.298 49.2562L25.474 56.2024L28.9454 61.147L32.142 65.0341L35.1996 68.1547L37.0165 69.7321L39.5546 71.5904L42.3326 73.1629L44.866 74.1763L47.0685 74.7315L49.19 74.9795L51.6863 74.9111L54.0852 74.4785L56.8039 73.5533L59.3856 72.2472L61.7169 70.7098L64.8877 68.0736L67.5411 65.3847L71.0102 61.2054L74.1306 56.8036L77.8852 50.7006L80.8543 45.2503L85.3151 36.0263L90 25" />
+
+<g>
+
+<path stroke-width="0.25pt" d="M12 75.75L12 74.25M14 75.75L14 74.25M16 75.75L16 74.25M18 75.75L18 74.25M22 75.75L22 74.25M24 75.75L24 74.25M26 75.75L26 74.25M28 75.75L28 74.25M32 75.75L32 74.25M34 75.75L34 74.25M36 75.75L36 74.25M38 75.75L38 74.25M42 75.75L42 74.25M44 75.75L44 74.25M46 75.75L46 74.25M48 75.75L48 74.25M52 75.75L52 74.25M54 75.75L54 74.25M56 75.75L56 74.25M58 75.75L58 74.25M62 75.75L62 74.25M64 75.75L64 74.25M66 75.75L66 74.25M68 75.75L68 74.25M72 75.75L72 74.25M74 75.75L74 74.25M76 75.75L76 74.25M78 75.75L78 74.25M82 75.75L82 74.25M84 75.75L84 74.25M86 75.75L86 74.25M88 75.75L88 74.25" />
+
+<path stroke-width="0.25pt" d="M20 76.5L20 73.5M40 76.5L40 73.5M90 76.5L90 73.5M60 76.5L60 73.5M70 76.5L70 73.5M10 76.5L10 73.5M80 76.5L80 73.5M30 76.5L30 73.5M50 76.5L50 73.5" />
+
+<text font-size="5" transform="translate(20, 81) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">–1.5</text>
+
+<text font-size="5" transform="translate(40, 81) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">–0.5</text>
+
+<text font-size="5" transform="translate(90, 81) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">2</text>
+
+<text font-size="5" transform="translate(60, 81) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">0.5</text>
+
+<text font-size="5" transform="translate(70, 81) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">1</text>
+
+<text font-size="5" transform="translate(10, 81) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">–2</text>
+
+<text font-size="5" transform="translate(80, 81) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">1.5</text>
+
+<text font-size="5" transform="translate(30, 81) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">–1</text>
+
+<text font-size="5" transform="translate(50, 81) rotate(0)" stroke="none" dominant-baseline="text-before-edge" fill="black">0</text>
+
+<path stroke-width="0.25pt" d="M10 75L90 75" />
+
+</g>
+
+</g>
+
+</svg>
+

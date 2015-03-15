@@ -1,0 +1,41 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# class Poly #
+
+Poly draws a curve specified by a sequence of points.  The curve may
+be piecewise linear, like a polygon, or a Bézier curve.
+
+## Arguments ##
+
+**Poly(d, mode, loop, attribute=value)**
+
+| d | _**required**_ | list of tuples representing points and possibly control points |
+|:--|:---------------|:---------------------------------------------------------------|
+| mode | _default_="L" | "lines", "bezier", "velocity", "foreback", "smooth", or an abbreviation |
+| loop | _default_=False | if True, connect the first and last point, closing the loop |
+| attribute=value pairs | _keyword list_ | SVG attributes |
+
+The format of the tuples in `d` depends on the `mode`.
+
+| "lines"/"L" | `d`=[(x,y), (x,y), ...] | piecewise-linear segments joining the (x,y) points |
+|:------------|:------------------------|:---------------------------------------------------|
+| "bezier"/"B" | `d`=[(x, y, c1x, c1y, c2x, c2y), ...] | Bézier curve with two control points (control points preceed (x,y), as in SVG paths).  If (c1x,c1y) and (c2x,c2y) both equal (x,y), you get a linear interpolation ("lines") |
+| "velocity"/"V" | `d`=[(x, y, vx, vy), ...] | curve that passes through (x,y) with velocity (vx,vy) (one unit of arclength per unit time); in other words, (vx,vy) is the tangent vector at (x,y).  If (vx,vy) is (0,0), you get a linear interpolation ("lines"). |
+| "foreback"/"F" | `d`=[(x, y, bx, by, fx, fy), ...] | like "velocity" except that there is a left derivative (bx,by) and a right derivative (fx,fy).  If (bx,by) equals (fx,fy) (with no minus sign), you get a "velocity" curve |
+| "smooth"/"S" | `d`=[(x,y), (x,y), ...] | a "velocity" interpolation with (vx,vy)`[i]` equal to ((x,y)`[i+1]` - (x,y)`[i-1])/2`: the minimal derivative |
+
+## SVG method ##
+
+Poly has an **SVG** method, as described in [General features for all primitives](GeneralPrimitive.md).
+
+## Path method ##
+
+Poly has a **Path** method, as described in [General features for all primitives](GeneralPrimitive.md).
+
+## Considerations ##
+
+Note that only the points and control points will be placed by
+coordinate transformations.  A "lines" interpolation, for instance,
+will be piecewise linear in all coordinate transformations, even
+non-linear ones.  To get more realistic curvature, add more explicit
+points.

@@ -1,0 +1,37 @@
+_(This page applies only to the 1.x branch of SVGFig.)_
+
+# class VLine #
+
+VLine draws a vertical line.  If the coordinates curve, the line will
+curve.
+
+## Arguments ##
+
+**VLine(y1, y2, x, attribute=value)**
+
+| y1, y2 | _**required**_ | y range |
+|:-------|:---------------|:--------|
+| x | _**required**_ | x position |
+| attribute=value pairs | _keyword list_ | SVG attributes |
+
+# class HLine #
+
+HLine draws a horizontal line.  If the coordinates curve, the line will
+curve.
+
+## Arguments ##
+
+**HLine(y1, y2, x, attribute=value)**
+
+| x1, x2 | _**required**_ | x range |
+|:-------|:---------------|:--------|
+| y | _**required**_ | y position |
+| attribute=value pairs | _keyword list_ | SVG attributes |
+
+## SVG method ##
+
+VLine and HLine have **SVG** methods, as described in [General features for all primitives](GeneralPrimitive.md).
+
+## Path method ##
+
+VLine and HLine have **Path** methods, as described in [General features for all primitives](GeneralPrimitive.md).
